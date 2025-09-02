@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Interactive Thermal/Fluids Tools</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* page-specific helpers */
+    .thumb{display:block;width:100%;aspect-ratio:16/9;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px}
+    .thumb svg{display:block;width:100%;height:auto}
+    .card h3{margin:6px 0 4px}
+    .card p{margin:0;color:#4b5563}
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
+    .btn.primary:hover{filter:brightness(1.05)}
+    .btn.ghost{background:#ffffffcc}
+    .hero-cta{margin-top:10px}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Interactive Thermal/Fluids Tools</h1>
+      <p class="subtitle">
+        Explore core equations through interactive plots and schematics. Adjust inputs → see the math respond.
+      </p>
+      <!-- jump to the bottom guidance block -->
+      <div class="hero-cta">
+        <a class="btn ghost" href="#howto">How to use ↓</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ME 310 -->
+    <h2 style="margin:18px 0 8px">ME 310 • Fundamentals of Fluid Dynamics</h2>
+    <section class="grid">
+      <!-- Moody -->
+      <a class="card link-card" href="./me310/moody.html" aria-label="Open Moody Chart">
+        <div class="thumb">
+          <img src="assets/thumbs/moody.png" alt="Moody chart preview"
+              style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+        </div>
+        <h3>Moody Chart (General)</h3>
+        <p>Friction factor vs Re with ε/D families (Haaland & Colebrook).</p>
+      </a>
+
+      <!-- Isentropic -->
+      <a class="card link-card" href="./me310/isentropic.html" aria-label="Open Isentropic Relations">
+        <div class="thumb">
+          <img src="assets/thumbs/isentropic.png" alt="Isentropic relations preview"
+              style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+        </div>
+        <h3>Isentropic Relations</h3>
+        <p>Static→stagnation ratios vs Mach for chosen γ.</p>
+      </a>
+
+      <!-- Bernoulli -->
+      <a class="card link-card" href="./me310/bernoulli_head_explorer.html" aria-label="Open Bernoulli Head Explorer">
+        <div class="thumb">
+          <img src="assets/thumbs/bernoulli.png" alt="Bernoulli head-loss preview"
+              style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+        </div>
+        <h3>Bernoulli Head Explorer</h3>
+        <p>H = Δz + Hₚ balanced by major (fL/D) + minor (ΣK) losses.</p>
+      </a>
+    </section>
+
+
+    <!-- ME 320 -->
+    <h2 style="margin:22px 0 8px">ME 320 • Heat Transfer</h2>
+    <section class="grid">
+      <div class="card">
+        <h3>Coming soon</h3>
+        <p>Steady 1-D conduction, convection correlations, radiation exchange…</p>
+      </div>
+    </section>
+
+    <!-- ME 400 -->
+    <h2 style="margin:22px 0 8px">ME 400 • Energy Conversion Systems</h2>
+    <section class="grid">
+      <div class="card">
+        <h3>Coming soon</h3>
+        <p>Cycles, efficiencies, component maps…</p>
+      </div>
+    </section>
+
+    <!-- Guidance + feedback + about (anchor target) -->
+    <section id="howto" class="grid" style="margin-top:18px">
+      <div class="card">
+        <h3>How to use</h3>
+        <p class="note">
+          Click a card to open a simulation. Change one control at a time, then watch the plot and equations update together.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Feedback & Ideas</h3>
+        <p class="note">
+          Have an idea to make this better or a new simulation to add? I’d love to hear it.
+        </p>
+        <a class="btn primary" href="./feedback.html">Give feedback</a>
+      </div>
+
+      <div class="card">
+        <h3>About this project</h3>
+        <p class="note">
+          Built by <b>Aarav Shah</b> (UIUC ME ’26) under the guidance of <b>Prof. Tang</b>.  
+          Ongoing effort to create interactive teaching tools for fluids & thermal sciences.
+          Tech: Java, JavaScript/D3, HTML, CSS. Questions or ideas? <a href="mailto:aarav.r.shah@gmail.com">Email me</a>.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> UIUC • Prof. Tang • Interactive Tools</p>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+</body>
+</html>

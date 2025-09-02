@@ -1,0 +1,297 @@
+<!-- /me310/moody.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Moody Chart (General)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    window.MathJax = { chtml:{scale:0.9}, options:{renderActions:{addMenu:[]}} };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Moody Chart (General)</h1>
+      <p class="subtitle">
+        Drag <b>anywhere on the plot</b> to change Re. Default input is <b>relative roughness ε/D</b>.
+        Toggle to enter <b>ε</b> and <b>D</b> instead (the fields stay synchronized).
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- unified back button placement -->
+    <nav class="back-row">
+      <a href="../index.html" class="back-home" aria-label="Back to home">
+        <span class="chev">←</span> Home
+      </a>
+    </nav>
+
+    <!-- Equations / guidance -->
+    <section class="card">
+      <div class="eqwrap">
+        <div class="note" style="margin-bottom:6px"><b>Key relations</b></div>
+        <div class="eqbig">
+          \( \displaystyle \textbf{Laminar (Re}<2100):\; f=\frac{64}{Re}. \)<br/>
+          \( \displaystyle \textbf{Turbulent (Re}\gtrsim 4000):\;
+             \underbrace{\frac{1}{\sqrt f}=-2\log_{10}\!\Big(\frac{\varepsilon/D}{3.7}+\frac{2.51}{Re\sqrt f}\Big)}_{\text{Colebrook–White (implicit)}}
+             \;\approx\;
+             \underbrace{\left[-1.8\log_{10}\!\left(\frac{6.9}{Re}+\left(\frac{\varepsilon/D}{3.7}\right)^{1.11}\right)\right]^{-2}}_{\text{Haaland (explicit)}}. \)
+        </div>
+      </div>
+      <p class="note" style="margin:8px 0 0">
+        <b>Transition (Re ≈ 2100–4000):</b> onset of turbulence depends on disturbances and surface condition; there’s no single formula,
+        so engineers <b>interpolate</b> across this band. The chart shows only the <i>laminar extension</i> (dotted) in this region.
+      </p>
+    </section>
+
+    <!-- Controls -->
+    <section class="card">
+      <div class="controls">
+        <div class="ctl">
+          <label>Re (10²–10⁸)</label>
+          <input id="re" type="number" min="100" max="100000000" step="100" value="10000" />
+        </div>
+
+        <div class="ctl" style="flex:1; min-width:300px">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+            <label><input id="useED" type="checkbox" /> Enter ε and D instead</label>
+            <span class="badge">ε/D: <span id="rrBadge">2.00e-4</span></span>
+          </div>
+
+          <!-- Mode A: relative roughness only -->
+          <div id="modeRR" style="display:flex; gap:10px; align-items:center; margin-top:6px">
+            <label>ε/D</label>
+            <input id="rr" type="number" min="0" max="0.05" step="0.0001" value="0.00020" />
+          </div>
+
+          <!-- Mode B: epsilon & diameter -->
+          <div id="modeED" style="display:none; gap:10px; align-items:center; margin-top:6px">
+            <label>ε (m)</label><input id="eps" type="number" step="1e-6" value="0.000040" />
+            <label>D (m)</label><input id="D"   type="number" min="0.005" step="0.001" value="0.20" />
+          </div>
+        </div>
+
+        <div class="ctl">
+          <label><input type="checkbox" id="compare" checked/> Show Colebrook point</label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Plot -->
+    <section class="card">
+      <div id="moody-plot" class="viz"></div>
+      <div id="info" class="note" style="margin-top:10px"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="../index.html" class="back-home"><span class="chev">←</span> Home</a>
+    </div>
+  </footer>
+
+  <script>
+    // ---------- Small utils ----------
+    const $ = id => document.getElementById(id);
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+    const num = (v, fallback) => Number.isFinite(parseFloat(v)) ? parseFloat(v) : fallback;
+    const fmtExp = v => (Number.isFinite(v) ? v.toExponential(2) : '—');
+
+    // ---------- Friction models ----------
+    const fLaminar = Re => 64/Re;
+    function fHaaland(Re, rr){
+      const R = Math.max(4000, Re);
+      const t = (6.9/R) + Math.pow(rr/3.7, 1.11);
+      return 1/Math.pow(-1.8*Math.log10(t),2);
+    }
+    function fColebrook(Re, rr){
+      const R = Math.max(4000, Re);
+      let X = 1/Math.sqrt(fHaaland(R, rr));
+      for(let i=0;i<60;i++){
+        const Xn = -2*Math.log10( (rr/3.7) + 2.51/(R*X) );
+        if (!Number.isFinite(Xn)) break;
+        if (Math.abs(Xn - X) < 1e-7){ X = Xn; break; }
+        X = 0.6*X + 0.4*Xn;
+      }
+      const f = 1/(X*X);
+      return Number.isFinite(f) ? f : fHaaland(R, rr);
+    }
+
+    // ---------- State ----------
+    let Re = 10000;
+    const MIN_F = 0.0081;
+
+    // ε/D sync
+    const rrFromED = () => {
+      const eps = num($('eps').value, 0);
+      const D   = num($('D').value, 0.2);
+      return D > 0 ? (eps/D) : 0;
+    };
+    function syncFromRR(){
+      const rr = clamp(num($('rr').value, 0.0002), 0, 0.05);
+      $('rr').value = rr;
+      $('rrBadge').textContent = fmtExp(rr);
+      const D = num($('D').value, 0.2);
+      $('eps').value = rr * D;
+    }
+    function syncFromED(){
+      const rr = clamp(rrFromED(), 0, 0.05);
+      $('rr').value = rr;
+      $('rrBadge').textContent = fmtExp(rr);
+    }
+
+    // ---------- Draw ----------
+    let api = null;
+
+    function draw(){
+      const host = $('moody-plot');
+      const W = Math.max(640, host.clientWidth || 640), H = 520, m = 84;
+      d3.select('#moody-plot').html('');
+      const svg = d3.select('#moody-plot').append('svg').attr('viewBox',`0 0 ${W} ${H}`);
+
+      const x = d3.scaleLog().domain([100,1e8]).range([m, W-m]).clamp(true);
+      const y = d3.scaleLog().domain([0.008,0.1]).range([H-m, m]).clamp(true);
+      const fy = f => y(Math.max(MIN_F, f));
+
+      // Axes
+      svg.append('g').attr('transform',`translate(0,${H-m})`).call(d3.axisBottom(x).ticks(12,"~g"));
+      svg.append('g').attr('transform',`translate(${m},0)`).call(d3.axisLeft(y).ticks(10,"~g"));
+      svg.append('text').attr('x',W/2).attr('y',H-10).attr('text-anchor','middle').text('Reynolds number, Re');
+      svg.append('text').attr('x',-(H/2)).attr('y',16).attr('text-anchor','middle').attr('transform','rotate(-90)').text('Darcy friction factor, f');
+
+      // Grid
+      x.ticks(20).forEach(t=>svg.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',m).attr('y2',H-m).attr('stroke','#0001'));
+      y.ticks(20).forEach(t=>svg.append('line').attr('x1',m).attr('x2',W-m).attr('y1',y(t)).attr('y2',y(t)).attr('stroke','#0001'));
+
+      // Transition band
+      svg.append('rect').attr('x',x(2100)).attr('width',x(4000)-x(2100)).attr('y',m).attr('height',H-2*m)
+        .attr('fill','#9ca3af33');
+      svg.append('text').attr('x', x(2500)).attr('y', m+18).attr('font-size',12).attr('fill','#475569')
+        .text('Transition (interpolate)');
+
+      // Laminar: solid to 2100, dotted to 4000
+      const Rstart = Math.max(100, 640); // 64/0.1 = 640
+      const L1 = d3.range(Rstart, 2100, (2100-Rstart)/160).map(R=>[x(R), fy(fLaminar(R))]);
+      const L2 = d3.range(2100, 4000, (4000-2100)/150).map(R=>[x(R), fy(fLaminar(R))]);
+      svg.append('path').attr('d', d3.line()(L1)).attr('stroke','#111').attr('stroke-width',2).attr('fill','none');
+      svg.append('path').attr('d', d3.line()(L2)).attr('stroke','#111').attr('stroke-width',2).attr('fill','none').attr('stroke-dasharray','4 4');
+      svg.append('text').attr('x', x(1200)).attr('y', fy(fLaminar(1200))-8).attr('font-size',12).text('Laminar');
+
+      // Turbulent families (Haaland), start at 4000
+      const famRR = [0,5e-5,1e-4,2e-4,5e-4,1e-3,2e-3,5e-3,1e-2,2e-2,5e-2];
+      famRR.forEach(rval=>{
+        const pts=[]; for(let R=4000; R<=1e8; R*=1.12){ pts.push([x(R), fy(fHaaland(R,rval))]); }
+        svg.append('path').attr('d', d3.line()(pts)).attr('stroke','#888').attr('stroke-width',1).attr('fill','none');
+        const fHigh = fHaaland(1e8, rval);
+        svg.append('text').attr('x', x(1e8)-4).attr('y', fy(fHigh)).attr('font-size',11).attr('text-anchor','end')
+          .text(rval.toPrecision(1));
+      });
+      svg.append('text').attr('x', x(5e4)).attr('y', fy(0.04)).attr('font-size',12).attr('fill','#374151')
+        .text('Turbulent');
+
+      // Selected ε/D family (highlight)
+      const rrSel = clamp(num($('rr').value, rrFromED()), 0, 0.05);
+      const sel=[]; for(let R=4000; R<=1e8; R*=1.12){ sel.push([x(R), fy(fHaaland(R,rrSel))]); }
+      svg.append('path').attr('d', d3.line()(sel)).attr('stroke','#e11d48').attr('stroke-width',3).attr('fill','none');
+
+      // Probe & points
+      const probe = svg.append('line').attr('x1',x(Re)).attr('x2',x(Re)).attr('y1',m).attr('y2',H-m)
+        .attr('stroke','#111').attr('stroke-dasharray','4 3');
+      const pT = svg.append('circle').attr('r',7).attr('fill','#0ea5e9').attr('stroke','#111'); // Haaland
+      const pC = svg.append('circle').attr('r',7).attr('fill','#22c55e').attr('stroke','#111'); // Colebrook
+      const pL = svg.append('circle').attr('r',7).attr('fill','#ef4444').attr('stroke','#111'); // Laminar ext
+
+      function positionPoints(){
+        const rrNow = clamp(num($('rr').value, rrFromED()), 0, 0.05);
+        const fH  = fHaaland(Re, rrNow);
+        const fCb = fColebrook(Re, rrNow);
+        const fL  = fLaminar(Re);
+
+        probe.attr('x1',x(Re)).attr('x2',x(Re));
+
+        if (Re < 2100){
+          pL.attr('cx', x(Re)).attr('cy', fy(fL)).style('display', null);
+          pT.style('display','none'); pC.style('display','none');
+          updateInfo(rrNow, {reg:'laminar', fL});
+        } else if (Re >= 4000){
+          pT.attr('cx', x(Re)).attr('cy', fy(fH)).style('display', null);
+          pC.style('display', $('compare').checked ? null : 'none')
+             .attr('cx', x(Re)).attr('cy', fy(fCb));
+          pL.style('display','none');
+          updateInfo(rrNow, {reg:'turbulent', fH, fCb});
+        } else {
+          pL.attr('cx', x(Re)).attr('cy', fy(fL)).style('display', null);
+          pT.style('display','none'); pC.style('display','none');
+          updateInfo(rrNow, {reg:'transition', fL});
+        }
+      }
+      positionPoints();
+
+      // Drag anywhere to set Re
+      const dragTo = ev=>{
+        const xm = clamp(ev.x, m, W-m);
+        setRe(x.invert(xm));
+      };
+      svg.append('rect').attr('x',m).attr('y',m).attr('width',W-2*m).attr('height',H-2*m)
+        .attr('fill','transparent').style('cursor','ew-resize')
+        .call(d3.drag().on('drag', dragTo));
+      const drag = d3.drag().on('drag', dragTo);
+      probe.call(drag); pT.call(drag); pL.call(drag);
+
+      return { positionPoints };
+    }
+
+    function updateInfo(rrNow, data){
+      let base = `<b>Re:</b> ${Math.round(Re).toLocaleString()} &nbsp;•&nbsp; <b>ε/D:</b> ${fmtExp(rrNow)}`;
+      let line='';
+      if (data.reg==='laminar'){
+        line = ` | <b>Laminar</b> → f = 64/Re = <b>${(data.fL).toPrecision(4)}</b>`;
+      } else if (data.reg==='turbulent'){
+        const diff = 100*(data.fH - data.fCb)/data.fCb;
+        line = ` | <b>Turbulent</b> → f (Haaland) = <b>${data.fH.toPrecision(4)}</b>`
+             + ($('compare').checked ? `, f (Colebrook) = <b>${data.fCb.toPrecision(4)}</b>, Δ% = ${diff.toFixed(2)}` : '')
+             + `. At very large Re the flow approaches <i>fully rough</i> → f ≈ f(ε/D) only (little vertical motion with Re).`;
+      } else {
+        line = ` | <b>Transition</b> 2100–4000 → interpolate; red dot is the laminar extension (dotted segment).`;
+      }
+      $('info').innerHTML = base + line;
+    }
+
+    // ---------- Wiring ----------
+    function setRe(v){
+      Re = clamp(num(v, Re), 100, 1e8);
+      $('re').value = Math.round(Re);
+      if (api) api.positionPoints();
+    }
+
+    function init(){
+      // Default: ε/D mode
+      syncFromRR();
+      api = draw();
+
+      $('re').addEventListener('input', e=> setRe(e.target.value));
+
+      $('useED').addEventListener('change', e=>{
+        const useED = e.target.checked;
+        $('modeRR').style.display = useED ? 'none' : 'flex';
+        $('modeED').style.display = useED ? 'flex' : 'none';
+        if (useED) syncFromED(); else syncFromRR();
+        api = draw();
+      });
+
+      $('rr').addEventListener('input', ()=>{ syncFromRR(); api = draw(); });
+      $('eps').addEventListener('input', ()=>{ syncFromED(); api = draw(); });
+      $('D').addEventListener('input',   ()=>{ syncFromED(); api = draw(); });
+      $('compare').addEventListener('change', ()=> api && api.positionPoints());
+      window.addEventListener('resize', ()=> api = draw());
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
