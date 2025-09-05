@@ -1,4 +1,3 @@
-<!-- /me310/moody.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,83 +6,122 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script>
-    window.MathJax = { chtml:{scale:0.9}, options:{renderActions:{addMenu:[]}} };
-  </script>
+  <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    /* controls layout */
+    .controls{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+    /* keep these exact widths on large screens */
+    @media (min-width:1100px){ .controls{grid-template-columns:.8fr 1.2fr 1.6fr} }
+
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+    .ctl label{font-size:15px;color:var(--ink)}
+    .rowflex{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+    .inline{display:flex;align-items:center;gap:10px}
+    .inline label{white-space:nowrap}
+
+    /* keep ε and D on ONE line (override global width:100%) */
+    #modeED, #modeRR{flex-wrap:nowrap}
+    .num-sm{flex:0 0 140px}
+    .controls input.num-sm[type="number"]{width:140px !important}
+
+    #re{width:170px}
+    .badge{display:inline-block;border:1px solid var(--line);border-radius:999px;background:#fff;padding:3px 8px;font-size:12px}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff;overflow-x:visible}
+
+    /* Colebrook block larger (force MathJax to scale here only) */
+    #cbkEq{line-height:1.3; font-size:15px}
+    #cbkEq .mjx-container{font-size:1.9em !important}
+
+    .site-header .note{color:#fff;opacity:.9}
+    .region-label{fill:#111;font-size:16px}
+    
+  </style>
 </head>
 <body>
   <header class="site-header">
     <div class="container">
-      <h1>Moody Chart (General)</h1>
+      <h1>Friction Factor and Moody Chart</h1>
       <p class="subtitle">
-        Drag <b>anywhere on the plot</b> to change Re. Default input is <b>relative roughness ε/D</b>.
-        Toggle to enter <b>ε</b> and <b>D</b> instead (the fields stay synchronized).
+        Drag <b>anywhere on the plot</b> to change Re. Default input is <b>ε</b> and <b>D</b>.
+        Toggle to enter <b>relative roughness ε/D</b> instead (fields stay synchronized).
+        <br/>
+        <span class="note">Assumptions: circular pipe, internal flow, Darcy <i>f</i>, isothermal, steady.</span>
+        <a class="btn primary" style="margin-left:10px"
+           href="../feedback.html?course=ME%20310&sim=Moody" target="_blank" rel="noopener">Send feedback</a>
       </p>
     </div>
   </header>
 
   <main class="container">
-    <!-- unified back button placement -->
     <nav class="back-row">
-      <a href="../index.html" class="back-home" aria-label="Back to home">
-        <span class="chev">←</span> Home
-      </a>
+      <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
     </nav>
 
-    <!-- Equations / guidance -->
+    <!-- Key relations -->
     <section class="card">
       <div class="eqwrap">
-        <div class="note" style="margin-bottom:6px"><b>Key relations</b></div>
+        <div class="note" style="margin-bottom:6px"><b>Friction factor of flow in circular pipe</b></div>
         <div class="eqbig">
-          \( \displaystyle \textbf{Laminar (Re}<2100):\; f=\frac{64}{Re}. \)<br/>
-          \( \displaystyle \textbf{Turbulent (Re}\gtrsim 4000):\;
-             \underbrace{\frac{1}{\sqrt f}=-2\log_{10}\!\Big(\frac{\varepsilon/D}{3.7}+\frac{2.51}{Re\sqrt f}\Big)}_{\text{Colebrook–White (implicit)}}
-             \;\approx\;
-             \underbrace{\left[-1.8\log_{10}\!\left(\frac{6.9}{Re}+\left(\frac{\varepsilon/D}{3.7}\right)^{1.11}\right)\right]^{-2}}_{\text{Haaland (explicit)}}. \)
+          \( \displaystyle \textbf{Laminar flow (Re}<2100):\; f=\frac{64}{Re}. \)
+        </div>
+        <div class="eqbig" style="margin-top:6px">
+          \( \displaystyle \textbf{Turbulent flow (Re}\gtrsim 4000,\;\text{Haaland, explicit}):\;
+          \frac{1}{\sqrt f} = -1.8\,\log_{10}\!\left[\left(\frac{\varepsilon/D}{3.7}\right)^{1.11}+\frac{6.9}{Re}\right]. \)
         </div>
       </div>
       <p class="note" style="margin:8px 0 0">
-        <b>Transition (Re ≈ 2100–4000):</b> onset of turbulence depends on disturbances and surface condition; there’s no single formula,
-        so engineers <b>interpolate</b> across this band. The chart shows only the <i>laminar extension</i> (dotted) in this region.
+        <b>Transition (Re ≈ 2100–4000):</b> onset of turbulence depends on disturbances and surface condition.
+        There is no formula for the transition region. The Moody Chart below is created using the above formulas.
       </p>
     </section>
 
     <!-- Controls -->
     <section class="card">
       <div class="controls">
+        <!-- Re -->
         <div class="ctl">
           <label>Re (10²–10⁸)</label>
           <input id="re" type="number" min="100" max="100000000" step="100" value="10000" />
         </div>
 
-        <div class="ctl" style="flex:1; min-width:300px">
-          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-            <label><input id="useED" type="checkbox" /> Enter ε and D instead</label>
+        <!-- ε/D vs ε, D -->
+        <div class="ctl">
+          <div class="rowflex">
+            <label class="inline" style="gap:8px;margin-right:auto">
+              <input id="useRR" type="checkbox" /> Enter ε/D instead
+            </label>
             <span class="badge">ε/D: <span id="rrBadge">2.00e-4</span></span>
           </div>
 
-          <!-- Mode A: relative roughness only -->
-          <div id="modeRR" style="display:flex; gap:10px; align-items:center; margin-top:6px">
-            <label>ε/D</label>
-            <input id="rr" type="number" min="0" max="0.05" step="0.0001" value="0.00020" />
+          <!-- default: ε and D (single line) -->
+          <div id="modeED" class="inline" style="margin-top:6px">
+            <label>ε (m)</label><input id="eps" class="num-sm" type="number" step="1e-6" value="0.000040" />
+            <label>D (m)</label><input id="D"   class="num-sm" type="number" min="0.005" step="0.001" value="0.20" />
           </div>
 
-          <!-- Mode B: epsilon & diameter -->
-          <div id="modeED" style="display:none; gap:10px; align-items:center; margin-top:6px">
-            <label>ε (m)</label><input id="eps" type="number" step="1e-6" value="0.000040" />
-            <label>D (m)</label><input id="D"   type="number" min="0.005" step="0.001" value="0.20" />
+          <!-- toggle: ε/D (single line) -->
+          <div id="modeRR" class="inline" style="margin-top:6px;display:none">
+            <label>ε/D</label>
+            <input id="rr" class="num-sm" type="number" min="0" max="0.05" step="0.0001" value="0.00020" />
           </div>
         </div>
 
+        <!-- Colebrook -->
         <div class="ctl">
-          <label><input type="checkbox" id="compare" checked/> Show Colebrook point</label>
+          <label class="inline" style="gap:8px">
+            <input type="checkbox" id="compare" /> Show Colebrook point
+          </label>
+          <div id="cbkEq" class="note" style="margin-top:6px">
+            \( \text{Colebrook: }\;\frac{1}{\sqrt f}=-2\log_{10}\!\Big(\frac{\varepsilon/D}{3.7}+\frac{2.51}{Re\sqrt f}\Big) \)
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Plot -->
     <section class="card">
+      <h3 style="margin:0 0 8px">Moody chart</h3>
       <div id="moody-plot" class="viz"></div>
       <div id="info" class="note" style="margin-top:10px"></div>
     </section>
@@ -95,14 +133,15 @@
     </div>
   </footer>
 
+
   <script>
-    // ---------- Small utils ----------
+    // ---------- utils ----------
     const $ = id => document.getElementById(id);
     const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-    const num = (v, fallback) => Number.isFinite(parseFloat(v)) ? parseFloat(v) : fallback;
+    const num = (v, fb) => Number.isFinite(parseFloat(v)) ? parseFloat(v) : fb;
     const fmtExp = v => (Number.isFinite(v) ? v.toExponential(2) : '—');
 
-    // ---------- Friction models ----------
+    // ---------- friction models ----------
     const fLaminar = Re => 64/Re;
     function fHaaland(Re, rr){
       const R = Math.max(4000, Re);
@@ -113,18 +152,18 @@
       const R = Math.max(4000, Re);
       let X = 1/Math.sqrt(fHaaland(R, rr));
       for(let i=0;i<60;i++){
-        const Xn = -2*Math.log10( (rr/3.7) + 2.51/(R*X) );
-        if (!Number.isFinite(Xn)) break;
-        if (Math.abs(Xn - X) < 1e-7){ X = Xn; break; }
+        const Xn = -2*Math.log10((rr/3.7) + 2.51/(R*X));
+        if(!Number.isFinite(Xn)) break;
+        if(Math.abs(Xn-X) < 1e-7){ X = Xn; break; }
         X = 0.6*X + 0.4*Xn;
       }
       const f = 1/(X*X);
       return Number.isFinite(f) ? f : fHaaland(R, rr);
     }
 
-    // ---------- State ----------
+    // ---------- state ----------
     let Re = 10000;
-    const MIN_F = 0.0081;
+    const yMin = 0.006, yMax = 0.1;
 
     // ε/D sync
     const rrFromED = () => {
@@ -145,66 +184,127 @@
       $('rrBadge').textContent = fmtExp(rr);
     }
 
-    // ---------- Draw ----------
+    // find where Haaland crosses f = yMin (clean clipping)
+    function interceptR(rr, Rlo, Rhi, fTarget){
+      let a = Rlo, b = Rhi, fa = fHaaland(a, rr) - fTarget, fb = fHaaland(b, rr) - fTarget;
+      if (fa < 0) return Rlo;
+      if (fb > 0) return Rhi;
+      for (let i=0;i<32;i++){
+        const c = Math.sqrt(a*b); // log-mid
+        const fc = fHaaland(c, rr) - fTarget;
+        if (Math.abs(fc) < 1e-7){ return c; }
+        if (fc > 0){ a = c; fa = fc; } else { b = c; fb = fc; }
+      }
+      return Math.sqrt(a*b);
+    }
+
+    // ---------- draw ----------
     let api = null;
 
     function draw(){
       const host = $('moody-plot');
-      const W = Math.max(640, host.clientWidth || 640), H = 520, m = 84;
+      const W = Math.max(640, host.clientWidth || 640), H = 540, m = 84;
       d3.select('#moody-plot').html('');
       const svg = d3.select('#moody-plot').append('svg').attr('viewBox',`0 0 ${W} ${H}`);
 
       const x = d3.scaleLog().domain([100,1e8]).range([m, W-m]).clamp(true);
-      const y = d3.scaleLog().domain([0.008,0.1]).range([H-m, m]).clamp(true);
-      const fy = f => y(Math.max(MIN_F, f));
+      const y = d3.scaleLog().domain([yMin,yMax]).range([H-m, m]).clamp(true);
 
-      // Axes
-      svg.append('g').attr('transform',`translate(0,${H-m})`).call(d3.axisBottom(x).ticks(12,"~g"));
-      svg.append('g').attr('transform',`translate(${m},0)`).call(d3.axisLeft(y).ticks(10,"~g"));
-      svg.append('text').attr('x',W/2).attr('y',H-10).attr('text-anchor','middle').text('Reynolds number, Re');
-      svg.append('text').attr('x',-(H/2)).attr('y',16).attr('text-anchor','middle').attr('transform','rotate(-90)').text('Darcy friction factor, f');
+      // axes (larger ticks + labels)
+      const fsTick = 14, fsAxis = 16, fsRegion = 15;
 
-      // Grid
+      const axB = svg.append('g').attr('transform',`translate(0,${H-m})`)
+        .call(d3.axisBottom(x).ticks(12,"0.5~g"));
+      axB.selectAll('text').style('font-size', fsTick+'px');
+
+      const axL = svg.append('g').attr('transform',`translate(${m},0)`)
+        .call(d3.axisLeft(y).ticks(10,"~g"));
+      axL.selectAll('text').style('font-size', fsTick+'px');
+
+      svg.append('text').attr('x',W/2).attr('y',H-10).attr('text-anchor','middle')
+        .style('font-size', fsAxis+'px').text('Reynolds number, Re');
+
+      svg.append('text').attr('x',-(H/2)).attr('y',18).attr('text-anchor','middle')
+        .attr('transform','rotate(-90)').style('font-size', fsAxis+'px')
+        .text('Darcy friction factor, f');
+
+      // right-side axis label for relative roughness
+      const rx = W - 50, ry = H/2;
+      svg.append('text')
+        .attr('x', rx).attr('y', ry)
+        .attr('text-anchor','middle')
+        .attr('transform',`rotate(90 ${rx} ${ry})`)
+        .style('font-size', fsAxis+'px')
+        .text('ε/D (relative roughness)');
+
+      // grid
       x.ticks(20).forEach(t=>svg.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',m).attr('y2',H-m).attr('stroke','#0001'));
       y.ticks(20).forEach(t=>svg.append('line').attr('x1',m).attr('x2',W-m).attr('y1',y(t)).attr('y2',y(t)).attr('stroke','#0001'));
 
-      // Transition band
+      // transition band
       svg.append('rect').attr('x',x(2100)).attr('width',x(4000)-x(2100)).attr('y',m).attr('height',H-2*m)
         .attr('fill','#9ca3af33');
-      svg.append('text').attr('x', x(2500)).attr('y', m+18).attr('font-size',12).attr('fill','#475569')
+      svg.append('text').attr('x', x(2500)).attr('y', m+22).attr('font-size', fsTick).attr('fill','#475569')
         .text('Transition (interpolate)');
 
       // Laminar: solid to 2100, dotted to 4000
       const Rstart = Math.max(100, 640); // 64/0.1 = 640
-      const L1 = d3.range(Rstart, 2100, (2100-Rstart)/160).map(R=>[x(R), fy(fLaminar(R))]);
-      const L2 = d3.range(2100, 4000, (4000-2100)/150).map(R=>[x(R), fy(fLaminar(R))]);
+      const L1 = d3.range(Rstart, 2100, (2100-Rstart)/160).map(R=>[x(R), y(fLaminar(R))]);
+      const L2 = d3.range(2100, 4000, (4000-2100)/150).map(R=>[x(R), y(fLaminar(R))]);
       svg.append('path').attr('d', d3.line()(L1)).attr('stroke','#111').attr('stroke-width',2).attr('fill','none');
       svg.append('path').attr('d', d3.line()(L2)).attr('stroke','#111').attr('stroke-width',2).attr('fill','none').attr('stroke-dasharray','4 4');
-      svg.append('text').attr('x', x(1200)).attr('y', fy(fLaminar(1200))-8).attr('font-size',12).text('Laminar');
+      svg.append('text').attr('x', x(1200)).attr('y', y(fLaminar(1200))-10).style('font-size', fsRegion+'px').text('Laminar');
 
-      // Turbulent families (Haaland), start at 4000
+      // Turbulent families (Haaland) with clipping at yMin
       const famRR = [0,5e-5,1e-4,2e-4,5e-4,1e-3,2e-3,5e-3,1e-2,2e-2,5e-2];
       famRR.forEach(rval=>{
-        const pts=[]; for(let R=4000; R<=1e8; R*=1.12){ pts.push([x(R), fy(fHaaland(R,rval))]); }
+        const pts=[];
+        let prevR = 4000, prevF = fHaaland(prevR, rval);
+        pts.push([x(prevR), y(prevF)]);
+        for(let R=prevR*1.12; R<=1e8; R*=1.12){
+          const f = fHaaland(R, rval);
+          if (f < yMin){
+            const Ri = interceptR(rval, prevR, R, yMin);
+            pts.push([x(Ri), y(yMin)]);
+            break;
+          }
+          pts.push([x(R), y(f)]);
+          prevR = R; prevF = f;
+        }
         svg.append('path').attr('d', d3.line()(pts)).attr('stroke','#888').attr('stroke-width',1).attr('fill','none');
         const fHigh = fHaaland(1e8, rval);
-        svg.append('text').attr('x', x(1e8)-4).attr('y', fy(fHigh)).attr('font-size',11).attr('text-anchor','end')
+        svg.append('text').attr('x', x(1e8)-4).attr('y', y(Math.max(fHigh,yMin)))
+          .style('font-size', (fsTick-1)+'px').attr('text-anchor','end')
           .text(rval.toPrecision(1));
       });
-      svg.append('text').attr('x', x(5e4)).attr('y', fy(0.04)).attr('font-size',12).attr('fill','#374151')
-        .text('Turbulent');
 
-      // Selected ε/D family (highlight)
+      // Region label for Turbulent (bigger)
+      svg.append('text').attr('x', x(6e4)).attr('y', y(0.06))
+        .style('font-size', fsRegion+'px').text('Turbulent');
+
+      // Selected ε/D (red highlight) with clipping
       const rrSel = clamp(num($('rr').value, rrFromED()), 0, 0.05);
-      const sel=[]; for(let R=4000; R<=1e8; R*=1.12){ sel.push([x(R), fy(fHaaland(R,rrSel))]); }
+      const sel=[];
+      let sPrevR = 4000, sPrevF = fHaaland(sPrevR, rrSel);
+      sel.push([x(sPrevR), y(sPrevF)]);
+      for(let R=sPrevR*1.12; R<=1e8; R*=1.12){
+        const f = fHaaland(R, rrSel);
+        if (f < yMin){
+          const Ri = interceptR(rrSel, sPrevR, R, yMin);
+          sel.push([x(Ri), y(yMin)]);
+          break;
+        }
+        sel.push([x(R), y(f)]);
+        sPrevR = R; sPrevF = f;
+      }
       svg.append('path').attr('d', d3.line()(sel)).attr('stroke','#e11d48').attr('stroke-width',3).attr('fill','none');
 
-      // Probe & points
+      // probe & points
       const probe = svg.append('line').attr('x1',x(Re)).attr('x2',x(Re)).attr('y1',m).attr('y2',H-m)
         .attr('stroke','#111').attr('stroke-dasharray','4 3');
       const pT = svg.append('circle').attr('r',7).attr('fill','#0ea5e9').attr('stroke','#111'); // Haaland
       const pC = svg.append('circle').attr('r',7).attr('fill','#22c55e').attr('stroke','#111'); // Colebrook
-      const pL = svg.append('circle').attr('r',7).attr('fill','#ef4444').attr('stroke','#111'); // Laminar ext
+      const pL = svg.append('circle').attr('r',7).attr('fill','#f59e0b').attr('stroke','#111'); // transition dot
 
       function positionPoints(){
         const rrNow = clamp(num($('rr').value, rrFromED()), 0, 0.05);
@@ -215,28 +315,25 @@
         probe.attr('x1',x(Re)).attr('x2',x(Re));
 
         if (Re < 2100){
-          pL.attr('cx', x(Re)).attr('cy', fy(fL)).style('display', null);
-          pT.style('display','none'); pC.style('display','none');
+          pL.style('display','none'); pT.style('display','none'); pC.style('display','none');
           updateInfo(rrNow, {reg:'laminar', fL});
         } else if (Re >= 4000){
-          pT.attr('cx', x(Re)).attr('cy', fy(fH)).style('display', null);
+          pT.attr('cx', x(Re)).attr('cy', y(Math.max(fH, yMin))).style('display', null);
           pC.style('display', $('compare').checked ? null : 'none')
-             .attr('cx', x(Re)).attr('cy', fy(fCb));
+             .attr('cx', x(Re)).attr('cy', y(Math.max(fCb, yMin)));
           pL.style('display','none');
           updateInfo(rrNow, {reg:'turbulent', fH, fCb});
         } else {
-          pL.attr('cx', x(Re)).attr('cy', fy(fL)).style('display', null);
+          // show a dot but text emphasizes "interpolated"
+          pL.attr('cx', x(Re)).attr('cy', y(fL)).style('display', null);
           pT.style('display','none'); pC.style('display','none');
-          updateInfo(rrNow, {reg:'transition', fL});
+          updateInfo(rrNow, {reg:'transition'});
         }
       }
       positionPoints();
 
-      // Drag anywhere to set Re
-      const dragTo = ev=>{
-        const xm = clamp(ev.x, m, W-m);
-        setRe(x.invert(xm));
-      };
+      // drag anywhere to set Re
+      const dragTo = ev=>{ const xm = clamp(ev.x, m, W-m); setRe(x.invert(xm)); };
       svg.append('rect').attr('x',m).attr('y',m).attr('width',W-2*m).attr('height',H-2*m)
         .attr('fill','transparent').style('cursor','ew-resize')
         .call(d3.drag().on('drag', dragTo));
@@ -250,19 +347,18 @@
       let base = `<b>Re:</b> ${Math.round(Re).toLocaleString()} &nbsp;•&nbsp; <b>ε/D:</b> ${fmtExp(rrNow)}`;
       let line='';
       if (data.reg==='laminar'){
-        line = ` | <b>Laminar</b> → f = 64/Re = <b>${(data.fL).toPrecision(4)}</b>`;
+        line = ` | <b>Laminar</b> → f = 64/Re = <b>${(64/Re).toPrecision(4)}</b>`;
       } else if (data.reg==='turbulent'){
         const diff = 100*(data.fH - data.fCb)/data.fCb;
         line = ` | <b>Turbulent</b> → f (Haaland) = <b>${data.fH.toPrecision(4)}</b>`
-             + ($('compare').checked ? `, f (Colebrook) = <b>${data.fCb.toPrecision(4)}</b>, Δ% = ${diff.toFixed(2)}` : '')
-             + `. At very large Re the flow approaches <i>fully rough</i> → f ≈ f(ε/D) only (little vertical motion with Re).`;
+             + ($('compare').checked ? `, f (Colebrook) = <b>${data.fCb.toPrecision(4)}</b>, Δ% = ${diff.toFixed(2)}%` : '');
       } else {
-        line = ` | <b>Transition</b> 2100–4000 → interpolate; red dot is the laminar extension (dotted segment).`;
+        line = ` | <b>Transition</b> 2100–4000 → interpolated.`;
       }
       $('info').innerHTML = base + line;
     }
 
-    // ---------- Wiring ----------
+    // ---------- wiring ----------
     function setRe(v){
       Re = clamp(num(v, Re), 100, 1e8);
       $('re').value = Math.round(Re);
@@ -270,27 +366,24 @@
     }
 
     function init(){
-      // Default: ε/D mode
-      syncFromRR();
+      // default: ε & D mode; checkbox toggles to ε/D
+      syncFromED();
       api = draw();
 
       $('re').addEventListener('input', e=> setRe(e.target.value));
-
-      $('useED').addEventListener('change', e=>{
-        const useED = e.target.checked;
-        $('modeRR').style.display = useED ? 'none' : 'flex';
-        $('modeED').style.display = useED ? 'flex' : 'none';
-        if (useED) syncFromED(); else syncFromRR();
+      $('useRR').addEventListener('change', e=>{
+        const useRR = e.target.checked;
+        $('modeRR').style.display = useRR ? 'flex' : 'none';
+        $('modeED').style.display = useRR ? 'none' : 'flex';
+        if (useRR) syncFromRR(); else syncFromED();
         api = draw();
       });
-
       $('rr').addEventListener('input', ()=>{ syncFromRR(); api = draw(); });
       $('eps').addEventListener('input', ()=>{ syncFromED(); api = draw(); });
       $('D').addEventListener('input',   ()=>{ syncFromED(); api = draw(); });
       $('compare').addEventListener('change', ()=> api && api.positionPoints());
       window.addEventListener('resize', ()=> api = draw());
     }
-
     window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
