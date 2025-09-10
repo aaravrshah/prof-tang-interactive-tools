@@ -1,3 +1,4 @@
+<!-- /me310/moody.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -31,25 +32,27 @@
 
     /* Colebrook block larger (force MathJax to scale here only) */
     #cbkEq{line-height:1.3; font-size:15px}
-    #cbkEq .mjx-container{font-size:1.9em !important}
+    #cbkEq .mjx-container{font-size:1.14em !important}
 
-    .site-header .note{color:#fff;opacity:.9}
+    /* Header: compact title + real button */
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
+         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .btn.primary:hover{filter:brightness(1.06)}
+
     .region-label{fill:#111;font-size:16px}
-    
   </style>
 </head>
 <body>
+  <!-- Header: title + button only -->
   <header class="site-header">
     <div class="container">
-      <h1>Friction Factor and Moody Chart</h1>
-      <p class="subtitle">
-        Drag <b>anywhere on the plot</b> to change Re. Default input is <b>ε</b> and <b>D</b>.
-        Toggle to enter <b>relative roughness ε/D</b> instead (fields stay synchronized).
-        <br/>
-        <span class="note">Assumptions: circular pipe, internal flow, Darcy <i>f</i>, isothermal, steady.</span>
-        <a class="btn primary" style="margin-left:10px"
-           href="../feedback.html?course=ME%20310&sim=Moody" target="_blank" rel="noopener">Send feedback</a>
-      </p>
+      <div class="header-row">
+        <h1 style="margin:0">Friction Factor and Moody Chart</h1>
+        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+      </div>
     </div>
   </header>
 
@@ -58,7 +61,7 @@
       <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
     </nav>
 
-    <!-- Key relations -->
+    <!-- Key relations + Names -->
     <section class="card">
       <div class="eqwrap">
         <div class="note" style="margin-bottom:6px"><b>Friction factor of flow in circular pipe</b></div>
@@ -68,6 +71,17 @@
         <div class="eqbig" style="margin-top:6px">
           \( \displaystyle \textbf{Turbulent flow (Re}\gtrsim 4000,\;\text{Haaland, explicit}):\;
           \frac{1}{\sqrt f} = -1.8\,\log_{10}\!\left[\left(\frac{\varepsilon/D}{3.7}\right)^{1.11}+\frac{6.9}{Re}\right]. \)
+        </div>
+
+        <div class="note" style="margin-top:10px">
+          <b>Names (what symbols mean)</b>
+          <ul style="margin:8px 0 0 20px">
+            <li><b>Re</b> — Reynolds number \(Re=\dfrac{\rho V D}{\mu}\)</li>
+            <li><b>f</b> — friction factor (Moody chart uses Darcy \(f\))</li>
+            <li><b>ε</b> — absolute roughness (m)</li>
+            <li><b>D</b> — pipe diameter (m)</li>
+            <li><b>ε/D</b> — relative roughness</li>
+          </ul>
         </div>
       </div>
       <p class="note" style="margin:8px 0 0">
@@ -132,7 +146,6 @@
       <a href="../index.html" class="back-home"><span class="chev">←</span> Home</a>
     </div>
   </footer>
-
 
   <script>
     // ---------- utils ----------
@@ -226,9 +239,9 @@
 
       svg.append('text').attr('x',-(H/2)).attr('y',18).attr('text-anchor','middle')
         .attr('transform','rotate(-90)').style('font-size', fsAxis+'px')
-        .text('Darcy friction factor, f');
+        .text('Friction factor, f');
 
-      // right-side axis label for relative roughness
+      // right-side axis label for relative roughness (moved inwards to avoid clipping)
       const rx = W - 50, ry = H/2;
       svg.append('text')
         .attr('x', rx).attr('y', ry)
@@ -385,6 +398,22 @@
       window.addEventListener('resize', ()=> api = draw());
     }
     window.addEventListener('DOMContentLoaded', init);
+  </script>
+
+  <!-- Auto-stamp feedback link with page context; also drop a localStorage fallback -->
+  <script>
+    const FEEDBACK = { course: 'ME 310', sim: 'Moody' };
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = new URL('../feedback.html', location.href);
+      if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
+      if (FEEDBACK.sim)    url.searchParams.set('sim',    FEEDBACK.sim);
+      document.querySelectorAll('a.feedback-link').forEach(a => {
+        a.href = url.toString();
+        a.addEventListener('click', () => {
+          try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+        });
+      });
+    });
   </script>
 </body>
 </html>

@@ -326,5 +326,37 @@
       if((e.metaKey || e.ctrlKey) && e.key === 'Enter'){ $('submitBtn').click(); }
     });
   </script>
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const qs = new URLSearchParams(location.search);
+    let ctx = {};
+    try { ctx = JSON.parse(localStorage.getItem('fb_ctx')) || {}; } catch {}
+
+    const course = qs.get('course') ?? ctx.course ?? '';
+    const sim    = qs.get('sim')    ?? ctx.sim    ?? '';
+
+    // Helper that works for input or select; tries by id first, then by name.
+    function setVal(selector, value) {
+      if (!value) return;
+      const el = document.querySelector(selector);
+      if (!el) return;
+      if (el.tagName === 'SELECT') {
+        const match = [...el.options].find(o => o.value === value || o.text === value);
+        el.value = match ? match.value : value;
+      } else {
+        el.value = value;
+      }
+    }
+
+    setVal('#course', course);
+    setVal('input[name="course"]', course);
+    setVal('select[name="course"]', course);
+
+    setVal('#sim', sim);
+    setVal('input[name="sim"]', sim);
+    setVal('select[name="sim"]', sim);
+  });
+</script>
+
 </body>
 </html>
