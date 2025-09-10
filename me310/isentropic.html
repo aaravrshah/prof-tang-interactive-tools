@@ -3,185 +3,342 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Isentropic Relations (Ideal Gas)</title>
+  <title>Isentropic Flow Functions for an Ideal Gas</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
-    // keep MathJax sizing consistent with other pages
+    /* Keep MathJax sizing consistent across pages */
     window.MathJax = { chtml:{ scale:0.9 }, options:{ renderActions:{ addMenu:[] } } };
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    /* Header: compact title + button */
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
+         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .btn.primary:hover{filter:brightness(1.06)}
+
+    /* Top grid: equations (wide) + inputs (slim) */
+    .top-grid{display:grid;gap:12px}
+    @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
+
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .eqbig{font-size:1.02em}
+
+    /* Inputs */
+    .controls{display:grid;gap:12px}
+    .num-sm{width:160px}
+    .controls input.num-sm[type="number"]{width:160px !important}
+    .rowflex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+    /* k quick chips */
+    .kchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer}
+    .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+    /* KPI readout inside inputs */
+    .kpi{display:grid;gap:10px;margin-top:10px}
+    .kpi{grid-template-columns:repeat(2,minmax(120px,1fr))}
+    .kpi .lab{font-size:12px;color:#555}
+    .kpi .val{font-size:20px;font-weight:600}
+
+    /* Axis font sizes */
+    .viz .axis text{font-size:15px}
+    .viz .axis-title{font-size:16px}
+  </style>
 </head>
 <body>
+  <!-- Header -->
   <header class="site-header">
     <div class="container">
-      <h1>Isentropic Relations (Ideal Gas)</h1>
-      <p class="subtitle">
-        Goal: make the <b>equations</b> and their meanings obvious, then explore how the ratios change with Mach number \(M\)
-        and heat-capacity ratio \( \gamma \).
-      </p>
+      <div class="header-row">
+        <h1 style="margin:0">Isentropic Flow Functions for an Ideal Gas</h1>
+        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+      </div>
     </div>
   </header>
 
   <main class="container">
-    <!-- unified back button placement -->
     <nav class="back-row">
-      <a href="../index.html" class="back-home" aria-label="Back to home">
-        <span class="chev">←</span> Home
-      </a>
+      <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
     </nav>
 
-    <!-- EQUATIONS & NAMES (TOP) -->
-    <section class="card">
-      <div class="eqwrap">
-        <div class="note" style="margin-bottom:8px"><b>Isentropic (ideal-gas) ratios</b></div>
-        <div class="eqbig">
-          \( \displaystyle \frac{T}{T_0}=\Big(1+\frac{\gamma-1}{2}M^2\Big)^{-1}, \quad
-             \frac{p}{p_0}=\Big(1+\frac{\gamma-1}{2}M^2\Big)^{-\gamma/(\gamma-1)}, \quad
-             \frac{\rho}{\rho_0}=\Big(1+\frac{\gamma-1}{2}M^2\Big)^{-1/(\gamma-1)}. \)
+    <!-- Equations (left) + Inputs (right) -->
+    <section class="top-grid">
+      <!-- Equations -->
+      <div class="ctl">
+        <div class="eqwrap">
+          <div class="note" style="margin-bottom:8px"><b>Isentropic flow functions (ideal gas)</b></div>
+
+          <!-- Line 1: T/T0 & p/p0 -->
+          <div class="eqbig">
+            \( \displaystyle
+                \frac{T}{T_0}=\Big(1+\frac{k-1}{2}\mathrm{Ma}^2\Big)^{-1}, \quad
+                \frac{p}{p_0}=\Big(1+\frac{k-1}{2}\mathrm{Ma}^2\Big)^{-k/(k-1)}.
+            \)
+          </div>
+
+          <!-- Line 2: rho/rho0 & A/A* -->
+          <div class="eqbig" style="margin-top:8px">
+            \( \displaystyle
+              \frac{\rho}{\rho_0}=\Big(1+\frac{k-1}{2}\mathrm{Ma}^2\Big)^{-1/(k-1)}, \quad
+              \frac{A}{A^*}=\frac{1}{\mathrm{Ma}}
+              \left[\,\frac{2}{k+1}\left(1+\frac{k-1}{2}\mathrm{Ma}^2\right)\right]^{\frac{k+1}{2(k-1)}}.
+            \)
+          </div>
+
+          <div class="note" style="margin-top:10px">
+            <b>Symbols</b>
+            <ul style="margin:8px 0 0 20px">
+              <li><b>Ma</b> — Mach number (flow speed / local speed of sound)</li>
+              <li><b>k</b> — specific heat ratio (Cp/Cv); ≈ 1.40 a diatomic gas, 1.67 for a monatomic gas, and 1.33 for a triatomic gas</li>
+              <li><b>T</b>, <b>p</b>, and <b>ρ</b> — local <i>static</i> temperature, pressure, and density</li>
+              <li><b>T₀</b>, <b>p₀</b>, and <b>ρ₀</b> — <i>stagnation (total)</i> values (flow brought to rest isentropically)</li>
+              <li><b>A</b> — local flow area; <b>A*</b> — sonic (choked) area where Ma = 1</li>
+            </ul>
+            <div style="margin-top:8px">
+              Bernoulli equation for incompressible flow is typically applicable when \( \mathrm{Ma} \lesssim 0.28 \) (≈ 2% pressure error).
+            </div>
+          </div>
         </div>
-        <div class="note">
-          <b>Names (what symbols mean)</b>
-          <ul style="margin:8px 0 0 20px">
-            <li><b>M</b> — Mach number (flow speed / local speed of sound)</li>
-            <li><b>γ</b> — ratio of specific heats (Cp/Cv); ≈ 1.40 for air (diatomic), 1.67 monatomic, 1.30 CO₂</li>
-            <li><b>T</b>, <b>p</b>, <b>ρ</b> — local <i>static</i> temperature, pressure, density</li>
-            <li><b>T₀</b>, <b>p₀</b>, <b>ρ₀</b> — <i>stagnation (total)</i> values (flow brought to rest isentropically)</li>
-          </ul>
-          <div style="margin-top:8px">
-            <span class="badge">Rule of thumb:</span> Bernoulli (incompressible) is typically OK when \( M \lesssim 0.28 \) (≈ 2% pressure error).
+      </div>
+
+      <!-- Inputs (slimmer, now with useful content) -->
+      <div class="ctl">
+        <div class="controls">
+          <div>
+            <label>Ma (0.10–10.00)</label>
+            <div class="rowflex">
+              <input id="ma" class="num-sm" type="number" min="0.10" max="10.00" step="0.01" value="1.00" />
+              <button class="chip" id="ma-0p3" type="button" title="Set Ma≈0.30">0.30</button>
+              <button class="chip" id="ma-1"   type="button" title="Set Ma=1.00">1</button>
+              <button class="chip" id="ma-3"   type="button" title="Set Ma=3.00">3</button>
+            </div>
+          </div>
+
+          <div>
+            <label>k (specific heat ratio)</label>
+            <select id="k">
+              <option value="1.67">1.67 — monatomic (He/Ar/Ne)</option>
+              <option value="1.40" selected>1.40 — diatomic (air: N₂/O₂)</option>
+              <option value="1.33">1.33 — triatomic (CO₂)</option>
+            </select>
+            <div class="kchips">
+              <button type="button" class="chip" data-k="1.67">Monatomic 1.67</button>
+              <button type="button" class="chip active" data-k="1.40">Diatomic 1.40</button>
+              <button type="button" class="chip" data-k="1.33">Triatomic 1.33</button>
+            </div>
+          </div>
+
+          <!-- Live mini readout so this card isn’t empty -->
+          <div>
+            <label>Current values</label>
+            <div class="kpi">
+              <div><div class="lab">T/T₀</div><div id="kpi_TT0" class="val">—</div></div>
+              <div><div class="lab">p/p₀</div><div id="kpi_pp0" class="val">—</div></div>
+              <div><div class="lab">ρ/ρ₀</div><div id="kpi_rhorho0" class="val">—</div></div>
+              <div><div class="lab">A/A*</div><div id="kpi_AA" class="val">—</div></div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- MAIN PLOT -->
-    <section class="card">
-      <div class="controls">
-        <div class="ctl">
-          <label>M: <span id="machLabel" class="kbd">1.00</span></label>
-          <input id="mach" type="range" min="0.10" max="5.00" step="0.01" value="1.00" />
-        </div>
-        <div class="ctl">
-          <label>γ (heat-capacity ratio)</label>
-          <select id="gamma">
-            <option value="1.40" selected>1.40 — Air (diatomic N₂/O₂)</option>
-            <option value="1.67">1.67 — Monatomic (He/Ar/Ne)</option>
-            <option value="1.30">1.30 — CO₂ (polyatomic)</option>
-          </select>
-        </div>
-        <div class="ctl">
-          <label>Status</label>
-          <span id="bernFlag" class="badge" style="display:inline-block;min-width:260px;text-align:center">—</span>
-        </div>
-      </div>
+    <!-- Plot -->
+    <section class="card" style="margin-top:12px">
+      <div id="plot" class="viz"></div>
 
-      <div class="legend" style="margin-top:4px">
+      <div class="legend" style="margin-top:8px">
         <span class="sw" style="background:#ef4444"></span> T/T₀
         <span class="sw" style="background:#22c55e"></span> p/p₀
         <span class="sw" style="background:#3b82f6"></span> ρ/ρ₀
+        <span class="sw" style="background:#8b5cf6"></span> A/A*
       </div>
 
-      <div id="plot" class="viz" style="margin-top:6px"></div>
-      <div class="note" style="margin-top:10px">
-        <b>Tip:</b> Drag anywhere across the plot to change \(M\). Curves show <i>static</i> to <i>stagnation</i> ratios for the chosen \( \gamma \).
+      <div class="note" style="margin-top:8px">
+        Curves show static to stagnation ratios vs Ma for the chosen k. Drag anywhere across the plot to change Ma.
       </div>
+
       <div id="readout" class="note" style="margin-top:8px"></div>
     </section>
   </main>
 
   <script>
     /* ===== math ===== */
-    function isoRatios(M, g){
-      const TT0 = 1/(1 + ((g-1)/2)*M*M);
-      return { T_T0:TT0, p_p0:Math.pow(TT0, g/(g-1)), r_r0:Math.pow(TT0, 1/(g-1)) };
+    function isoRatios(Ma, k){
+      const TT0 = 1/(1 + ((k-1)/2)*Ma*Ma);
+      return { T_T0:TT0, p_p0:Math.pow(TT0, k/(k-1)), r_r0:Math.pow(TT0, 1/(k-1)) };
+    }
+    function areaRatio(Ma, k){
+      const term = (2/(k+1))*(1 + ((k-1)/2)*Ma*Ma);
+      return (1/Ma) * Math.pow(term, (k+1)/(2*(k-1)));
+    }
+    function maAtArea(target, k, lo=1.0001, hi=10){
+      if (areaRatio(hi,k) < target) return null;
+      for (let i=0;i<50;i++){
+        const mid = 0.5*(lo+hi);
+        const val = areaRatio(mid,k);
+        if (Math.abs(val-target) < 1e-6) return mid;
+        if (val >= target) hi = mid; else lo = mid;
+      }
+      return 0.5*(lo+hi);
     }
 
-    /* ===== main plot ===== */
-    let gamma = 1.40, Mmark = 1.00;
+    /* ===== plot ===== */
+    let kVal = 1.40, MaMark = 1.00;
 
     const plotEl = document.getElementById('plot');
-    function size(){ const w = plotEl.clientWidth || 760; return {w:Math.max(620,w), h:420, m:56}; }
+    function size(){ const w = plotEl.clientWidth || 760; const h = 540; return { w:Math.max(620,w), h, m:64 }; }
 
     function drawMain(){
       const {w,h,m} = size();
       d3.select('#plot').html('');
-      const svg = d3.select('#plot').append('svg').attr('viewBox',`0 0 ${w} ${h}`);
+      const svg = d3.select('#plot').append('svg').attr('width', w).attr('height', h).attr('viewBox',`0 0 ${w} ${h}`);
 
-      const Mmin=0.10, Mmax=5.0;
-      const x = d3.scaleLinear().domain([Mmin,Mmax]).range([m, w-m]);
-      const yL = d3.scaleLinear().domain([0,1.1]).range([h-m, m]);
+      // Scales: Ma log, left ratios 0→1, right A/A* 0→10
+      const MaMin=0.10, MaMax=10.0;
+      const x  = d3.scaleLog().domain([MaMin,MaMax]).range([m, w-m]).clamp(true);
+      const yL = d3.scaleLinear().domain([0,1]).range([h-m, m]).nice();
+      const yR = d3.scaleLinear().domain([0,10]).range([h-m, m]).nice();
 
-      // axes
-      svg.append('g').attr('transform',`translate(${m},0)`).call(d3.axisLeft(yL).ticks(8));
-      svg.append('g').attr('transform',`translate(0,${h-m})`).call(d3.axisBottom(x).ticks(8));
-      svg.append('text').attr('x', w/2).attr('y', h-12).attr('text-anchor','middle').text('Mach number, M');
-      svg.append('text').attr('x', -(h/2)).attr('y', 18).attr('text-anchor','middle').attr('transform','rotate(-90)').text('T/T₀, p/p₀, ρ/ρ₀');
+      // Axes
+      const xTicks = [0.1,0.5,1,5,10];
+      svg.append('g').attr('class','axis').attr('transform',`translate(0,${h-m})`).call(d3.axisBottom(x).tickValues(xTicks).tickFormat(d3.format("~g")));
+      svg.append('g').attr('class','axis').attr('transform',`translate(0,${m})`).call(d3.axisTop(x).tickValues(xTicks).tickFormat(d3.format("~g")));
+      svg.append('g').attr('class','axis').attr('transform',`translate(${m},0)`).call(d3.axisLeft(yL).ticks(10));
+      svg.append('g').attr('class','axis').attr('transform',`translate(${w-m},0)`).call(d3.axisRight(yR).ticks(10));
 
-      // curves
-      const Ms = d3.range(Mmin, Mmax+0.005, 0.005).map(mm=>({M:mm, ...isoRatios(mm,gamma)}));
-      const L = key => d3.line().x(d=>x(d.M)).y(d=>yL(d[key]))(Ms);
-      svg.append('path').attr('d', L('T_T0')).attr('stroke','#ef4444').attr('stroke-width',2).attr('fill','none');
-      svg.append('path').attr('d', L('p_p0')).attr('stroke','#22c55e').attr('stroke-width',2).attr('fill','none');
-      svg.append('path').attr('d', L('r_r0')).attr('stroke','#3b82f6').attr('stroke-width',2).attr('fill','none');
+      // Axis titles
+      svg.append('text').attr('class','axis-title').attr('x', w/2).attr('y', h-10).attr('text-anchor','middle').text('Ma');
+      svg.append('text').attr('class','axis-title').attr('x', -(h/2)).attr('y', 18).attr('text-anchor','middle').attr('transform','rotate(-90)').text('T/T₀, p/p₀, ρ/ρ₀');
+      const rx = w - Math.max(44, m*0.6), ry = h/2;
+      svg.append('text').attr('class','axis-title').attr('x', rx).attr('y', ry).attr('text-anchor','middle').attr('transform',`rotate(90 ${rx} ${ry})`).text('A/A*');
 
-      // drag anywhere
-      const dragTo = (ev)=>{ const xm = Math.max(m, Math.min(w-m, ev.x)); setM(x.invert(xm)); };
+      // Grid
+      xTicks.forEach(t => svg.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',m).attr('y2',h-m).attr('stroke','#0001'));
+      yL.ticks(20).forEach(t => svg.append('line').attr('x1',m).attr('x2',w-m).attr('y1',yL(t)).attr('y2',yL(t)).attr('stroke','#0001'));
+
+      // Data along Ma (log-stepped)
+      const MaVals = []; for(let M=MaMin; M<=MaMax+1e-9; M*=1.03) MaVals.push(M);
+      const rows = MaVals.map(M=>({Ma:M, ...isoRatios(M,kVal)}));
+
+      // Curves (left axis)
+      const cT='#ef4444', cP='#22c55e', cR='#3b82f6', cA='#8b5cf6';
+      const L  = key => d3.line().x(d=>x(d.Ma)).y(d=>yL(d[key]))(rows);
+      svg.append('path').attr('d', L('T_T0')).attr('stroke',cT).attr('stroke-width',2).attr('fill','none');
+      svg.append('path').attr('d', L('p_p0')).attr('stroke',cP).attr('stroke-width',2).attr('fill','none');
+      svg.append('path').attr('d', L('r_r0')).attr('stroke',cR).attr('stroke-width',2).attr('fill','none');
+
+      // A/A* curve on right axis, clipped to 10
+      const ptsA = [];
+      for (let i=0;i<MaVals.length;i++){
+        const M = MaVals[i];
+        const A = areaRatio(M, kVal);
+        if (A > 10){
+          const Mx = maAtArea(10, kVal, Math.max(1.0001, MaVals[i-1]||1.0001), M);
+          if (Mx){ ptsA.push([x(Mx), yR(10)]); }
+          break;
+        }
+        ptsA.push([x(M), yR(A)]);
+      }
+      svg.append('path').attr('d', d3.line()(ptsA)).attr('stroke',cA).attr('stroke-width',2).attr('fill','none');
+
+      // On-plot labels
+      svg.append('text').attr('x', x(2.3)).attr('y', yL(0.82)).attr('fill', cT).text('T/T₀');
+      svg.append('text').attr('x', x(1.7)).attr('y', yL(0.70)).attr('fill', cP).text('p/p₀');
+      svg.append('text').attr('x', x(1.3)).attr('y', yL(0.56)).attr('fill', cR).text('ρ/ρ₀');
+      svg.append('text').attr('x', x(3.2)).attr('y', yR(5.0)).attr('fill', cA).text('A/A*');
+
+      // Draggable vertical line (no knob)
+      const dragTo = (ev)=>{ const xm = Math.max(m, Math.min(w-m, ev.x)); setMa(x.invert(xm)); };
       const line = svg.append('line')
-        .attr('x1', x(Mmark)).attr('x2', x(Mmark)).attr('y1', m).attr('y2', h-m+44)
+        .attr('x1', x(MaMark)).attr('x2', x(MaMark)).attr('y1', m).attr('y2', h-m)
         .attr('stroke','#111').attr('stroke-width',2).attr('stroke-dasharray','5 3')
-        .style('cursor','ew-resize')
-        .call(d3.drag().on('drag', dragTo));
-      const knob = svg.append('circle')
-        .attr('cx', x(Mmark)).attr('cy', h-m+44).attr('r', 10)
-        .attr('fill', '#0ea5e9').attr('stroke','#111')
         .style('cursor','ew-resize')
         .call(d3.drag().on('drag', dragTo));
       svg.append('rect').attr('x',m).attr('y',m).attr('width',w-2*m).attr('height',h-2*m)
          .attr('fill','transparent').style('cursor','ew-resize')
          .call(d3.drag().on('drag', dragTo));
 
-      function refresh(){ line.attr('x1',x(Mmark)).attr('x2',x(Mmark)); knob.attr('cx',x(Mmark)); }
-      updateReadout(); updateBernFlag();
+      function refresh(){ line.attr('x1',x(MaMark)).attr('x2',x(MaMark)); }
+      updateReadout(); updateKPIs();
       return { refresh };
     }
 
     function updateReadout(){
-      const s = isoRatios(Mmark, gamma);
+      const s = isoRatios(MaMark, kVal);
+      const AA = areaRatio(MaMark, kVal);
       const txt = [
-        `<b>M</b> = ${Mmark.toFixed(2)}`,
-        `<b>γ</b> = ${gamma.toFixed(2)}`,
+        `<b>Ma</b> = ${MaMark.toFixed(2)}`,
+        `<b>k</b> = ${kVal.toFixed(2)}`,
         `<b>T/T₀</b> = ${s.T_T0.toFixed(3)}`,
         `<b>p/p₀</b> = ${s.p_p0.toFixed(3)}`,
-        `<b>ρ/ρ₀</b> = ${s.r_r0.toFixed(3)}`
+        `<b>ρ/ρ₀</b> = ${s.r_r0.toFixed(3)}`,
+        `<b>A/A*</b> = ${AA.toFixed(3)}`
       ].join(' • ');
       document.getElementById('readout').innerHTML = txt;
     }
 
-    function updateBernFlag(){
-      const el = document.getElementById('bernFlag');
-      if (Mmark <= 0.28){
-        el.textContent = 'Status: Incompressible OK (≈≤2% p error)';
-        el.style.borderColor = '#d1fae5'; el.style.background = '#ecfdf5'; el.style.color = '#065f46';
-      } else {
-        el.textContent = 'Status: Compressibility important';
-        el.style.borderColor = '#fee2e2'; el.style.background = '#fef2f2'; el.style.color = '#7f1d1d';
-      }
+    function updateKPIs(){
+      const s = isoRatios(MaMark, kVal);
+      const AA = areaRatio(MaMark, kVal);
+      document.getElementById('kpi_TT0').textContent   = s.T_T0.toFixed(3);
+      document.getElementById('kpi_pp0').textContent    = s.p_p0.toFixed(3);
+      document.getElementById('kpi_rhorho0').textContent= s.r_r0.toFixed(3);
+      document.getElementById('kpi_AA').textContent     = AA.toFixed(3);
     }
 
     let mainAPI = drawMain();
 
-    function setM(val){
-      Mmark = Math.max(0.10, Math.min(5.0, val));
-      document.getElementById('mach').value = Mmark.toFixed(2);
-      document.getElementById('machLabel').textContent = Mmark.toFixed(2);
-      mainAPI.refresh(); updateReadout(); updateBernFlag();
+    function setMa(val){
+      const v = Math.max(0.10, Math.min(10.0, parseFloat(val)));
+      MaMark = isFinite(v) ? v : MaMark;
+      document.getElementById('ma').value = MaMark.toFixed(2);
+      mainAPI.refresh(); updateReadout(); updateKPIs();
     }
 
-    document.getElementById('mach').addEventListener('input', e => setM(parseFloat(e.target.value)));
-    document.getElementById('gamma').addEventListener('change', e => { gamma = parseFloat(e.target.value); mainAPI = drawMain(); });
+    // Wiring
+    document.getElementById('ma').addEventListener('input', e => setMa(e.target.value));
+    document.getElementById('ma-0p3').addEventListener('click', ()=> setMa(0.30));
+    document.getElementById('ma-1').addEventListener('click',   ()=> setMa(1.00));
+    document.getElementById('ma-3').addEventListener('click',   ()=> setMa(3.00));
+
+    document.querySelectorAll('.kchips .chip').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.kchips .chip').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        const kv = parseFloat(btn.dataset.k);
+        kVal = kv;
+        document.getElementById('k').value = kv.toFixed(2);
+        mainAPI = drawMain();
+      });
+    });
+    document.getElementById('k').addEventListener('change', e => {
+      kVal = parseFloat(e.target.value);
+      document.querySelectorAll('.kchips .chip').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.k)===kVal));
+      mainAPI = drawMain();
+    });
+
     window.addEventListener('resize', ()=> { mainAPI = drawMain(); });
+  </script>
+
+  <!-- Auto-stamp feedback link with page context (same as Moody) -->
+  <script>
+    const FEEDBACK = { course: 'ME 310', sim: 'Isentropic' };
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = new URL('../feedback.html', location.href);
+      if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
+      if (FEEDBACK.sim)    url.searchParams.set('sim',    FEEDBACK.sim);
+      document.querySelectorAll('a.feedback-link').forEach(a => {
+        a.href = url.toString();
+        try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+      });
+    });
   </script>
 </body>
 </html>
