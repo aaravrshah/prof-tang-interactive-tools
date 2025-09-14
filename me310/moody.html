@@ -165,7 +165,7 @@
       const R = Math.max(4000, Re);
       let X = 1/Math.sqrt(fHaaland(R, rr));
       for(let i=0;i<60;i++){
-        const Xn = -2*Math.log10((rr/3.7) + 2.51/(R*X));
+        const Xn = -2*Math.log10((rr/3.7) + 2.51*X/(R));
         if(!Number.isFinite(Xn)) break;
         if(Math.abs(Xn-X) < 1e-7){ X = Xn; break; }
         X = 0.6*X + 0.4*Xn;
