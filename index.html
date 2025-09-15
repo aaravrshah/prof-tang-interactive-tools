@@ -6,28 +6,55 @@
   <title>Interactive Thermal/Fluids Tools</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* page-specific helpers */
+    /* smooth anchor jump */
+    html{scroll-behavior:smooth}
+
+    /* Header: match inner pages (title left, buttons right) */
+    .site-header .container{padding-top:24px;padding-bottom:24px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .subline{margin-top:6px;max-width:900px}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
+         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .btn.primary:hover{filter:brightness(1.06)}
+    .btn.ghost{background:#ffffffcc;color:#111;border-color:var(--line)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+    /* Cards / thumbs */
     .thumb{display:block;width:100%;aspect-ratio:16/9;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px}
-    .thumb svg{display:block;width:100%;height:auto}
-    .card h3{margin:6px 0 4px}
+    .thumb img{display:block;width:100%;height:100%;object-fit:cover}
+    .card h3{margin:6px 0 6px}
     .card p{margin:0;color:#4b5563}
-    .btn{display:inline-block;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:#fff;text-decoration:none}
-    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
-    .btn.primary:hover{filter:brightness(1.05)}
-    .btn.ghost{background:#ffffffcc}
-    .hero-cta{margin-top:10px}
+
+    /* Bottom info tiles: tighten typography & spacing */
+    #howto .card{display:flex;flex-direction:column;justify-content:flex-start}
+    #howto .card h3{margin:4px 0 8px;font-size:20px}
+    #howto .card p{line-height:1.5;margin-bottom:8px}
+    #howto .card .btn{margin-top:10px}
+
+    /* Small helper for placeholder tile artwork */
+    .ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;
+        background:linear-gradient(135deg,#f3f4f6 0%,#ffffff 100%);color:#6b7280;font-weight:600}
   </style>
 </head>
 <body>
+  <!-- Header -->
   <header class="site-header">
     <div class="container">
-      <h1>Professor Tang's Interactive Tools</h1>
-      <p class="subtitle">
-        Explore core equations through interactive plots and schematics. Adjust inputs → see the math respond.
-      </p>
-      <!-- jump to the bottom guidance block -->
-      <div class="hero-cta">
-        <a class="btn ghost" href="#howto">How to use ↓</a>
+      <div class="header-row">
+        <div>
+          <h1 style="margin:0">Professor Tang's Interactive Tools</h1>
+          <p class="subline">
+            Explore core equations through interactive plots &amp; schematics.
+            Adjust inputs → see the math respond.
+          </p>
+        </div>
+        <div class="actions">
+          <a class="btn ghost" href="#howto" aria-label="Jump to How to use section">How to use ↓</a>
+          <a class="btn primary feedback-link" href="./feedback.html" target="_blank" rel="noopener">Send feedback</a>
+        </div>
       </div>
     </div>
   </header>
@@ -36,37 +63,36 @@
     <!-- ME 310 -->
     <h2 style="margin:18px 0 8px">ME 310 • Fundamentals of Fluid Dynamics</h2>
     <section class="grid">
+      <!-- NEW placeholder (before Moody) -->
+      <div class="card">
+        <div class="thumb">
+          <div class="ph">Coming soon</div>
+        </div>
+        <h3>Surface Tension (placeholder)</h3>
+        <p>
+          Eq. 1.21: pressure difference between the inside and the outside of a liquid droplet<br/>
+          Eq. 1.22: capillary rise in a tube
+        </p>
+      </div>
+
       <!-- Moody -->
       <a class="card link-card" href="./me310/moody.html" aria-label="Open Moody Chart">
         <div class="thumb">
-          <img src="assets/thumbs/moody.png" alt="Moody chart preview"
-              style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+          <img src="assets/thumbs/moody.png" alt="Moody chart preview" loading="lazy">
         </div>
         <h3>Moody Chart (General)</h3>
-        <p>Friction factor vs Re with ε/D families (Haaland & Colebrook).</p>
+        <p>Friction factor vs Re with ε/D families (Haaland &amp; Colebrook).</p>
       </a>
 
       <!-- Isentropic -->
       <a class="card link-card" href="./me310/isentropic.html" aria-label="Open Isentropic Relations">
         <div class="thumb">
-          <img src="assets/thumbs/isentropic.png" alt="Isentropic relations preview"
-              style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
+          <img src="assets/thumbs/isentropic.png" alt="Isentropic relations preview" loading="lazy">
         </div>
         <h3>Isentropic Relations</h3>
         <p>Static→stagnation ratios vs Mach for chosen γ.</p>
       </a>
-
-      <!-- Bernoulli -->
-      <a class="card link-card" href="./me310/bernoulli_head_explorer.html" aria-label="Open Bernoulli Head Explorer">
-        <div class="thumb">
-          <img src="assets/thumbs/bernoulli.png" alt="Bernoulli head-loss preview"
-              style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
-        </div>
-        <h3>Bernoulli Head Explorer</h3>
-        <p>H = Δz + Hₚ balanced by major (fL/D) + minor (ΣK) losses.</p>
-      </a>
     </section>
-
 
     <!-- ME 320 -->
     <h2 style="margin:22px 0 8px">ME 320 • Heat Transfer</h2>
@@ -86,28 +112,29 @@
       </div>
     </section>
 
-    <!-- Guidance + feedback + about (anchor target) -->
+    <!-- Guidance + feedback + about -->
     <section id="howto" class="grid" style="margin-top:18px">
       <div class="card">
         <h3>How to use</h3>
         <p class="note">
           Click a card to open a simulation. Change one control at a time, then watch the plot and equations update together.
         </p>
+        <a class="btn ghost" href="#top">Back to top ↑</a>
       </div>
 
       <div class="card">
-        <h3>Feedback & Ideas</h3>
+        <h3>Feedback &amp; Ideas</h3>
         <p class="note">
           Have an idea to make this better or a new simulation to add? I’d love to hear it.
         </p>
-        <a class="btn primary" href="./feedback.html">Give feedback</a>
+        <a class="btn primary" href="./feedback.html" target="_blank" rel="noopener">Give feedback</a>
       </div>
 
       <div class="card">
         <h3>About this project</h3>
         <p class="note">
-          Built by <b>Aarav Shah</b> (UIUC ME ’26) under the guidance of <b>Prof. Tang</b>.  
-          Ongoing effort to create interactive teaching tools for fluids & thermal sciences.
+          Built by <b>Aarav Shah</b> (UIUC ME ’26) under the guidance of <b>Prof. Tang</b>.
+          Ongoing effort to create interactive teaching tools for fluids &amp; thermal sciences.
           Tech: Java, JavaScript/D3, HTML, CSS. Questions or ideas? <a href="mailto:aaravrshah2@gmail.com">Email me</a>.
         </p>
       </div>
@@ -119,6 +146,22 @@
       <p>&copy; <span id="year"></span> UIUC • Prof. Tang • Interactive Tools</p>
     </div>
   </footer>
-  <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
+
+  <script>
+    // year stamp
+    document.getElementById('year').textContent=new Date().getFullYear();
+
+    // Auto-stamp feedback link with page context (same pattern as inner pages)
+    const FEEDBACK = { course: 'Global', sim: 'Home' };
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = new URL('./feedback.html', location.href);
+      if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
+      if (FEEDBACK.sim)    url.searchParams.set('sim',    FEEDBACK.sim);
+      document.querySelectorAll('a.feedback-link').forEach(a => {
+        a.href = url.toString();
+        try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+      });
+    });
+  </script>
 </body>
 </html>
