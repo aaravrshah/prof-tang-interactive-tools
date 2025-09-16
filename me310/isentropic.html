@@ -14,7 +14,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
-    /* Header: compact title + button */
+    /* Header: compact title + button (match Moody) */
     .site-header .container{padding-top:20px;padding-bottom:20px}
     .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
@@ -28,7 +28,13 @@
 
     .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
     .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
-    .eqbig{font-size:1.02em}
+    .eqbig{font-size:1.02em;margin-top:2px}
+
+    /* Heading style identical to Moody */
+    .note.title-xl{font-size:16px;line-height:1.15}
+
+    /* Make math size match Moody’s equation scale */
+    .eqwrap .mjx-container{font-size:1.14em !important}
 
     /* Inputs */
     .controls{display:grid;gap:12px}
@@ -36,20 +42,19 @@
     .controls input.num-sm[type="number"]{width:160px !important}
     .rowflex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
-    /* k quick chips */
-    .kchips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-    .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;cursor:pointer}
-    .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-    /* KPI readout inside inputs */
-    .kpi{display:grid;gap:10px;margin-top:10px}
-    .kpi{grid-template-columns:repeat(2,minmax(120px,1fr))}
+    /* KPI readout inside inputs (de-emphasize numbers) */
+    .kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(2,minmax(120px,1fr))}
     .kpi .lab{font-size:12px;color:#555}
-    .kpi .val{font-size:20px;font-weight:600}
+    .kpi .val{font-size:16px;font-weight:600}
 
-    /* Axis font sizes */
+    /* Symbols two-column layout (match Moody spacing) */
+    .symgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;margin-top:8px}
+    .symgrid ul{margin:0 0 0 20px;padding:0}
+
+    /* Plot */
     .viz .axis text{font-size:15px}
     .viz .axis-title{font-size:16px}
+    .curve-label{font-size:14px;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
   </style>
 </head>
 <body>
@@ -73,36 +78,42 @@
       <!-- Equations -->
       <div class="ctl">
         <div class="eqwrap">
-          <div class="note" style="margin-bottom:8px"><b>Isentropic flow functions (ideal gas)</b></div>
+          <!-- Match Moody heading style -->
+          <div class="note title-xl" style="margin-bottom:10px"><b>Isentropic flow functions (ideal gas)</b></div>
 
-          <!-- Line 1: T/T0 & p/p0 (use textbook's M notation) -->
+          <!-- Line 1: T/T0 & p/p0 -->
           <div class="eqbig">
             \( \displaystyle
-                \frac{T}{T_0}=\Big(1+\frac{k-1}{2}M^2\Big)^{-1}, \quad
-                \frac{p}{p_0}=\Big(1+\frac{k-1}{2}M^2\Big)^{-\frac{k}{k-1}}.
+                \frac{T}{T_0}=\Big(1+\frac{k-1}{2}\mathrm{Ma}^{2}\Big)^{-1}, \quad
+                \frac{p}{p_0}=\Big(1+\frac{k-1}{2}\mathrm{Ma}^{2}\Big)^{-\frac{k}{k-1}}.
             \)
           </div>
 
-          <!-- Line 2: rho/rho0 & A/A* (area–Mach formatted as in textbook) -->
+          <!-- Line 2: rho/rho0 & A/A* (textbook formatting) -->
           <div class="eqbig" style="margin-top:8px">
             \( \displaystyle
-              \frac{\rho}{\rho_0}=\Big(1+\frac{k-1}{2}M^2\Big)^{-\frac{1}{k-1}}, \quad
-              \frac{A}{A^{*}}=\frac{1}{M}
-              \left[\frac{2}{k+1}\left(1+\frac{k-1}{2}M^{2}\right)\right]^{\frac{k+1}{2(k-1)}}.
+              \frac{\rho}{\rho_0}=\Big(1+\frac{k-1}{2}\mathrm{Ma}^{2}\Big)^{-\frac{1}{k-1}}, \quad
+              \frac{A}{A^{*}}=\frac{1}{\mathrm{Ma}}
+              \left[\frac{2}{k+1}\left(1+\frac{k-1}{2}\mathrm{Ma}^{2}\right)\right]^{\frac{k+1}{2(k-1)}}.
             \)
           </div>
 
           <div class="note" style="margin-top:10px">
             <b>Symbols</b>
-            <ul style="margin:8px 0 0 20px">
-              <li><b>M</b> — Mach number (flow speed / local speed of sound)</li>
-              <li><b>k</b> — specific heat ratio (Cp/Cv); ≈ 1.40 a diatomic gas, 1.67 for a monatomic gas, and 1.33 for a triatomic gas</li>
-              <li><b>T</b>, <b>p</b>, and <b>ρ</b> — local <i>static</i> temperature, pressure, and density</li>
-              <li><b>T₀</b>, <b>p₀</b>, and <b>ρ₀</b> — <i>stagnation (total)</i> values (flow brought to rest isentropically)</li>
-              <li><b>A</b> — area of location where Mach number is Ma; <b>A*</b> — area that <i>would correspond to</i> Mach number of one</li>
-            </ul>
+            <div class="symgrid">
+              <ul>
+                <li><b>Ma</b> — Mach number (flow speed / local speed of sound)</li>
+                <li><b>k</b> — specific heat ratio (Cp/Cv)</li>
+                <li><b>T</b>, <b>p</b>, <b>ρ</b> — local <i>static</i> temperature, pressure, density</li>
+                <li><b>T₀</b>, <b>p₀</b>, <b>ρ₀</b> — <i>stagnation (total)</i> values</li>
+              </ul>
+              <ul>
+                <li><b>A</b> — area at the location where the Mach number is Ma</li>
+                <li><b>A*</b> — area that <i>would correspond to</i> Ma = 1 (critical/choked area)</li>
+              </ul>
+            </div>
             <div style="margin-top:8px">
-              Bernoulli equation for incompressible flow is typically applicable when \( M \lesssim 0.28 \) (≈ 2% pressure error).
+              Bernoulli equation for incompressible flow is typically applicable when \( \mathrm{Ma} \lesssim 0.28 \) (≈ 2% pressure error).
             </div>
           </div>
         </div>
@@ -115,22 +126,16 @@
             <label>Ma (0.10–10.00)</label>
             <div class="rowflex">
               <input id="ma" class="num-sm" type="number" min="0.10" max="10.00" step="0.01" value="1.00" />
-              <!-- Removed preset Ma chips: 0.30, 1, 3 -->
             </div>
           </div>
 
           <div>
             <label>k (specific heat ratio)</label>
             <select id="k">
-              <option value="1.67">1.67 — monatomic (He, Ne &amp; Ar)</option>
-              <option value="1.40" selected>1.40 — diatomic (air: N₂ &amp; O₂)</option>
-              <option value="1.33">1.33 — triatomic (CO₂)</option>
+              <option value="1.67">1.67 — monatomic (e.g., He, Ne &amp; Ar)</option>
+              <option value="1.40" selected>1.40 — diatomic (e.g., air: N₂ &amp; O₂)</option>
+              <option value="1.33">1.33 — triatomic (e.g., CO₂)</option>
             </select>
-            <div class="kchips">
-              <button type="button" class="chip" data-k="1.67">Monatomic 1.67</button>
-              <button type="button" class="chip active" data-k="1.40">Diatomic 1.40</button>
-              <button type="button" class="chip" data-k="1.33">Triatomic 1.33</button>
-            </div>
           </div>
 
           <!-- Live mini readout -->
@@ -159,12 +164,18 @@
       </div>
 
       <div class="note" style="margin-top:8px">
-        Curves show static to stagnation ratios vs Ma for the chosen k. Drag anywhere across the plot to change Ma.
+        Curves show static-to-stagnation ratios vs Ma for the chosen k. Drag anywhere across the plot to change Ma.
       </div>
 
       <div id="readout" class="note" style="margin-top:8px"></div>
     </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="../index.html" class="back-home"><span class="chev">←</span> Home</a>
+    </div>
+  </footer>
 
   <script>
     /* ===== math ===== */
@@ -246,13 +257,17 @@
       }
       svg.append('path').attr('d', d3.line()(ptsA)).attr('stroke',cA).attr('stroke-width',2).attr('fill','none');
 
-      // On-plot labels
-      svg.append('text').attr('x', x(2.3)).attr('y', yL(0.82)).attr('fill', cT).text('T/T₀');
-      svg.append('text').attr('x', x(1.7)).attr('y', yL(0.70)).attr('fill', cP).text('p/p₀');
-      svg.append('text').attr('x', x(1.3)).attr('y', yL(0.56)).attr('fill', cR).text('ρ/ρ₀');
-      svg.append('text').attr('x', x(3.2)).attr('y', yR(5.0)).attr('fill', cA).text('A/A*');
+      // Dynamic labels that move with k (choose anchor Ma values)
+      const labelAt = (Ma)=>({x:x(Ma)});
+      const lblT = isoRatios(1.6, kVal).T_T0, lblP = isoRatios(1.2, kVal).p_p0, lblR = isoRatios(1.0, kVal).r_r0, lblA = areaRatio(2.3, kVal);
+      svg.append('text').attr('class','curve-label').attr('x', labelAt(1.6).x).attr('y', yL(lblT)).attr('fill', cT).text('T/T₀');
+      svg.append('text').attr('class','curve-label').attr('x', labelAt(1.2).x).attr('y', yL(lblP)).attr('fill', cP).text('p/p₀');
+      svg.append('text').attr('class','curve-label').attr('x', labelAt(1.05).x).attr('y', yL(lblR)).attr('fill', cR).text('ρ/ρ₀');
+      if (lblA <= 10){
+        svg.append('text').attr('class','curve-label').attr('x', x(2.3)).attr('y', yR(lblA)).attr('fill', cA).text('A/A*');
+      }
 
-      // Draggable vertical line (no knob)
+      // Draggable vertical line & probe dots
       const dragTo = (ev)=>{ const xm = Math.max(m, Math.min(w-m, ev.x)); setMa(x.invert(xm)); };
       const line = svg.append('line')
         .attr('x1', x(MaMark)).attr('x2', x(MaMark)).attr('y1', m).attr('y2', h-m)
@@ -263,7 +278,30 @@
          .attr('fill','transparent').style('cursor','ew-resize')
          .call(d3.drag().on('drag', dragTo));
 
-      function refresh(){ line.attr('x1',x(MaMark)).attr('x2',x(MaMark)); }
+      // Probe dots (match Moody style)
+      const dotT = svg.append('circle').attr('r',7).attr('fill',cT).attr('stroke','#111');
+      const dotP = svg.append('circle').attr('r',7).attr('fill',cP).attr('stroke','#111');
+      const dotR = svg.append('circle').attr('r',7).attr('fill',cR).attr('stroke','#111');
+      const dotA = svg.append('circle').attr('r',7).attr('fill',cA).attr('stroke','#111');
+
+      function positionDots(){
+        const s = isoRatios(MaMark, kVal);
+        const A = areaRatio(MaMark, kVal);
+
+        dotT.attr('cx', x(MaMark)).attr('cy', yL(s.T_T0)).style('display', null);
+        dotP.attr('cx', x(MaMark)).attr('cy', yL(s.p_p0)).style('display', null);
+        dotR.attr('cx', x(MaMark)).attr('cy', yL(s.r_r0)).style('display', null);
+
+        // Hide purple dot if off right-axis range
+        if (A > yR.domain()[1]) {
+          dotA.style('display','none');
+        } else {
+          dotA.attr('cx', x(MaMark)).attr('cy', yR(A)).style('display', null);
+        }
+      }
+
+      function refresh(){ line.attr('x1',x(MaMark)).attr('x2',x(MaMark)); positionDots(); }
+      positionDots();
       updateReadout(); updateKPIs();
       return { refresh };
     }
@@ -302,29 +340,16 @@
 
     // Wiring
     document.getElementById('ma').addEventListener('input', e => setMa(e.target.value));
-
-    document.querySelectorAll('.kchips .chip').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        document.querySelectorAll('.kchips .chip').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active');
-        const kv = parseFloat(btn.dataset.k);
-        kVal = kv;
-        document.getElementById('k').value = kv.toFixed(2);
-        mainAPI = drawMain();
-      });
-    });
     document.getElementById('k').addEventListener('change', e => {
       kVal = parseFloat(e.target.value);
-      document.querySelectorAll('.kchips .chip').forEach(b=>b.classList.toggle('active', parseFloat(b.dataset.k)===kVal));
-      mainAPI = drawMain();
+      mainAPI = drawMain(); // redraw so curve labels move with k
     });
-
     window.addEventListener('resize', ()=> { mainAPI = drawMain(); });
   </script>
 
   <!-- Auto-stamp feedback link with page context (same as Moody) -->
   <script>
-    const FEEDBACK = { course: 'ME 310', sim: 'Isentropic' };
+    const FEEDBACK = { course: 'ME 310', sim: 'Isentropic Flow Functions for an Ideal Gas' };
     document.addEventListener('DOMContentLoaded', () => {
       const url = new URL('../feedback.html', location.href);
       if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);

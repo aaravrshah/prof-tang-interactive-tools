@@ -1,0 +1,289 @@
+<!-- /me310/1.22.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Eq. 1.22 • Capillary Rise (Jurin’s Law)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../styles.css" />
+
+  <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    /* Header: compact title + button (match Moody/Isentropic) */
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
+         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .btn.primary:hover{filter:brightness(1.06)}
+
+    /* Two-column: equations (wide) + inputs (slim) */
+    .top-grid{display:grid;gap:12px}
+    @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
+
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .eqbig{font-size:1.02em}
+
+    /* Match Moody section header style */
+    .title-xl{font-size:18px;line-height:1.25;color:#111}
+
+    /* Inputs */
+    .controls{display:grid;gap:12px}
+    .rowflex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .inline{display:flex;align-items:center;gap:8px}
+    .num-sm{width:170px}
+    .controls input.num-sm[type="number"]{width:170px !important}
+
+    /* KPI (smaller numbers like Isentropic/1.21) */
+    .kpi{
+      display:grid;gap:10px;margin-top:10px;
+      grid-template-columns:repeat(2,minmax(120px,1fr))
+    }
+    .kpi .lab{font-size:12px;color:#6b7280}
+    .kpi .val{font-size:16px;font-weight:600;color:#334155}
+
+    /* Schematic placeholder */
+    .schem{height:260px;border:2px dashed var(--line);border-radius:12px;background:#fafcff;
+           display:flex;align-items:center;justify-content:center;color:#64748b}
+    .schem small{display:block;margin-top:6px;color:#94a3b8}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-row">
+        <h1 style="margin:0">Capillary Rise (Jurin’s Law) — Eq. 1.22</h1>
+        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="back-row">
+      <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
+    </nav>
+
+    <!-- Equations (left) + Inputs (right) -->
+    <section class="top-grid">
+      <!-- Equations + Symbols -->
+      <div class="ctl">
+        <div class="eqwrap">
+          <div class="note title-xl" style="margin-bottom:10px"><b>Capillary rise in a circular tube (Jurin’s law)</b></div>
+
+          <div class="eqbig">
+            \( \displaystyle \Delta p = \rho g h \)
+          </div>
+          <div class="eqbig" style="margin-top:8px">
+            \( \displaystyle h = \frac{2\sigma \cos\theta}{\rho g r}
+               \;=\; \frac{4\sigma \cos\theta}{\rho g D} \)
+          </div>
+
+          <div class="note" style="margin-top:12px"><b>Symbols</b>
+            <ul style="margin:8px 0 0 20px">
+              <li><b>\(h\)</b> — capillary rise (+) or depression (−) (m)</li>
+              <li><b>\(\Delta p\)</b> — hydrostatic pressure difference \(=\rho g h\) (Pa)</li>
+              <li><b>\(\sigma\)</b> — surface tension (N·m\(^{-1}\))</li>
+              <li><b>\(\theta\)</b> — static contact angle (°), measured in the liquid</li>
+              <li><b>\(\rho\)</b> — liquid density (kg·m\(^{-3}\))</li>
+              <li><b>\(g\)</b> — gravitational acceleration (m·s\(^{-2}\))</li>
+              <li><b>\(r\)</b>, <b>\(D\)</b> — tube radius, diameter (m), with \(D=2r\)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Schematic placeholder -->
+        <div class="schem" style="margin-top:12px">
+          <div style="text-align:center">
+            <div>🔧 Schematic placeholder</div>
+            <small>(capillary tube, meniscus, contact angle θ, rise h)</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls / Readout -->
+      <div class="ctl">
+        <div class="controls">
+          <!-- Fluid preset -->
+          <div>
+            <label>Fluid preset (σ, ρ at ~20 °C)</label>
+            <select id="fluid">
+              <option value="water">Water — σ≈0.0728 N/m, ρ≈998 kg/m³</option>
+              <option value="ethanol">Ethanol — σ≈0.0223 N/m, ρ≈789 kg/m³</option>
+              <option value="mercury">Mercury — σ≈0.485 N/m, ρ≈13534 kg/m³</option>
+              <option value="custom">Custom…</option>
+            </select>
+          </div>
+
+          <!-- σ and ρ -->
+          <div class="rowflex">
+            <div>
+              <label>Surface tension, σ (N/m)</label>
+              <input id="sigma" class="num-sm" type="number" min="0" step="0.0001" value="0.0728" />
+            </div>
+            <div>
+              <label>Density, ρ (kg/m³)</label>
+              <input id="rho" class="num-sm" type="number" min="1" step="1" value="998" />
+            </div>
+          </div>
+
+          <!-- Diameter / units -->
+          <div class="rowflex">
+            <div>
+              <label>Tube diameter, D</label>
+              <div class="inline">
+                <input id="D" class="num-sm" type="number" min="1e-6" step="0.001" value="1.00" />
+                <select id="Dunit" aria-label="diameter unit">
+                  <option value="m">m</option>
+                  <option value="mm" selected>mm</option>
+                  <option value="um">μm</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label>Contact angle, θ (°)</label>
+              <input id="theta" class="num-sm" type="number" min="0" max="180" step="1" value="0" />
+            </div>
+          </div>
+
+          <!-- Gravity -->
+          <div class="rowflex">
+            <div>
+              <label>Gravity, g</label>
+              <select id="grav">
+                <option value="9.81" selected>Earth — 9.81 m/s²</option>
+                <option value="3.71">Mars — 3.71 m/s²</option>
+                <option value="1.62">Moon — 1.62 m/s²</option>
+                <option value="custom">Custom…</option>
+              </select>
+            </div>
+            <div id="gWrap" style="display:none">
+              <label>g (m/s²)</label>
+              <input id="g" class="num-sm" type="number" min="0.1" step="0.01" value="9.81" />
+            </div>
+          </div>
+
+          <!-- Readout -->
+          <div>
+            <label>Current values</label>
+            <div class="kpi">
+              <div><div class="lab">h (m)</div><div id="kpi_h_m" class="val">—</div></div>
+              <div><div class="lab">h (mm)</div><div id="kpi_h_mm" class="val">—</div></div>
+              <div><div class="lab">Δp = ρgh (Pa)</div><div id="kpi_dp" class="val">—</div></div>
+              <div><div class="lab">Sign</div><div id="kpi_sign" class="val">—</div></div>
+            </div>
+          </div>
+
+          <p class="note" style="margin:0">
+            Positive \(h\) indicates rise (wetting: \(\cos\theta>0\)); negative \(h\) indicates depression (non-wetting: \(\cos\theta<0\)).
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footnote / usage banner (same pattern as other pages) -->
+    <section class="card" style="margin-top:12px">
+      <div class="note">
+        Try very small diameters (e.g., 100 μm) or large contact angles to see the sensitivity of \(h\).
+        This tool uses \( h = \tfrac{4\sigma\cos\theta}{\rho g D} \) with \( D = 2r \) for circular tubes.
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="../index.html" class="back-home"><span class="chev">←</span> Home</a>
+    </div>
+  </footer>
+
+  <script>
+    // ---------- helpers ----------
+    const $ = id => document.getElementById(id);
+    const toMeters = (val, unit) => {
+      const v = parseFloat(val);
+      if (!Number.isFinite(v) || v <= 0) return NaN;
+      if (unit === 'm')  return v;
+      if (unit === 'mm') return v * 1e-3;
+      if (unit === 'um') return v * 1e-6;
+      return v;
+    };
+
+    // Fluid presets (@~20 C)
+    const PRESETS = {
+      water:   { sigma: 0.0728, rho: 998 },
+      ethanol: { sigma: 0.0223, rho: 789 },
+      mercury: { sigma: 0.4850, rho: 13534 }
+    };
+
+    function cosd(deg){ return Math.cos(deg * Math.PI / 180); }
+
+    function compute(){
+      const fluid = $('fluid').value;
+      const sigma = Math.max(0, parseFloat($('sigma').value));
+      const rho   = Math.max(1, parseFloat($('rho').value));
+      const Dm    = toMeters($('D').value, $('Dunit').value);
+      const th    = parseFloat($('theta').value);
+      const gsel  = $('grav').value;
+      const g     = (gsel === 'custom') ? Math.max(0.1, parseFloat($('g').value)) : parseFloat(gsel);
+
+      const valid = Number.isFinite(sigma) && Number.isFinite(rho) && Number.isFinite(Dm) && Dm > 0 && Number.isFinite(th) && Number.isFinite(g);
+
+      let h = NaN, dp = NaN;
+      if (valid){
+        h  = (4 * sigma * cosd(th)) / (rho * g * Dm); // Jurin via diameter
+        dp = rho * g * h;
+      }
+
+      $('kpi_h_m').textContent  = Number.isFinite(h) ? h.toExponential(3) : '—';
+      $('kpi_h_mm').textContent = Number.isFinite(h) ? (h*1000).toFixed(3) : '—';
+      $('kpi_dp').textContent   = Number.isFinite(dp) ? dp.toFixed(1) : '—';
+      $('kpi_sign').textContent = Number.isFinite(h)
+        ? (h > 0 ? 'Rise' : (h < 0 ? 'Depression' : 'Zero'))
+        : '—';
+    }
+
+    function init(){
+      // fluid presets
+      $('fluid').addEventListener('change', e=>{
+        const f = e.target.value;
+        if (f in PRESETS){
+          $('sigma').value = PRESETS[f].sigma.toString();
+          $('rho').value   = PRESETS[f].rho.toString();
+        }
+        compute();
+      });
+
+      // gravity custom toggle
+      $('grav').addEventListener('change', e=>{
+        const custom = e.target.value === 'custom';
+        $('gWrap').style.display = custom ? 'block' : 'none';
+        compute();
+      });
+
+      // inputs wiring
+      ['sigma','rho','D','Dunit','theta','g'].forEach(id => $(id).addEventListener('input', compute));
+
+      compute();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+
+  <!-- Auto-stamp feedback link with page context (same as other pages) -->
+  <script>
+    const FEEDBACK = { course: 'ME 310', sim: 'Eq 1.22 Capillary Rise (Jurin’s Law)' };
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = new URL('../feedback.html', location.href);
+      if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
+      if (FEEDBACK.sim)    url.searchParams.set('sim',    FEEDBACK.sim);
+      document.querySelectorAll('a.feedback-link').forEach(a => {
+        a.href = url.toString();
+        try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+      });
+    });
+  </script>
+</body>
+</html>
