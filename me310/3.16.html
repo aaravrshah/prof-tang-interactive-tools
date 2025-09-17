@@ -1,0 +1,279 @@
+<!-- /me310/pitot.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pitot–Static Tube • Incompressible Demonstrator</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    /* Header (match Moody/Isentropic) */
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
+         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .btn.primary:hover{filter:brightness(1.06)}
+
+    /* Two-column top */
+    .top-grid{display:grid;gap:12px}
+    @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
+
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .eqbig{font-size:1.02em;margin-top:2px}
+    .note.title-xl{font-size:16px;line-height:1.15}
+
+    /* Symbols two-column */
+    .symgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;margin-top:8px}
+    .symgrid ul{margin:0 0 0 20px;padding:0}
+
+    /* Inputs */
+    .controls{display:grid;gap:12px}
+    .rowflex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .num-sm{width:170px}
+    .controls input.num-sm[type="number"]{width:170px !important}
+    .inline{display:flex;align-items:center;gap:8px}
+
+    /* Readout KPIs (de-emphasize numbers, match site) */
+    .kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(2,minmax(120px,1fr))}
+    .kpi .lab{font-size:12px;color:#555}
+    .kpi .val{font-size:16px;font-weight:600}
+
+    /* Schematic placeholder */
+    .schem{height:260px;border:2px dashed var(--line);border-radius:12px;background:#fafcff;
+           display:flex;align-items:center;justify-content:center;color:#64748b}
+    .schem small{display:block;margin-top:6px;color:#94a3b8}
+
+    /* Collapsible demo block */
+    details.demo summary{cursor:pointer}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-row">
+        <h1 style="margin:0">Pitot–Static Tube • Incompressible Demonstrator</h1>
+        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="back-row">
+      <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
+    </nav>
+
+    <!-- Equations + Inputs -->
+    <section class="top-grid">
+      <!-- Equations + Symbols -->
+      <div class="ctl">
+        <div class="eqwrap">
+          <div class="note title-xl" style="margin-bottom:10px"><b>Velocity from Pitot–static pressure difference (incompressible)</b></div>
+
+          <div class="eqbig">
+            \( \displaystyle
+              V \;=\; \sqrt{\frac{2\,\Delta p}{\rho}}
+              \quad\text{with}\quad \Delta p = p_0 - p.
+            \)
+          </div>
+
+          <div class="eqbig" style="margin-top:8px">
+            \( \displaystyle
+              \text{Concept link (demo):}\quad
+              \Delta p =
+              \begin{cases}
+                (\rho_m - \rho)\,g\,h, & \text{general manometer}\\[4px]
+                \rho_m\,g\,h, & \text{air with dense manometer fluid}
+              \end{cases}
+            \)
+          </div>
+
+          <div class="note" style="margin-top:10px">
+            <b>Symbols</b>
+            <div class="symgrid">
+              <ul>
+                <li><b>V</b> — local flow speed (m·s\(^{-1}\))</li>
+                <li><b>p₀</b> — stagnation (total) pressure at Pitot opening (Pa)</li>
+                <li><b>p</b> — static pressure (Pa)</li>
+                <li><b>Δp</b> — \(p_0 - p\) (Pa)</li>
+              </ul>
+              <ul>
+                <li><b>ρ</b> — working-fluid density (kg·m\(^{-3}\))</li>
+                <li><b>ρₘ</b> — manometer fluid density (kg·m\(^{-3}\))</li>
+                <li><b>h</b> — manometer level difference (m)</li>
+                <li><b>g</b> — 9.81 m·s\(^{-2}\)</li>
+              </ul>
+            </div>
+            <div style="margin-top:8px">
+              Educational scope: steady, incompressible flow along the streamline into the Pitot opening, negligible elevation difference between ports.
+            </div>
+          </div>
+        </div>
+
+        <!-- Schematic placeholder -->
+        <div class="schem" style="margin-top:12px">
+          <div style="text-align:center">
+            <div>📐 Schematic placeholder — Pitot tip (stagnation) + static port → manometer</div>
+            <small>(replace with your own course figure later)</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls / Readout -->
+      <div class="ctl">
+        <div class="controls">
+          <!-- Working fluid ρ (coarse presets, exploratory) -->
+          <div>
+            <label>Working-fluid density, ρ (kg/m³)</label>
+            <div class="rowflex">
+              <select id="rhoPreset" aria-label="fluid preset">
+                <option value="air">Air (~1.2)</option>
+                <option value="water">Water (~1000)</option>
+                <option value="custom" selected>Custom…</option>
+              </select>
+              <input id="rho" class="num-sm" type="number" min="0.5" step="0.5" value="1.2" />
+            </div>
+          </div>
+
+          <!-- Primary exploration: Δp slider + coarse input -->
+          <div>
+            <label>Pressure difference, Δp (Pa)</label>
+            <input id="dp" class="num-sm" type="number" min="0" step="10" value="100" />
+            <input id="dpRange" type="range" min="0" max="5000" step="10" value="100" />
+          </div>
+
+          <!-- Optional demo: reveal manometer link (not front-and-center) -->
+          <details class="demo">
+            <summary class="note">Show manometer relation (demo)</summary>
+            <div class="rowflex" style="margin-top:8px">
+              <div>
+                <label>h (m)</label>
+                <input id="h" class="num-sm" type="number" min="0" step="0.001" value="0.010" />
+              </div>
+              <div>
+                <label>Manometer ρₘ (kg/m³)</label>
+                <input id="rhoM" class="num-sm" type="number" min="500" step="10" value="13595" />
+              </div>
+              <div class="inline">
+                <label class="inline"><input type="radio" name="manomode" value="general" checked /> \((\rho_m-\rho)gh\)</label>
+                <label class="inline"><input type="radio" name="manomode" value="airwater" /> \(\rho_m g h\)</label>
+              </div>
+              <button id="useMano" type="button" class="btn">Set Δp from manometer</button>
+            </div>
+          </details>
+
+          <!-- Readout (low precision to avoid “calculator” feel) -->
+          <div>
+            <label>Current values</label>
+            <div class="kpi">
+              <div><div class="lab">V (m/s)</div><div id="kpi_V" class="val">—</div></div>
+              <div><div class="lab">Δp (Pa)</div><div id="kpi_dp" class="val">—</div></div>
+              <div><div class="lab">q = ½ρV² (Pa)</div><div id="kpi_q" class="val">—</div></div>
+              <div><div class="lab">Notes</div><div id="kpi_mode" class="val">Incompressible model</div></div>
+            </div>
+          </div>
+
+          <p class="note" style="margin:0">
+            This interactive is for concept exploration (not a problem-solver). For gases at higher speeds,
+            compressibility corrections are outside the scope shown here.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Optional note card -->
+    <section class="card" style="margin-top:12px">
+      <div class="note">
+        Try moving Δp and observing how \(V\propto\sqrt{\Delta p}\). For air, small Δp already yields noticeable speeds,
+        whereas water (much larger ρ) needs larger Δp for the same V.
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="../index.html" class="back-home"><span class="chev">←</span> Home</a>
+    </div>
+  </footer>
+
+  <script>
+    // ---------- helpers ----------
+    const $ = id => document.getElementById(id);
+    const g = 9.81;
+
+    function valNum(el, fb){ const v = parseFloat(el.value); return Number.isFinite(v) ? v : fb; }
+    function clamp(v, lo, hi){ return Math.min(hi, Math.max(lo, v)); }
+
+    function rhoWorking(){
+      const preset = $('rhoPreset').value;
+      if (preset === 'air')   $('rho').value = '1.2';
+      if (preset === 'water') $('rho').value = '1000';
+      return clamp(valNum($('rho'), 1.2), 0.5, 20000);
+    }
+
+    function currentDp(){ return clamp(valNum($('dp'), 0), 0, 1e6); }
+
+    function compute(){
+      const rho = rhoWorking();
+      const dp  = currentDp();
+      const V   = (rho>0) ? Math.sqrt((2*dp)/rho) : NaN;
+      const q   = 0.5*rho*(V*V);
+
+      // low precision (keep this from being a homework calculator)
+      $('kpi_V').textContent  = Number.isFinite(V) ? V.toFixed(2) : '—';
+      $('kpi_dp').textContent = Number.isFinite(dp)? Math.round(dp) : '—';
+      $('kpi_q').textContent  = Number.isFinite(q) ? Math.round(q) : '—';
+    }
+
+    function setDp(v){
+      const dp = clamp(v, 0, 5000);
+      $('dp').value = dp;
+      $('dpRange').value = dp;
+      compute();
+    }
+
+    function useManometer(){
+      const h    = clamp(valNum($('h'), 0), 0, 100);
+      const rhoM = clamp(valNum($('rhoM'), 13595), 1, 40000);
+      const rho  = rhoWorking();
+      const mode = [...document.querySelectorAll('input[name="manomode"]')].find(r=>r.checked)?.value || 'general';
+      const dp   = (mode==='airwater') ? rhoM*g*h : Math.max(0, (rhoM - rho)*g*h);
+      setDp(dp);
+    }
+
+    function wire(){
+      $('rhoPreset').addEventListener('change', compute);
+      $('rho').addEventListener('input', compute);
+
+      $('dp').addEventListener('input', (e)=> setDp(parseFloat(e.target.value)||0));
+      $('dpRange').addEventListener('input', (e)=> setDp(parseFloat(e.target.value)||0));
+
+      $('useMano').addEventListener('click', useManometer);
+      $('h').addEventListener('input', ()=>{});     // only used when button is pressed
+      $('rhoM').addEventListener('input', ()=>{});  // idem
+      document.querySelectorAll('input[name="manomode"]').forEach(r=> r.addEventListener('change', ()=>{}));
+
+      compute();
+    }
+    window.addEventListener('DOMContentLoaded', wire);
+  </script>
+
+  <!-- Feedback context (no textbook numbering) -->
+  <script>
+    const FEEDBACK = { course: 'ME 310', sim: 'Pitot–Static Tube (Incompressible)' };
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = new URL('../feedback.html', location.href);
+      if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
+      if (FEEDBACK.sim)    url.searchParams.set('sim',    FEEDBACK.sim);
+      document.querySelectorAll('a.feedback-link').forEach(a => {
+        a.href = url.toString();
+        try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+      });
+    });
+  </script>
+</body>
+</html>

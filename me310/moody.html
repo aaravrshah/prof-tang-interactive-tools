@@ -46,7 +46,7 @@
 
     .region-label{fill:#111;font-size:16px}
 
-    /* Symbols in two columns (collapses on small screens) */
+    /* Symbols two columns (collapse on narrow) */
     .symcol{columns:2;column-gap:24px;margin-top:6px}
     @media (max-width:640px){ .symcol{columns:1} }
   </style>
@@ -209,7 +209,7 @@
       $('rrBadge').textContent = fmtExp(rr);
     }
 
-    // find where Haaland crosses f = yMin (clean clipping)
+    // where Haaland crosses f = yMin (for clipping)
     function interceptR(rr, Rlo, Rhi, fTarget){
       let a = Rlo, b = Rhi, fa = fHaaland(a, rr) - fTarget, fb = fHaaland(b, rr) - fTarget;
       if (fa < 0) return Rlo;
@@ -386,7 +386,7 @@
         line = ` | <b>Turbulent</b> → f (Haaland) = <b>${data.fH.toPrecision(4)}</b>`
              + ($('compare').checked ? `, f (Colebrook) = <b>${data.fCb.toPrecision(4)}</b>, Δ% = ${diff.toFixed(2)}%` : '');
       } else {
-        // Transition: numeric f again (baseline from 64/Re)
+        // Transition: numeric f (baseline from 64/Re)
         line = ` | <b>Transition</b> 2100–4000 → f ≈ <b>${data.fEst.toPrecision(4)}</b> (baseline from 64/Re).`;
       }
       $('info').innerHTML = base + line;
@@ -421,18 +421,16 @@
     window.addEventListener('DOMContentLoaded', init);
   </script>
 
-  <!-- Auto-stamp feedback link with page context; also drop a localStorage fallback -->
+  <!-- Auto-stamp feedback link with page context -->
   <script>
-    const FEEDBACK = { course: 'ME 310', sim: 'Moody' };
+    const FEEDBACK = { course: 'ME 310', sim: 'Friction Factor and Moody Chart' };
     document.addEventListener('DOMContentLoaded', () => {
       const url = new URL('../feedback.html', location.href);
       if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
       if (FEEDBACK.sim)    url.searchParams.set('sim',    FEEDBACK.sim);
       document.querySelectorAll('a.feedback-link').forEach(a => {
         a.href = url.toString();
-        a.addEventListener('click', () => {
-          try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
-        });
+        try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
       });
     });
   </script>

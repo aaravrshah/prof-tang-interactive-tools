@@ -14,44 +14,13 @@
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
-    /* Header: compact title + button (match Moody) */
-    .site-header .container{padding-top:20px;padding-bottom:20px}
-    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
-         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
-    .btn.primary{background:var(--accent);border-color:transparent}
-    .btn.primary:hover{filter:brightness(1.06)}
-
-    /* Top grid: equations (wide) + inputs (slim) */
+    /* Page-specific only */
     .top-grid{display:grid;gap:12px}
     @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
 
-    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
-    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
-    .eqbig{font-size:1.02em;margin-top:2px}
+    .eqbig{margin-top:2px} /* tiny breathing room line-to-line */
 
-    /* Heading style identical to Moody */
-    .note.title-xl{font-size:16px;line-height:1.15}
-
-    /* Make math size match Moody’s equation scale */
-    .eqwrap .mjx-container{font-size:1.14em !important}
-
-    /* Inputs */
-    .controls{display:grid;gap:12px}
-    .num-sm{width:160px}
-    .controls input.num-sm[type="number"]{width:160px !important}
-    .rowflex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-
-    /* KPI readout inside inputs (de-emphasize numbers) */
-    .kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(2,minmax(120px,1fr))}
-    .kpi .lab{font-size:12px;color:#555}
-    .kpi .val{font-size:16px;font-weight:600}
-
-    /* Symbols two-column layout (match Moody spacing) */
-    .symgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;margin-top:8px}
-    .symgrid ul{margin:0 0 0 20px;padding:0}
-
-    /* Plot */
+    /* Plot typography */
     .viz .axis text{font-size:15px}
     .viz .axis-title{font-size:16px}
     .curve-label{font-size:14px;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
@@ -76,7 +45,7 @@
     <!-- Equations (left) + Inputs (right) -->
     <section class="top-grid">
       <!-- Equations -->
-      <div class="ctl">
+      <div class="card">
         <div class="eqwrap">
           <!-- Match Moody heading style -->
           <div class="note title-xl" style="margin-bottom:10px"><b>Isentropic flow functions (ideal gas)</b></div>
@@ -120,16 +89,14 @@
       </div>
 
       <!-- Inputs (slimmer) -->
-      <div class="ctl">
+      <div class="card">
         <div class="controls">
-          <div>
+          <div class="ctl">
             <label>Ma (0.10–10.00)</label>
-            <div class="rowflex">
-              <input id="ma" class="num-sm" type="number" min="0.10" max="10.00" step="0.01" value="1.00" />
-            </div>
+            <input id="ma" class="num-sm" type="number" min="0.10" max="10.00" step="0.01" value="1.00" />
           </div>
 
-          <div>
+          <div class="ctl">
             <label>k (specific heat ratio)</label>
             <select id="k">
               <option value="1.67">1.67 — monatomic (e.g., He, Ne &amp; Ar)</option>
@@ -138,8 +105,8 @@
             </select>
           </div>
 
-          <!-- Live mini readout -->
-          <div>
+          <!-- Live mini readout (size comes from shared CSS) -->
+          <div class="ctl">
             <label>Current values</label>
             <div class="kpi">
               <div><div class="lab">T/T₀</div><div id="kpi_TT0" class="val">—</div></div>
@@ -217,16 +184,21 @@
 
       // Axes
       const xTicks = [0.1,0.5,1,5,10];
-      svg.append('g').attr('class','axis').attr('transform',`translate(0,${h-m})`).call(d3.axisBottom(x).tickValues(xTicks).tickFormat(d3.format("~g")));
-      svg.append('g').attr('class','axis').attr('transform',`translate(0,${m})`).call(d3.axisTop(x).tickValues(xTicks).tickFormat(d3.format("~g")));
+      svg.append('g').attr('class','axis').attr('transform',`translate(0,${h-m})`)
+         .call(d3.axisBottom(x).tickValues(xTicks).tickFormat(d3.format("~g")));
+      svg.append('g').attr('class','axis').attr('transform',`translate(0,${m})`)
+         .call(d3.axisTop(x).tickValues(xTicks).tickFormat(d3.format("~g")));
       svg.append('g').attr('class','axis').attr('transform',`translate(${m},0)`).call(d3.axisLeft(yL).ticks(10));
       svg.append('g').attr('class','axis').attr('transform',`translate(${w-m},0)`).call(d3.axisRight(yR).ticks(10));
 
       // Axis titles
-      svg.append('text').attr('class','axis-title').attr('x', w/2).attr('y', h-10).attr('text-anchor','middle').text('Ma');
-      svg.append('text').attr('class','axis-title').attr('x', -(h/2)).attr('y', 18).attr('text-anchor','middle').attr('transform','rotate(-90)').text('T/T₀, p/p₀, ρ/ρ₀');
-      const rx = w - Math.max(44, m*0.6), ry = h/2;
-      svg.append('text').attr('class','axis-title').attr('x', rx).attr('y', ry).attr('text-anchor','middle').attr('transform',`rotate(90 ${rx} ${ry})`).text('A/A*');
+      svg.append('text').attr('class','axis-title').attr('x', w/2).attr('y', h-10)
+         .attr('text-anchor','middle').text('Ma');
+      svg.append('text').attr('class','axis-title').attr('x', -(h/2)).attr('y', 18)
+         .attr('text-anchor','middle').attr('transform','rotate(-90)').text('T/T₀, p/p₀, ρ/ρ₀');
+      const rx = w - 22, ry = h/2;  /* flip orientation to match Moody */
+      svg.append('text').attr('class','axis-title').attr('x', rx).attr('y', ry)
+         .attr('text-anchor','middle').attr('transform',`rotate(-90 ${rx} ${ry})`).text('A/A*');
 
       // Grid
       xTicks.forEach(t => svg.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',m).attr('y2',h-m).attr('stroke','#0001'));
@@ -257,12 +229,11 @@
       }
       svg.append('path').attr('d', d3.line()(ptsA)).attr('stroke',cA).attr('stroke-width',2).attr('fill','none');
 
-      // Dynamic labels that move with k (choose anchor Ma values)
-      const labelAt = (Ma)=>({x:x(Ma)});
+      // Dynamic labels that move with k
       const lblT = isoRatios(1.6, kVal).T_T0, lblP = isoRatios(1.2, kVal).p_p0, lblR = isoRatios(1.0, kVal).r_r0, lblA = areaRatio(2.3, kVal);
-      svg.append('text').attr('class','curve-label').attr('x', labelAt(1.6).x).attr('y', yL(lblT)).attr('fill', cT).text('T/T₀');
-      svg.append('text').attr('class','curve-label').attr('x', labelAt(1.2).x).attr('y', yL(lblP)).attr('fill', cP).text('p/p₀');
-      svg.append('text').attr('class','curve-label').attr('x', labelAt(1.05).x).attr('y', yL(lblR)).attr('fill', cR).text('ρ/ρ₀');
+      svg.append('text').attr('class','curve-label').attr('x', x(1.6)).attr('y', yL(lblT)).attr('fill', cT).text('T/T₀');
+      svg.append('text').attr('class','curve-label').attr('x', x(1.2)).attr('y', yL(lblP)).attr('fill', cP).text('p/p₀');
+      svg.append('text').attr('class','curve-label').attr('x', x(1.05)).attr('y', yL(lblR)).attr('fill', cR).text('ρ/ρ₀');
       if (lblA <= 10){
         svg.append('text').attr('class','curve-label').attr('x', x(2.3)).attr('y', yR(lblA)).attr('fill', cA).text('A/A*');
       }
@@ -287,17 +258,11 @@
       function positionDots(){
         const s = isoRatios(MaMark, kVal);
         const A = areaRatio(MaMark, kVal);
-
         dotT.attr('cx', x(MaMark)).attr('cy', yL(s.T_T0)).style('display', null);
         dotP.attr('cx', x(MaMark)).attr('cy', yL(s.p_p0)).style('display', null);
         dotR.attr('cx', x(MaMark)).attr('cy', yL(s.r_r0)).style('display', null);
-
-        // Hide purple dot if off right-axis range
-        if (A > yR.domain()[1]) {
-          dotA.style('display','none');
-        } else {
-          dotA.attr('cx', x(MaMark)).attr('cy', yR(A)).style('display', null);
-        }
+        if (A > yR.domain()[1]) { dotA.style('display','none'); }
+        else { dotA.attr('cx', x(MaMark)).attr('cy', yR(A)).style('display', null); }
       }
 
       function refresh(){ line.attr('x1',x(MaMark)).attr('x2',x(MaMark)); positionDots(); }
@@ -347,7 +312,7 @@
     window.addEventListener('resize', ()=> { mainAPI = drawMain(); });
   </script>
 
-  <!-- Auto-stamp feedback link with page context (same as Moody) -->
+  <!-- Auto-stamp feedback link with page context -->
   <script>
     const FEEDBACK = { course: 'ME 310', sim: 'Isentropic Flow Functions for an Ideal Gas' };
     document.addEventListener('DOMContentLoaded', () => {

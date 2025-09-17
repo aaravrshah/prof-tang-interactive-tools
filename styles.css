@@ -18,25 +18,34 @@ html,body{
   line-height:1.45;
   background:var(--bg); color:var(--ink);
 }
-
-html { scroll-behavior: smooth; }
+html{scroll-behavior:smooth}
 
 /* layout containers */
 .container{max-width:1100px;margin:0 auto;padding:0 16px}
 
-/* header + footer */
+/* ---------- header & footer (shared) ---------- */
 .site-header{
   background:linear-gradient(135deg,var(--ink),var(--ink2));
   color:#fff; padding:28px 0;
 }
+/* same compact banner height across tools */
+.site-header .container{padding-top:20px;padding-bottom:20px}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;
+     border:1px solid #ffffff55;background:rgba(255,255,255,.12);color:#fff;text-decoration:none;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.06)}
+
 .site-header h1{margin:0 0 6px}
 .site-header .subtitle{opacity:.9;margin:.3rem 0 0}
+
 .site-footer{
   border-top:1px solid var(--line); background:#fff;
   padding:16px 0; margin-top:28px;
 }
 
-/* cards & grids */
+/* ---------- cards & grids ---------- */
 .grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 .card{
   background:var(--card); border:1px solid var(--line);
@@ -47,15 +56,15 @@ html { scroll-behavior: smooth; }
 .card h3{margin:6px 0 4px}
 .card p{margin:0; color:#4b5563}
 
-/* generic thumbs (used on index) */
+/* thumbs (index) */
 .thumb{display:block;width:100%;aspect-ratio:16/9;background:#fff;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;margin-bottom:10px}
 .thumb svg{display:block;width:100%;height:auto}
 
-/* two-column helper for pages that need a split */
+/* two-column helper */
 .split{display:grid; gap:14px}
 @media (min-width:920px){ .split{grid-template-columns:1.05fr .95fr} }
 
-/* controls */
+/* ---------- controls ---------- */
 .controls{
   display:grid; gap:10px;
   grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
@@ -76,45 +85,57 @@ html { scroll-behavior: smooth; }
   background:#fff; color:inherit;
 }
 
-/* visualization boxes */
+/* ---------- viz boxes ---------- */
 .viz, #plot, #moody-plot, #nozzle, #bars, #schematic{
   background:#fff; border:1px solid var(--line);
   border-radius:var(--r-md); padding:8px;
 }
 svg{width:100%;height:auto;display:block}
 
-/* legends, notes, little UI atoms */
+/* ---------- notes & atoms ---------- */
 .legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
 .legend .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #0002}
 .note{font-size:13px;color:#4b5563}
 .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#f3f4f6;border:1px solid var(--line);border-radius:6px;padding:2px 6px}
 .badge{display:inline-block;padding:3px 8px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:#fff}
 
-/* equation callouts (used by Bernoulli & Isentropic) */
+/* ---------- equation callouts ---------- */
 .eqwrap{
-  padding:10px; border:1px dashed var(--line);
+  padding:12px; border:1px dashed var(--line);
   border-radius:var(--r-md); background:#fcfcff; overflow-x:auto; margin-bottom:10px;
 }
-.eqbig{font-size:clamp(.90rem,.6vw + .58rem,1.05rem); line-height:1.22}
-.eqnums{font-size:clamp(.88rem,.55vw + .54rem,.98rem); line-height:1.22; color:#111827}
+/* page heading used inside eqwrap (exactly like Moody) */
+.title-xl{font-size:18px;margin-bottom:10px}
+.note.title-xl{font-size:16px;line-height:1.15}
 
-/* back-to-home button (consistent everywhere) */
+/* make MathJax inside eqwrap a touch larger (consistent) */
+.eqwrap .mjx-container{font-size:1.14em !important}
+.eqbig{font-size:clamp(.90rem,.6vw + .58rem,1.05rem); line-height:1.22}
+
+/* ---------- KPIs (shared small size) ---------- */
+.kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(2,minmax(120px,1fr))}
+.kpi .lab{font-size:12px;color:#555}
+.kpi .val{font-size:16px;font-weight:600}  /* <= small everywhere */
+
+/* ---------- symbols lists ---------- */
+.symgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;margin-top:8px}
+.symgrid ul{margin:0 0 0 20px;padding:0}
+.symcol{columns:2;column-gap:24px;margin-top:6px}
+@media (max-width:640px){ .symcol{columns:1} }
+
+/* back-to-home */
 .back-row{display:flex; align-items:center; margin:12px 0 14px}
 .back-home{
   display:inline-flex; align-items:center; gap:6px;
   padding:6px 10px; border:1px solid var(--line); border-radius:999px;
-  background:#fff; color:var(--accent); text-decoration:none; font-size:14px;
+  background:#fff; color:#0ea5e9; text-decoration:none; font-size:14px;
 }
 .back-home:hover{background:#f0f9ff}
 .back-home .chev{font-size:16px; line-height:1}
 
-/* small helpers */
+/* misc */
 .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px}
 .pill-ok{background:#ecfdf5;border-color:#d1fae5;color:#065f46}
 .pill-warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
 .pill-bad{background:#fef2f2;border-color:#fee2e2;color:#7f1d1d}
-
-/* make the bar-chart box never collapse before JS draws */
 #bars{min-height:260px}
-
-.btn { cursor: pointer; }
