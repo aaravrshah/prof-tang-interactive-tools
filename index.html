@@ -10,7 +10,7 @@
     html{scroll-behavior:smooth}
 
     /* Header: match inner pages (title left, buttons right) */
-    .site-header .container{padding-top:20px;padding-bottom:0px}
+    .site-header .container{padding-top:20px;padding-bottom:0}
     .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
     .subline{margin-top:6px;max-width:900px}
 
@@ -28,15 +28,15 @@
     .card h3{margin:6px 0 6px}
     .card p{margin:0;color:#4b5563}
 
-    /* Bottom info tiles: tighten typography & spacing */
-    #howto .card{display:flex;flex-direction:column;justify-content:flex-start}
+    /* Bottom info tiles */
+    #howto .card{display:flex;flex-direction:column}
     #howto .card h3{margin:4px 0 8px;font-size:20px}
     #howto .card p{line-height:1.5;margin-bottom:8px}
     #howto .card .btn{margin-top:10px}
 
-    /* Small helper for placeholder tile artwork */
+    /* Simple placeholder art (no numbers shown) */
     .ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;
-        background:linear-gradient(135deg,#f3f4f6 0%,#ffffff 100%);color:#6b7280;font-weight:600}
+        background:linear-gradient(135deg,#f3f4f6 0%,#ffffff 100%);color:#374151;font-weight:600}
   </style>
 </head>
 <body>
@@ -63,17 +63,26 @@
     <!-- ME 310 -->
     <h2 style="margin:18px 0 8px">ME 310 • Fundamentals of Fluid Dynamics</h2>
     <section class="grid">
-      <!-- NEW placeholder (before Moody) -->
-      <div class="card">
-        <div class="thumb">
-          <div class="ph">Coming soon</div>
-        </div>
-        <h3>Surface Tension (placeholder)</h3>
-        <p>
-          Eq. 1.21: pressure difference between the inside and the outside of a liquid droplet<br/>
-          Eq. 1.22: capillary rise in a tube
-        </p>
-      </div>
+      <!-- 1.21 (no number shown) -->
+      <a class="card link-card" href="./me310/1.21.html" aria-label="Open surface-tension pressure jump page">
+        <div class="thumb"><div class="ph">Surface tension</div></div>
+        <h3>Pressure Difference Between the Inside and the Outside of a Liquid Droplet</h3>
+        <p></p>
+      </a>
+
+      <!-- 1.22 (no number shown) -->
+      <a class="card link-card" href="./me310/1.22.html" aria-label="Open capillary rise page">
+        <div class="thumb"><div class="ph">Capillary rise</div></div>
+        <h3>Capillary Rise in a Tube</h3>
+        <p></p>
+      </a>
+
+      <!-- 3.16 (placed after 1.22, no number shown) -->
+      <a class="card link-card" href="./me310/3.16.html" aria-label="Open Pitot-static tube page">
+        <div class="thumb"><div class="ph">Pitot-static tube</div></div>
+        <h3>Velocity Measurement by the Pitot-static Tube</h3>
+        <p></p>
+      </a>
 
       <!-- Moody -->
       <a class="card link-card" href="./me310/moody.html" aria-label="Open Moody Chart">
@@ -92,6 +101,8 @@
         <h3>Isentropic Relations</h3>
         <p>Static→stagnation ratios vs Mach for chosen γ.</p>
       </a>
+
+      <!-- (Bernoulli head explorer intentionally omitted/hidden) -->
     </section>
 
     <!-- ME 320 -->
@@ -149,9 +160,9 @@
 
   <script>
     // year stamp
-    document.getElementById('year').textContent=new Date().getFullYear();
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Auto-stamp feedback link with page context (same pattern as inner pages)
+    // Auto-stamp feedback link with page context
     const FEEDBACK = { course: 'Global', sim: 'Home' };
     document.addEventListener('DOMContentLoaded', () => {
       const url = new URL('./feedback.html', location.href);
