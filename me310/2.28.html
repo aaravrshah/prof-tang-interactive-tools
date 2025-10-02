@@ -1,0 +1,347 @@
+<!-- /me310/2.28.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Eq. 2.28: Slope of Constant-Pressure Lines (Isobars)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
+         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .btn.primary:hover{filter:brightness(1.06)}
+
+    .top-grid{display:grid;gap:12px}
+    @media (min-width:1024px){ .top-grid{grid-template-columns:1.35fr .9fr} }
+
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .title-xl{font-size:18px;line-height:1.25}
+    .eqbig{font-size:1.02em;margin-top:6px}
+
+    .controls{display:grid;gap:12px}
+    .rowflex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .num-sm{width:160px}
+    .controls input.num-sm[type="number"]{width:160px !important}
+    .kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(2,minmax(120px,1fr))}
+    .kpi .lab{font-size:12px;color:#6b7280}
+    .kpi .val{font-size:16px;font-weight:600;color:#334155}
+
+    #schemBox, #slopeBox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .axis text{font-size:14px}
+    .axis-title{font-size:15px}
+    .dim-note{font-size:13px;color:#4b5563}
+
+    /* schematic axis label size */
+    .schem-axis-label{font-size:18px;font-weight:600;fill:#111}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-row">
+        <h1 style="margin:0">Eq. 2.28: Slope of Constant-Pressure Lines (Isobars)</h1>
+        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="back-row">
+      <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
+    </nav>
+
+    <section class="top-grid">
+      <!-- LEFT: slope plot -->
+      <div class="ctl">
+        <div class="eqwrap">
+          <div class="title-xl" style="margin-bottom:6px"><b>Free surface & isobars in rigid-body motion</b></div>
+          <div class="eqbig">
+            \( \displaystyle \frac{\partial p}{\partial y} = -\,\rho\,a_y,\qquad
+               \frac{\partial p}{\partial z} = -\,\rho\,(g+a_z) \)
+          </div>
+          <div class="eqbig">
+            \( \displaystyle \text{Along an isobar }(dp=0):\quad
+               \frac{dz}{dy} = -\frac{a_y}{\,g+a_z\,}. \)
+          </div>
+          <div class="note" style="margin-top:10px">
+            <b>What this shows.</b> A liquid moving with a container (no internal shear; “rigid-body motion”)
+            has a tilted free surface. \(y\) is horizontal, \(z\) vertical.
+            Changing \(a_y\) tilts the surface; \(a_z\) modifies the effective weight in the denominator.
+            Dashed lines are <i>isobars</i> inside the liquid. They are exactly parallel to the free surface and
+            spaced by equal perpendicular distance.
+          </div>
+        </div>
+
+        <div id="slopeBox" class="viz" style="margin-top:12px">
+          <svg id="slope" viewBox="0 0 680 360" aria-label="slope vs ay"></svg>
+        </div>
+        <p class="dim-note" style="margin:6px 2px 0">
+          Fixed axes: \(a_y\in[-20,20]\), \(dz/dy\in[-4.5,4.5]\). The red dot marks the current \(a_y\).
+        </p>
+      </div>
+
+      <!-- RIGHT: schematic -->
+      <div class="ctl">
+        <div class="controls">
+          <div>
+            <label>\(a_y\) (m/s²) — range [−20, 20]</label>
+            <input id="ayRange" type="range" min="-20" max="20" step="1" value="5" />
+            <input id="ay" class="num-sm" type="number" min="-20" max="20" step="1" value="5" />
+          </div>
+          <div>
+            <label>\(a_z\) (m/s²) — range [−5, 5]</label>
+            <input id="azRange" type="range" min="-5" max="5" step="1" value="0" />
+            <input id="az" class="num-sm" type="number" min="-5" max="5" step="1" value="0" />
+          </div>
+
+          <div>
+            <label>Current values</label>
+            <div class="kpi">
+              <div><div class="lab">g (m/s²)</div><div class="val">9.81</div></div>
+              <div><div class="lab">Slope dz/dy</div><div id="kpiSlope" class="val">—</div></div>
+              <div style="grid-column:1/-1">
+                <div class="lab">Relation</div>
+                <div id="rel" class="val">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="schemBox" style="margin-top:8px">
+            <svg id="schem" viewBox="0 0 560 380" aria-label="free-surface schematic"></svg>
+          </div>
+          <p class="dim-note" style="margin:6px 2px 0">
+            Schematic (\(y\) horizontal, \(z\) vertical). The blue region is the liquid <em>below</em> the free surface.
+            <b>Vertical scale reduced for readability; angles not to scale.</b>
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="../index.html" class="back-home"><span class="chev">←</span> Home</a>
+    </div>
+  </footer>
+
+  <script>
+    /* ---------- model ---------- */
+    const g = 9.81;
+    let ay = 5, az = 0;
+
+    // Visual vertical scale (you set this to 0.15 earlier)
+    const VERT_SCALE = 0.15;
+
+    const slope = (ay, az) => -(ay)/(g+az); // dz/dy physics sign
+
+    const $ = id => document.getElementById(id);
+    const clamp = (v,lo,hi)=>Math.min(hi,Math.max(lo,v));
+
+    /* ---------- schematic ---------- */
+    function drawSchematic(){
+      const svg = d3.select('#schem'); svg.selectAll('*').remove();
+
+      const W=560,H=380, m={l:46,r:16,t:20,b:46};
+      const iw=W-m.l-m.r, ih=H-m.t-m.b;
+      const gsvg = svg.append('g').attr('transform',`translate(${m.l},${m.t})`);
+
+      // Axes (thick)
+      gsvg.append('line').attr('x1',0).attr('x2',0).attr('y1',ih).attr('y2',0)
+          .attr('stroke','#111').attr('stroke-width',3);
+      gsvg.append('line').attr('x1',0).attr('x2',iw).attr('y1',ih).attr('y2',ih)
+          .attr('stroke','#111').attr('stroke-width',3);
+
+      // Axis labels (larger)
+      gsvg.append('text').attr('class','schem-axis-label').attr('x',6).attr('y',14).text('z');
+      gsvg.append('text').attr('class','schem-axis-label').attr('x',iw-6).attr('y',ih-8).attr('text-anchor','end').text('y');
+
+      // Tank rectangle inset
+      const tank = {x: 70, y: 26, w: iw-100, h: ih-70};
+      gsvg.append('rect').attr('x',tank.x).attr('y',tank.y).attr('width',tank.w).attr('height',tank.h)
+           .attr('fill','none').attr('stroke','#111').attr('stroke-width',2);
+
+      // Working band
+      const padX=12, padTop=10, padBot=10;
+      const xL = tank.x + padX, xR = tank.x + tank.w - padX;
+      const yTop = tank.y + padTop, yBot = tank.y + tank.h - padBot;
+
+      // Screen slope (flip sign for SVG y, apply vertical scale)
+      const mScr = -slope(ay, az) * VERT_SCALE;
+
+      // Start with center line then shift to stay inside band
+      const xc = (xL+xR)/2, yc = (yTop+yBot)/2;
+      let y1 = yc + mScr*(xL-xc);
+      let y2 = yc + mScr*(xR-xc);
+      let minY=Math.min(y1,y2), maxY=Math.max(y1,y2);
+      let shift=0;
+      if(minY<yTop) shift = yTop - minY;
+      if(maxY>yBot) shift = yBot - maxY;
+      y1+=shift; y2+=shift;
+      const p1 = {x:xL,y:y1}, p2={x:xR,y:y2};
+
+      // Normal pointing into liquid (downwards)
+      const dx=p2.x-p1.x, dy=p2.y-p1.y;
+      let nx=dy, ny=-dx;
+      if(ny<0){ nx=-nx; ny=-ny; }
+      const nlen=Math.hypot(nx,ny); nx/=nlen; ny/=nlen;
+
+      // Liquid polygon (below surface, clipped to tank)
+      const water = [ [p1.x,p1.y], [p2.x,p2.y], [xR,yBot], [xL,yBot] ];
+      gsvg.append('polygon').attr('points',water.map(p=>p.join(',')).join(' '))
+           .attr('fill','#60a5fa33').attr('stroke','none');
+
+      // Free surface
+      gsvg.append('line')
+        .attr('x1',p1.x).attr('y1',p1.y).attr('x2',p2.x).attr('y2',p2.y)
+        .attr('stroke','#111').attr('stroke-width',3).attr('stroke-linecap','round');
+
+      // Clip rectangle for inside-tank drawing
+      const rect = {x1:xL, y1:yTop, x2:xR, y2:yBot};
+
+      // Isobars: exact parallel offsets, then clipped to tank
+      const GAP=14, MAX_LINES=14, eps=1e-6;
+      function lineRectIntersections(A,B,rect){
+        const pts=[];
+        const add=(x,y)=>{ if(x>=rect.x1-eps && x<=rect.x2+eps && y>=rect.y1-eps && y<=rect.y2+eps) pts.push({x,y}); };
+        const dx=B.x-A.x, dy=B.y-A.y;
+        if(Math.abs(dx)>eps){
+          let t=(rect.x1-A.x)/dx, y=A.y+t*dy; add(rect.x1,y);
+          t=(rect.x2-A.x)/dx; y=A.y+t*dy; add(rect.x2,y);
+        }
+        if(Math.abs(dy)>eps){
+          let t=(rect.y1-A.y)/dy, x=A.x+t*dx; add(x,rect.y1);
+          t=(rect.y2-A.y)/dy; x=A.x+t*dx; add(x,rect.y2);
+        }
+        const uniq=[];
+        for(const q of pts){ if(!uniq.some(r=>Math.hypot(r.x-q.x,r.y-q.y)<0.5)) uniq.push(q); }
+        if(uniq.length<2) return null;
+        let best=[uniq[0],uniq[1]], dbest=0;
+        for(let i=0;i<uniq.length;i++)for(let j=i+1;j<uniq.length;j++){
+          const d=Math.hypot(uniq[i].x-uniq[j].x, uniq[i].y-uniq[j].y);
+          if(d>dbest){ dbest=d; best=[uniq[i],uniq[j]]; }
+        }
+        return best;
+      }
+      for(let k=1;k<=MAX_LINES;k++){
+        const off = k*GAP;
+        const A = {x:p1.x+nx*off, y:p1.y+ny*off};
+        const B = {x:p2.x+nx*off, y:p2.y+ny*off};
+        const seg = lineRectIntersections(A,B,rect);
+        if(!seg) break;
+        gsvg.append('line')
+          .attr('x1',seg[0].x).attr('y1',seg[0].y).attr('x2',seg[1].x).attr('y2',seg[1].y)
+          .attr('stroke','#111').attr('stroke-width',1.6).attr('stroke-dasharray','6 6').attr('opacity',0.85);
+      }
+
+      // dz–dy TRIANGLE that follows the free surface
+      {
+        const t = 0.6;                                     // along-surface location
+        const sx = p1.x + (p2.x - p1.x) * t;
+        const sy = p1.y + (p2.y - p1.y) * t;
+
+        let dxTri = 110;                                   // desired horizontal leg (px)
+        dxTri = Math.min(dxTri, rect.x2 - sx - 6);         // stay inside right wall
+        const dyWant = mScr * dxTri;
+
+        if (dyWant > 0) {                                  // downward
+          const roomDown = rect.y2 - sy - 6;
+          if (roomDown < Math.abs(dyWant)) dxTri = roomDown / Math.max(1e-6, mScr);
+        } else {                                           // upward
+          const roomUp = sy - rect.y1 - 6;
+          if (roomUp < Math.abs(dyWant)) dxTri = roomUp / Math.max(1e-6, Math.abs(mScr));
+        }
+        const dyTri = mScr * dxTri;
+
+        // horizontal leg (dy)
+        gsvg.append('line')
+            .attr('x1', sx).attr('y1', sy)
+            .attr('x2', sx + dxTri).attr('y2', sy)
+            .attr('stroke', '#ef4444').attr('stroke-width', 2);
+
+        // vertical leg (dz)
+        gsvg.append('line')
+            .attr('x1', sx + dxTri).attr('y1', sy)
+            .attr('x2', sx + dxTri).attr('y2', sy + dyTri)
+            .attr('stroke', '#ef4444').attr('stroke-width', 2);
+
+        // labels
+        const fs = 14;
+        gsvg.append('text')
+            .attr('x', sx + dxTri/2).attr('y', sy - 6)
+            .attr('fill', '#ef4444').attr('text-anchor', 'middle')
+            .attr('font-size', fs).text('dy');
+
+        gsvg.append('text')
+            .attr('x', sx + dxTri + 8).attr('y', sy + dyTri/2)
+            .attr('fill', '#ef4444').attr('font-size', fs)
+            .text('dz');
+      }
+    }
+
+    /* ---------- slope plot (fixed axes) ---------- */
+    function drawSlope(){
+      const svg = d3.select('#slope'); svg.selectAll('*').remove();
+      const W=680,H=360,m={l:64,r:24,t:24,b:54};
+      const iw=W-m.l-m.r, ih=H-m.t-m.b;
+      const x=d3.scaleLinear().domain([-20,20]).range([m.l,m.l+iw]);
+      const y=d3.scaleLinear().domain([-4.5,4.5]).range([m.t+ih,m.t]);
+
+      svg.append('g').attr('class','axis').attr('transform',`translate(0,${m.t+ih})`)
+        .call(d3.axisBottom(x).ticks(10));
+      svg.append('g').attr('class','axis').attr('transform',`translate(${m.l},0)`)
+        .call(d3.axisLeft(y).ticks(9));
+
+      x.ticks(20).forEach(t=>svg.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',m.t).attr('y2',m.t+ih).attr('stroke','#0001'));
+      y.ticks(18).forEach(t=>svg.append('line').attr('x1',m.l).attr('x2',m.l+iw).attr('y1',y(t)).attr('y2',y(t)).attr('stroke','#0001'));
+
+      svg.append('text').attr('class','axis-title').attr('x',m.l+iw/2).attr('y',H-10).attr('text-anchor','middle').text('a_y (m/s²)');
+      svg.append('text').attr('class','axis-title').attr('x',m.l-40).attr('y',m.t+12).text('dz/dy');
+
+      const pts = d3.range(-20, 20.0001, 0.5).map(A => [x(A), y(slope(A, az))]);
+      svg.append('path').attr('d', d3.line()(pts)).attr('stroke','#111').attr('fill','none');
+      svg.append('line').attr('x1',m.l).attr('x2',m.l+iw).attr('y1',y(0)).attr('y2',y(0))
+        .attr('stroke','#111').attr('stroke-dasharray','4 4').attr('opacity',0.6);
+      svg.append('circle').attr('cx',x(ay)).attr('cy',y(slope(ay, az))).attr('r',6).attr('fill','#ef4444').attr('stroke','#111');
+    }
+
+    function updateReadouts(){
+      const s = slope(ay, az);
+      $('kpiSlope').textContent = s.toFixed(3);
+      $('rel').textContent = `dz/dy = -a_y / (g + a_z) = ${(-ay).toFixed(2)} / ${(g+az).toFixed(2)}`;
+    }
+
+    function syncInputs(){
+      $('ayRange').value=ay; $('ay').value=ay;
+      $('azRange').value=az; $('az').value=az;
+    }
+    function recompute(){ syncInputs(); drawSchematic(); drawSlope(); updateReadouts(); }
+
+    $('ayRange').addEventListener('input', e=>{ ay = clamp(+e.target.value,-20,20); recompute(); });
+    $('ay').addEventListener('input',     e=>{ ay = clamp(+e.target.value||0,-20,20); recompute(); });
+    $('azRange').addEventListener('input',e=>{ az = clamp(+e.target.value,-5,5); recompute(); });
+    $('az').addEventListener('input',     e=>{ az = clamp(+e.target.value||0,-5,5); recompute(); });
+
+    window.addEventListener('DOMContentLoaded', recompute);
+  </script>
+
+  <script>
+    const FEEDBACK = { course: 'ME 310', sim: 'Eq 2.28 Isobars in Rigid-Body Motion' };
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = new URL('../feedback.html', location.href);
+      if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
+      if (FEEDBACK.sim)    url.searchParams.set('sim',    FEEDBACK.sim);
+      document.querySelectorAll('a.feedback-link').forEach(a => {
+        a.href = url.toString();
+        try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+      });
+    });
+  </script>
+</body>
+</html>
