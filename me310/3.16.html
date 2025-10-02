@@ -1,9 +1,9 @@
-<!-- /me310/pitot.html -->
+<!-- /me310/3.16.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Pitot–Static Tube • Incompressible Demonstrator</title>
+  <title>Eq. 3.16: velocity measurement by the Pitot-static tube</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
   <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
@@ -26,7 +26,6 @@
     .eqbig{font-size:1.02em;margin-top:2px}
     .note.title-xl{font-size:16px;line-height:1.15}
 
-    /* Symbols two-column */
     .symgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;margin-top:8px}
     .symgrid ul{margin:0 0 0 20px;padding:0}
 
@@ -36,8 +35,9 @@
     .num-sm{width:170px}
     .controls input.num-sm[type="number"]{width:170px !important}
     .inline{display:flex;align-items:center;gap:8px}
+    .hint{font-size:12px;color:#6b7280;margin-top:4px}
 
-    /* Readout KPIs (de-emphasize numbers, match site) */
+    /* KPIs (small numbers to de-emphasize) */
     .kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(2,minmax(120px,1fr))}
     .kpi .lab{font-size:12px;color:#555}
     .kpi .val{font-size:16px;font-weight:600}
@@ -46,9 +46,6 @@
     .schem{height:260px;border:2px dashed var(--line);border-radius:12px;background:#fafcff;
            display:flex;align-items:center;justify-content:center;color:#64748b}
     .schem small{display:block;margin-top:6px;color:#94a3b8}
-
-    /* Collapsible demo block */
-    details.demo summary{cursor:pointer}
   </style>
 </head>
 <body>
@@ -56,7 +53,7 @@
   <header class="site-header">
     <div class="container">
       <div class="header-row">
-        <h1 style="margin:0">Pitot–Static Tube • Incompressible Demonstrator</h1>
+        <h1 style="margin:0">Eq. 3.16: velocity measurement by the Pitot-static tube</h1>
         <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
       </div>
     </div>
@@ -83,7 +80,7 @@
 
           <div class="eqbig" style="margin-top:8px">
             \( \displaystyle
-              \text{Concept link (demo):}\quad
+              \text{(Demo link)}\quad
               \Delta p =
               \begin{cases}
                 (\rho_m - \rho)\,g\,h, & \text{general manometer}\\[4px]
@@ -97,7 +94,7 @@
             <div class="symgrid">
               <ul>
                 <li><b>V</b> — local flow speed (m·s\(^{-1}\))</li>
-                <li><b>p₀</b> — stagnation (total) pressure at Pitot opening (Pa)</li>
+                <li><b>p₀</b> — stagnation (total) pressure (Pa)</li>
                 <li><b>p</b> — static pressure (Pa)</li>
                 <li><b>Δp</b> — \(p_0 - p\) (Pa)</li>
               </ul>
@@ -105,11 +102,11 @@
                 <li><b>ρ</b> — working-fluid density (kg·m\(^{-3}\))</li>
                 <li><b>ρₘ</b> — manometer fluid density (kg·m\(^{-3}\))</li>
                 <li><b>h</b> — manometer level difference (m)</li>
-                <li><b>g</b> — 9.81 m·s\(^{-2}\)</li>
+                <li><b>g</b> — local gravitational acceleration (m·s\(^{-2}\))</li>
               </ul>
             </div>
             <div style="margin-top:8px">
-              Educational scope: steady, incompressible flow along the streamline into the Pitot opening, negligible elevation difference between ports.
+              Assumptions used here: \( \mathrm{Ma} < 0.3 \) (incompressible), steady flow, and negligible elevation difference between ports along the streamline into the Pitot opening.
             </div>
           </div>
         </div>
@@ -126,27 +123,44 @@
       <!-- Controls / Readout -->
       <div class="ctl">
         <div class="controls">
-          <!-- Working fluid ρ (coarse presets, exploratory) -->
+          <!-- Air properties from standard atmosphere table -->
           <div>
-            <label>Working-fluid density, ρ (kg/m³)</label>
+            <label>Air properties (standard atmosphere, 20 °C)</label>
             <div class="rowflex">
-              <select id="rhoPreset" aria-label="fluid preset">
-                <option value="air">Air (~1.2)</option>
-                <option value="water">Water (~1000)</option>
+              <select id="atm" aria-label="standard atmosphere altitude">
                 <option value="custom" selected>Custom…</option>
+                <option value="0">Sea level (0 m)</option>
+                <option value="5000">5,000 m</option>
+                <option value="10000">10,000 m</option>
+                <option value="15000">15,000 m</option>
+                <option value="20000">20,000 m</option>
+                <option value="25000">25,000 m</option>
+                <option value="30000">30,000 m</option>
+                <option value="40000">40,000 m</option>
+                <option value="50000">50,000 m</option>
+                <option value="60000">60,000 m</option>
+                <option value="70000">70,000 m</option>
+                <option value="80000">80,000 m</option>
               </select>
-              <input id="rho" class="num-sm" type="number" min="0.5" step="0.5" value="1.2" />
+              <span id="atmBadge" class="badge" aria-live="polite">g = 9.81, ρ = 1.20</span>
             </div>
+            <div class="hint">Choose a standard-atmosphere altitude <i>or</i> select <b>Custom…</b> to enter ρ yourself. When an altitude is selected, ρ and g are taken from the table.</div>
           </div>
 
-          <!-- Primary exploration: Δp slider + coarse input -->
+          <!-- Working fluid density (editable only in Custom mode) -->
+          <div>
+            <label>Working-fluid density, ρ (kg/m³)</label>
+            <input id="rho" class="num-sm" type="number" min="0.1" step="0.1" value="1.20" />
+          </div>
+
+          <!-- Primary exploration: Δp slider + input -->
           <div>
             <label>Pressure difference, Δp (Pa)</label>
             <input id="dp" class="num-sm" type="number" min="0" step="10" value="100" />
             <input id="dpRange" type="range" min="0" max="5000" step="10" value="100" />
           </div>
 
-          <!-- Optional demo: reveal manometer link (not front-and-center) -->
+          <!-- Optional manometer demo -->
           <details class="demo">
             <summary class="note">Show manometer relation (demo)</summary>
             <div class="rowflex" style="margin-top:8px">
@@ -166,30 +180,27 @@
             </div>
           </details>
 
-          <!-- Readout (low precision to avoid “calculator” feel) -->
+          <!-- Readout (kept low precision) -->
           <div>
             <label>Current values</label>
             <div class="kpi">
               <div><div class="lab">V (m/s)</div><div id="kpi_V" class="val">—</div></div>
               <div><div class="lab">Δp (Pa)</div><div id="kpi_dp" class="val">—</div></div>
               <div><div class="lab">q = ½ρV² (Pa)</div><div id="kpi_q" class="val">—</div></div>
-              <div><div class="lab">Notes</div><div id="kpi_mode" class="val">Incompressible model</div></div>
+              <div><div class="lab">g (m/s²)</div><div id="kpi_g" class="val">—</div></div>
             </div>
           </div>
 
           <p class="note" style="margin:0">
-            This interactive is for concept exploration (not a problem-solver). For gases at higher speeds,
-            compressibility corrections are outside the scope shown here.
+            Use of the standard-atmosphere presets is for **context**; this page is for concept exploration, not a solver.
           </p>
         </div>
       </div>
     </section>
 
-    <!-- Optional note card -->
     <section class="card" style="margin-top:12px">
       <div class="note">
-        Try moving Δp and observing how \(V\propto\sqrt{\Delta p}\). For air, small Δp already yields noticeable speeds,
-        whereas water (much larger ρ) needs larger Δp for the same V.
+        Explore how \(V\propto\sqrt{\Delta p}\). For the same Δp, higher-density fluids yield lower speeds.
       </div>
     </section>
   </main>
@@ -201,32 +212,66 @@
   </footer>
 
   <script>
+    // --------- standard atmosphere subset (from your table) ----------
+    // Altitude in meters → { rho (kg/m^3), g (m/s^2) }
+    const ATM = {
+      0:     { rho: 1.225,  g: 9.807 },
+      5000:  { rho: 0.7364, g: 9.791 },
+      10000: { rho: 0.4135, g: 9.775 },
+      15000: { rho: 0.1948, g: 9.761 },
+      20000: { rho: 0.08891,g: 9.745 },
+      25000: { rho: 0.04008,g: 9.730 },
+      30000: { rho: 0.01841,g: 9.715 },
+      40000: { rho: 0.003996,g: 9.684 },
+      50000: { rho: 0.003097,g: 9.654 },
+      60000: { rho: 0.001846,g: 9.624 },
+      70000: { rho: 0.0008283,g: 9.594 },
+      80000: { rho: 0.0001846,g: 9.564 }
+    };
+
     // ---------- helpers ----------
     const $ = id => document.getElementById(id);
-    const g = 9.81;
-
     function valNum(el, fb){ const v = parseFloat(el.value); return Number.isFinite(v) ? v : fb; }
     function clamp(v, lo, hi){ return Math.min(hi, Math.max(lo, v)); }
 
-    function rhoWorking(){
-      const preset = $('rhoPreset').value;
-      if (preset === 'air')   $('rho').value = '1.2';
-      if (preset === 'water') $('rho').value = '1000';
-      return clamp(valNum($('rho'), 1.2), 0.5, 20000);
+    // state derived from preset/custom selection
+    let g_local = 9.81;
+
+    function setAtmosphereMode(){
+      const sel = $('atm').value;
+      const isCustom = (sel === 'custom');
+      $('rho').disabled = !isCustom;
+
+      if (!isCustom && ATM[sel]){
+        $('rho').value = ATM[sel].rho.toString();
+        g_local = ATM[sel].g;
+      } else {
+        g_local = 9.81;
+      }
+
+      // badge + KPI g
+      const rhoNow = parseFloat($('rho').value);
+      $('atmBadge').textContent = `g = ${g_local.toFixed(3)}, ρ = ${Number.isFinite(rhoNow)?rhoNow.toFixed(3):'—'}`;
+      $('kpi_g').textContent = g_local.toFixed(3);
+
+      compute();
     }
 
+    function currentRho(){
+      return clamp(valNum($('rho'), 1.2), 0.1, 20000);
+    }
     function currentDp(){ return clamp(valNum($('dp'), 0), 0, 1e6); }
 
     function compute(){
-      const rho = rhoWorking();
+      const rho = currentRho();
       const dp  = currentDp();
       const V   = (rho>0) ? Math.sqrt((2*dp)/rho) : NaN;
       const q   = 0.5*rho*(V*V);
 
-      // low precision (keep this from being a homework calculator)
       $('kpi_V').textContent  = Number.isFinite(V) ? V.toFixed(2) : '—';
       $('kpi_dp').textContent = Number.isFinite(dp)? Math.round(dp) : '—';
       $('kpi_q').textContent  = Number.isFinite(q) ? Math.round(q) : '—';
+      $('kpi_g').textContent  = g_local.toFixed(3);
     }
 
     function setDp(v){
@@ -239,32 +284,29 @@
     function useManometer(){
       const h    = clamp(valNum($('h'), 0), 0, 100);
       const rhoM = clamp(valNum($('rhoM'), 13595), 1, 40000);
-      const rho  = rhoWorking();
+      const rho  = currentRho();
       const mode = [...document.querySelectorAll('input[name="manomode"]')].find(r=>r.checked)?.value || 'general';
-      const dp   = (mode==='airwater') ? rhoM*g*h : Math.max(0, (rhoM - rho)*g*h);
+      const dp   = (mode==='airwater') ? rhoM*g_local*h : Math.max(0, (rhoM - rho)*g_local*h);
       setDp(dp);
     }
 
     function wire(){
-      $('rhoPreset').addEventListener('change', compute);
-      $('rho').addEventListener('input', compute);
+      $('atm').addEventListener('change', setAtmosphereMode);
+      $('rho').addEventListener('input', ()=>{ if (!$('rho').disabled) setAtmosphereMode(); });
 
       $('dp').addEventListener('input', (e)=> setDp(parseFloat(e.target.value)||0));
       $('dpRange').addEventListener('input', (e)=> setDp(parseFloat(e.target.value)||0));
 
       $('useMano').addEventListener('click', useManometer);
-      $('h').addEventListener('input', ()=>{});     // only used when button is pressed
-      $('rhoM').addEventListener('input', ()=>{});  // idem
-      document.querySelectorAll('input[name="manomode"]').forEach(r=> r.addEventListener('change', ()=>{}));
 
-      compute();
+      setAtmosphereMode(); // initialize g/ρ & KPIs
     }
     window.addEventListener('DOMContentLoaded', wire);
   </script>
 
-  <!-- Feedback context (no textbook numbering) -->
+  <!-- Feedback context -->
   <script>
-    const FEEDBACK = { course: 'ME 310', sim: 'Pitot–Static Tube (Incompressible)' };
+    const FEEDBACK = { course: 'ME 310', sim: 'Eq. 3.16: Pitot-static (incompressible)' };
     document.addEventListener('DOMContentLoaded', () => {
       const url = new URL('../feedback.html', location.href);
       if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
