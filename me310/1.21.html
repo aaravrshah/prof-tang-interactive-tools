@@ -3,13 +3,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eq. 1.21 • Laplace Pressure (Surface Tension)</title>
+  <title>Eq. 1.21: pressure difference between the inside and the outside of a liquid droplet</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
   <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
-    /* Header tweaks to match other pages */
+    /* Header (consistent with other pages) */
     .site-header .container{padding-top:20px;padding-bottom:20px}
     .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
     .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
@@ -17,7 +17,7 @@
     .btn.primary{background:var(--accent);border-color:transparent}
     .btn.primary:hover{filter:brightness(1.06)}
 
-    /* Two-column top section: equations (wide) + inputs (slim) */
+    /* Two-column top section */
     .top-grid{display:grid;gap:12px}
     @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
 
@@ -32,24 +32,14 @@
     .controls input.num-sm[type="number"]{width:170px !important}
     .inline{display:flex;align-items:center;gap:8px}
 
-    /* Readout KPIs */
-    .kpi{
-        display:grid;
-        gap:10px;
-        margin-top:10px;
-        grid-template-columns:repeat(2,minmax(120px,1fr));
-    }
-
+    /* Readout KPIs (match reduced emphasis like Isentropic) */
+    .kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(2,minmax(120px,1fr))}
     .kpi .lab{font-size:12px;color:#6b7280}
     .kpi .val{font-size:16px;font-weight:600;color:#334155}
 
     /* Schematic placeholder */
     .schem{height:260px;border:2px dashed var(--line);border-radius:12px;background:#fafcff;display:flex;align-items:center;justify-content:center;color:#64748b}
     .schem small{display:block;margin-top:6px;color:#94a3b8}
-
-    /* Plot area (optional future use) */
-    .viz .axis text{font-size:15px}
-    .viz .axis-title{font-size:16px}
   </style>
 </head>
 <body>
@@ -57,7 +47,7 @@
   <header class="site-header">
     <div class="container">
       <div class="header-row">
-        <h1 style="margin:0">Laplace Pressure (Surface Tension) — Eq. 1.21</h1>
+        <h1 style="margin:0">Eq. 1.21: pressure difference between the inside and the outside of a liquid droplet</h1>
         <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
       </div>
     </div>
@@ -73,25 +63,19 @@
       <!-- Equations + Symbols -->
       <div class="ctl">
         <div class="eqwrap">
-          <div class="note" style="margin-bottom:8px"><b>Laplace pressure jump across a curved interface</b></div>
+          <div class="note title-xl" style="margin-bottom:8px"><b>Laplace pressure jump for a spherical droplet</b></div>
 
           <div class="eqbig">
             \( \displaystyle
-               \textbf{Droplet (single interface):}\quad \Delta p = \frac{2\sigma}{R}
-            \)
-          </div>
-          <div class="eqbig" style="margin-top:8px">
-            \( \displaystyle
-               \textbf{Soap bubble (two interfaces):}\quad \Delta p = \frac{4\sigma}{R}
+               \Delta p = \frac{2\sigma}{R}
             \)
           </div>
 
           <div class="note" style="margin-top:12px"><b>Symbols</b>
             <ul style="margin:8px 0 0 20px">
-              <li><b>\(\Delta p\)</b> — pressure difference (inside minus outside) across the interface</li>
+              <li><b>\(\Delta p\)</b> — pressure difference (inside minus outside)</li>
               <li><b>\(\sigma\)</b> — surface tension (N·m\(^{-1}\))</li>
-              <li><b>\(R\)</b> — radius of curvature of the interface (m)</li>
-              <li><b>Droplet</b> — one liquid–gas interface; <b>Soap bubble</b> — two interfaces (inside & outside film)</li>
+              <li><b>\(R\)</b> — radius of curvature of the droplet (m)</li>
             </ul>
           </div>
         </div>
@@ -100,7 +84,7 @@
         <div class="schem" style="margin-top:12px">
           <div style="text-align:center">
             <div>🔧 Schematic placeholder</div>
-            <small>(interface, forces, & radius annotation to be added)</small>
+            <small>(droplet, surface forces, and radius annotation to be added)</small>
           </div>
         </div>
       </div>
@@ -108,22 +92,13 @@
       <!-- Controls / Readout -->
       <div class="ctl">
         <div class="controls">
-          <!-- Type -->
-          <div>
-            <label>Interface type</label>
-            <div class="rowflex" role="group" aria-label="interface type">
-              <label class="inline"><input type="radio" name="itype" value="drop" checked /> Droplet</label>
-              <label class="inline"><input type="radio" name="itype" value="bubble" /> Soap bubble</label>
-            </div>
-          </div>
-
           <!-- Fluid preset -->
           <div>
-            <label>Fluid preset (σ at ~20 °C)</label>
+            <label>Fluid preset (σ at 20 °C)</label>
             <select id="fluid">
-              <option value="water">Water — σ ≈ 0.0728 N/m</option>
-              <option value="ethanol">Ethanol — σ ≈ 0.0223 N/m</option>
-              <option value="mercury">Mercury — σ ≈ 0.485 N/m</option>
+              <option value="water">Water — σ = 0.0728 N/m</option>
+              <option value="ethanol">Ethanol — σ = 0.0223 N/m</option>
+              <option value="mercury">Mercury — σ = 0.4850 N/m</option>
               <option value="custom">Custom…</option>
             </select>
           </div>
@@ -154,13 +129,11 @@
               <div><div class="lab">Δp (Pa)</div><div id="kpi_Pa" class="val">—</div></div>
               <div><div class="lab">Δp (kPa)</div><div id="kpi_kPa" class="val">—</div></div>
               <div><div class="lab">Δp (psi)</div><div id="kpi_psi" class="val">—</div></div>
-              <div><div class="lab">Model</div><div id="kpi_model" class="val">—</div></div>
             </div>
           </div>
 
           <p class="note" style="margin:0">
-            Eq. 1.21 assumes a static interface with uniform curvature and negligible gravity/viscous effects.
-            For bubbles, two interfaces produce double the pressure jump.
+            Assumes a static spherical interface with uniform curvature and negligible gravity/viscous effects.
           </p>
         </div>
       </div>
@@ -194,55 +167,44 @@
       return v;
     };
 
-    // fluid presets
+    // Surface-tension presets at 20 °C
     const SIGMA = {
       water:   0.0728,
       ethanol: 0.0223,
       mercury: 0.4850
     };
 
-    function currentModel(){
-      const itype = [...document.querySelectorAll('input[name="itype"]')].find(r => r.checked)?.value || 'drop';
-      return itype === 'bubble' ? 4 : 2; // factor in Δp = (2 or 4)*σ/R
-    }
-
     function compute(){
-      const factor = currentModel();
       const sigma  = Math.max(0, parseFloat($('sigma').value));
       const Rm     = unitToMeters($('R').value, $('Runit').value);
       const valid  = Number.isFinite(sigma) && Number.isFinite(Rm) && Rm > 0;
 
       let dP = NaN;
-      if (valid) dP = factor * sigma / Rm;
+      if (valid) dP = 2 * sigma / Rm;  // droplet only
 
       $('kpi_Pa').textContent  = valid ? dP.toFixed(0) : '—';
       $('kpi_kPa').textContent = valid ? (dP/1000).toFixed(3) : '—';
       $('kpi_psi').textContent = valid ? (dP*PSI_PER_PA).toFixed(3) : '—';
-      $('kpi_model').textContent = (factor===2 ? 'Droplet' : 'Soap bubble');
     }
 
     // wiring
     function init(){
-      // fluid preset drives sigma (custom leaves sigma editable)
+      // preset drives sigma (custom leaves sigma editable)
       $('fluid').addEventListener('change', e=>{
         const f = e.target.value;
-        if (f in SIGMA){
-          $('sigma').value = SIGMA[f].toString();
-        }
+        if (f in SIGMA) $('sigma').value = SIGMA[f].toString();
         compute();
       });
 
-      document.querySelectorAll('input[name="itype"]').forEach(r=> r.addEventListener('change', compute));
       ['sigma','R','Runit'].forEach(id => $(id).addEventListener('input', compute));
-
       compute();
     }
     window.addEventListener('DOMContentLoaded', init);
   </script>
 
-  <!-- Auto-stamp feedback link with page context (same pattern as other pages) -->
+  <!-- Feedback link context -->
   <script>
-    const FEEDBACK = { course: 'ME 310', sim: 'Eq 1.21 Laplace' };
+    const FEEDBACK = { course: 'ME 310', sim: 'Eq. 1.21: pressure difference between the inside and the outside of a liquid droplet' };
     document.addEventListener('DOMContentLoaded', () => {
       const url = new URL('../feedback.html', location.href);
       if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);

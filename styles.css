@@ -106,7 +106,7 @@ svg{width:100%;height:auto;display:block}
 }
 /* page heading used inside eqwrap (exactly like Moody) */
 .title-xl{font-size:18px;margin-bottom:10px}
-.note.title-xl{font-size:16px;line-height:1.15}
+.note.title-xl{font-size:18px;line-height:1.15}
 
 /* make MathJax inside eqwrap a touch larger (consistent) */
 .eqwrap .mjx-container{font-size:1.14em !important}

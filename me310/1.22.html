@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eq. 1.22 • Capillary Rise (Jurin’s Law)</title>
+  <title>Eq. 1.22: capillary rise in a tube</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
 
@@ -26,8 +26,6 @@
     .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
     .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
     .eqbig{font-size:1.02em}
-
-    /* Match Moody section header style */
     .title-xl{font-size:18px;line-height:1.25;color:#111}
 
     /* Inputs */
@@ -36,6 +34,7 @@
     .inline{display:flex;align-items:center;gap:8px}
     .num-sm{width:170px}
     .controls input.num-sm[type="number"]{width:170px !important}
+    .hint{font-size:12px;color:#6b7280;margin-top:4px}
 
     /* KPI (smaller numbers like Isentropic/1.21) */
     .kpi{
@@ -46,8 +45,10 @@
     .kpi .val{font-size:16px;font-weight:600;color:#334155}
 
     /* Schematic placeholder */
-    .schem{height:260px;border:2px dashed var(--line);border-radius:12px;background:#fafcff;
-           display:flex;align-items:center;justify-content:center;color:#64748b}
+    .schem{
+      height:260px;border:2px dashed var(--line);border-radius:12px;background:#fafcff;
+      display:flex;align-items:center;justify-content:center;color:#64748b
+    }
     .schem small{display:block;margin-top:6px;color:#94a3b8}
   </style>
 </head>
@@ -56,7 +57,7 @@
   <header class="site-header">
     <div class="container">
       <div class="header-row">
-        <h1 style="margin:0">Capillary Rise (Jurin’s Law) — Eq. 1.22</h1>
+        <h1 style="margin:0">Eq. 1.22: capillary rise in a tube</h1>
         <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
       </div>
     </div>
@@ -90,7 +91,7 @@
               <li><b>\(\theta\)</b> — static contact angle (°), measured in the liquid</li>
               <li><b>\(\rho\)</b> — liquid density (kg·m\(^{-3}\))</li>
               <li><b>\(g\)</b> — gravitational acceleration (m·s\(^{-2}\))</li>
-              <li><b>\(r\)</b>, <b>\(D\)</b> — tube radius, diameter (m), with \(D=2r\)</li>
+              <li><b>\(r\)</b>, <b>\(D\)</b> — tube radius, inner diameter (m), with \(D=2r\)</li>
             </ul>
           </div>
         </div>
@@ -109,13 +110,14 @@
         <div class="controls">
           <!-- Fluid preset -->
           <div>
-            <label>Fluid preset (σ, ρ at ~20 °C)</label>
+            <label>Fluid preset (σ, ρ at 20 °C)</label>
             <select id="fluid">
-              <option value="water">Water — σ≈0.0728 N/m, ρ≈998 kg/m³</option>
-              <option value="ethanol">Ethanol — σ≈0.0223 N/m, ρ≈789 kg/m³</option>
-              <option value="mercury">Mercury — σ≈0.485 N/m, ρ≈13534 kg/m³</option>
+              <option value="water">Water — σ = 0.0728 N/m, ρ = 998 kg/m³</option>
+              <option value="ethanol">Ethanol — σ = 0.0223 N/m, ρ = 789 kg/m³</option>
+              <option value="mercury">Mercury — σ = 0.4850 N/m, ρ = 13534 kg/m³</option>
               <option value="custom">Custom…</option>
             </select>
+            <div class="hint">Choose a preset <i>or</i> select <b>Custom…</b> to enter your own σ and ρ.</div>
           </div>
 
           <!-- σ and ρ -->
@@ -133,7 +135,7 @@
           <!-- Diameter / units -->
           <div class="rowflex">
             <div>
-              <label>Tube diameter, D</label>
+              <label>Tube inner diameter, D</label>
               <div class="inline">
                 <input id="D" class="num-sm" type="number" min="1e-6" step="0.001" value="1.00" />
                 <select id="Dunit" aria-label="diameter unit">
@@ -149,23 +151,6 @@
             </div>
           </div>
 
-          <!-- Gravity -->
-          <div class="rowflex">
-            <div>
-              <label>Gravity, g</label>
-              <select id="grav">
-                <option value="9.81" selected>Earth — 9.81 m/s²</option>
-                <option value="3.71">Mars — 3.71 m/s²</option>
-                <option value="1.62">Moon — 1.62 m/s²</option>
-                <option value="custom">Custom…</option>
-              </select>
-            </div>
-            <div id="gWrap" style="display:none">
-              <label>g (m/s²)</label>
-              <input id="g" class="num-sm" type="number" min="0.1" step="0.01" value="9.81" />
-            </div>
-          </div>
-
           <!-- Readout -->
           <div>
             <label>Current values</label>
@@ -178,17 +163,17 @@
           </div>
 
           <p class="note" style="margin:0">
-            Positive \(h\) indicates rise (wetting: \(\cos\theta>0\)); negative \(h\) indicates depression (non-wetting: \(\cos\theta<0\)).
+            \(g = 9.81\ \mathrm{m/s^2}\) is used. Positive \(h\) indicates rise (wetting: \(\cos\theta>0\)); negative \(h\) indicates depression (non-wetting: \(\cos\theta<0\)).
           </p>
         </div>
       </div>
     </section>
 
-    <!-- Footnote / usage banner (same pattern as other pages) -->
+    <!-- Footnote / usage banner -->
     <section class="card" style="margin-top:12px">
       <div class="note">
         Try very small diameters (e.g., 100 μm) or large contact angles to see the sensitivity of \(h\).
-        This tool uses \( h = \tfrac{4\sigma\cos\theta}{\rho g D} \) with \( D = 2r \) for circular tubes.
+        This tool uses \( h = \tfrac{4\sigma\cos\theta}{\rho g D} \) with \( D = 2r \) for circular tubes and \( g = 9.81\ \mathrm{m/s^2}\).
       </div>
     </section>
   </main>
@@ -211,7 +196,7 @@
       return v;
     };
 
-    // Fluid presets (@~20 C)
+    // Fluid presets (at 20 °C)
     const PRESETS = {
       water:   { sigma: 0.0728, rho: 998 },
       ethanol: { sigma: 0.0223, rho: 789 },
@@ -221,15 +206,23 @@
     function cosd(deg){ return Math.cos(deg * Math.PI / 180); }
 
     function compute(){
-      const fluid = $('fluid').value;
+      const preset = $('fluid').value;
+      const g = 9.81; // fixed
+
+      // If preset chosen (not custom), lock σ & ρ to preset values
+      if (preset in PRESETS){
+        $('sigma').value = PRESETS[preset].sigma.toString();
+        $('rho').value   = PRESETS[preset].rho.toString();
+      }
+
       const sigma = Math.max(0, parseFloat($('sigma').value));
       const rho   = Math.max(1, parseFloat($('rho').value));
       const Dm    = toMeters($('D').value, $('Dunit').value);
       const th    = parseFloat($('theta').value);
-      const gsel  = $('grav').value;
-      const g     = (gsel === 'custom') ? Math.max(0.1, parseFloat($('g').value)) : parseFloat(gsel);
 
-      const valid = Number.isFinite(sigma) && Number.isFinite(rho) && Number.isFinite(Dm) && Dm > 0 && Number.isFinite(th) && Number.isFinite(g);
+      const valid = Number.isFinite(sigma) && Number.isFinite(rho) &&
+                    Number.isFinite(Dm) && Dm > 0 &&
+                    Number.isFinite(th);
 
       let h = NaN, dp = NaN;
       if (valid){
@@ -245,36 +238,26 @@
         : '—';
     }
 
-    function init(){
-      // fluid presets
-      $('fluid').addEventListener('change', e=>{
-        const f = e.target.value;
-        if (f in PRESETS){
-          $('sigma').value = PRESETS[f].sigma.toString();
-          $('rho').value   = PRESETS[f].rho.toString();
-        }
-        compute();
-      });
-
-      // gravity custom toggle
-      $('grav').addEventListener('change', e=>{
-        const custom = e.target.value === 'custom';
-        $('gWrap').style.display = custom ? 'block' : 'none';
-        compute();
-      });
-
-      // inputs wiring
-      ['sigma','rho','D','Dunit','theta','g'].forEach(id => $(id).addEventListener('input', compute));
-
+    function setPresetMode(){
+      const isCustom = $('fluid').value === 'custom';
+      $('sigma').disabled = !isCustom;
+      $('rho').disabled   = !isCustom;
+      // If switching to preset, compute() will overwrite σ, ρ to preset values.
       compute();
+    }
+
+    function init(){
+      $('fluid').addEventListener('change', setPresetMode);
+      ['sigma','rho','D','Dunit','theta'].forEach(id => $(id).addEventListener('input', compute));
+      setPresetMode();
     }
 
     window.addEventListener('DOMContentLoaded', init);
   </script>
 
-  <!-- Auto-stamp feedback link with page context (same as other pages) -->
+  <!-- Auto-stamp feedback link with page context -->
   <script>
-    const FEEDBACK = { course: 'ME 310', sim: 'Eq 1.22 Capillary Rise (Jurin’s Law)' };
+    const FEEDBACK = { course: 'ME 310', sim: 'Eq. 1.22: capillary rise in a tube' };
     document.addEventListener('DOMContentLoaded', () => {
       const url = new URL('../feedback.html', location.href);
       if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
