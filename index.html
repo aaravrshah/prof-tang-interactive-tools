@@ -37,6 +37,14 @@
     /* Simple placeholder art (no numbers shown) */
     .ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;
         background:linear-gradient(135deg,#f3f4f6 0%,#ffffff 100%);color:#374151;font-weight:600}
+
+    /* “Coming soon” badge for placeholders */
+    .soon{position:relative}
+    .soon::after{
+      content:"Coming soon";
+      position:absolute;right:8px;top:8px;
+      background:#111;color:#fff;font-size:12px;padding:4px 8px;border-radius:999px;
+    }
   </style>
 </head>
 <body>
@@ -63,24 +71,38 @@
     <!-- ME 310 -->
     <h2 style="margin:18px 0 8px">ME 310 • Fundamentals of Fluid Dynamics</h2>
     <section class="grid">
-      <!-- 1.21 (no number shown) -->
+      <!-- 1.21 -->
       <a class="card link-card" href="./me310/1.21.html" aria-label="Open surface-tension pressure jump page">
-        <div class="thumb"><div class="ph">Surface tension</div></div>
+        <div class="thumb"><div class="ph">Surface Tension</div></div>
         <h3>Pressure Difference Between the Inside and the Outside of a Liquid Droplet</h3>
         <p></p>
       </a>
 
-      <!-- 1.22 (no number shown) -->
+      <!-- 1.22 -->
       <a class="card link-card" href="./me310/1.22.html" aria-label="Open capillary rise page">
-        <div class="thumb"><div class="ph">Capillary rise</div></div>
+        <div class="thumb"><div class="ph">Capillary Rise</div></div>
         <h3>Capillary Rise in a Tube</h3>
         <p></p>
       </a>
 
-      <!-- 3.16 (placed after 1.22, no number shown) -->
+      <!-- NEW: Slope of Constant-Pressure Lines (Isobars) -->
+      <a class="card link-card" href="./me310/2.28.html" aria-label="Open slope of constant-pressure lines (isobars)">
+        <div class="thumb"><div class="ph">Isobars (Slope)</div></div>
+        <h3>Slope of Constant-Pressure Lines (Isobars)</h3>
+        <p></p>
+      </a>
+
+      <!-- NEW THUMB (upcoming): Hydrostatic Force on a Plane Surface -->
+      <div class="card">
+        <div class="thumb soon"><div class="ph">Hydrostatic Force</div></div>
+        <h3>Hydrostatic Force on a Plane Surface</h3>
+        <p></p>
+      </div>
+
+      <!-- 3.16 (after the Ch2 items) -->
       <a class="card link-card" href="./me310/3.16.html" aria-label="Open Pitot-static tube page">
-        <div class="thumb"><div class="ph">Pitot-static tube</div></div>
-        <h3>Velocity Measurement by the Pitot-static Tube</h3>
+        <div class="thumb"><div class="ph">Pitot-Static Tube</div></div>
+        <h3>Velocity Measurement by the Pitot-Static Tube</h3>
         <p></p>
       </a>
 
