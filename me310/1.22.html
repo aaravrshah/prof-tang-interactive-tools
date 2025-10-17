@@ -30,10 +30,11 @@
     @media (min-width:900px){ .eq-schem{grid-template-columns:1.2fr .8fr} }
 
     .schem{
-      min-height:240px;border:2px dashed var(--line);border-radius:12px;background:#fafcff;
-      display:flex;align-items:center;justify-content:center;color:#64748b
+      min-height:240px;border:1px solid var(--line);border-radius:12px;background:#fafcff;
+      display:flex;align-items:center;justify-content:center;color:#64748b;overflow:hidden
     }
-    .schem small{display:block;margin-top:6px;color:#94a3b8}
+    /* make the PNG scale nicely in the box */
+    .schem img{display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;padding:6px}
 
     .controls{display:grid;gap:12px}
     .rowflex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -92,11 +93,10 @@
             </div>
           </div>
 
-          <div class="schem">
-            <div style="text-align:center">
-              <div>📐 Schematic placeholder</div>
-              <small>(capillary tube, meniscus, contact angle θ, rise h)</small>
-            </div>
+          <!-- REPLACED: schematic PNG -->
+          <div class="schem" aria-label="Capillary schematic">
+            <!-- swap the src below to your hi-res schematic if needed -->
+            <img src="../assets/thumbs/1.22.png" alt="Capillary tube schematic: meniscus, contact angle θ, rise h">
           </div>
         </div>
 
@@ -140,7 +140,6 @@
                   <option value="um">μm</option>
                 </select>
               </div>
-              <!-- NEW: D slider matches plot domain (in mm) -->
               <input id="D_s" type="range" min="0.1" max="10" step="0.01" value="1.00" style="width:260px;margin-top:8px">
               <div class="hint">Plot range: 0.10–10.00 mm. Use the slider or drag the red dot.</div>
             </div>
@@ -200,7 +199,6 @@
     const gval = 9.81, cosd = d => Math.cos(d*Math.PI/180);
     const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-    // Fixed plot + input bounds (mm)
     const D_MIN_MM = 0.1, D_MAX_MM = 10.0;
     const X_MIN = D_MIN_MM, X_MAX = D_MAX_MM;
     const Y_MAX = 200; // |h| in mm
@@ -214,7 +212,6 @@
       $('D').min=min; $('D').max=max; $('D').step=step;
     }
 
-    /* ---------- compute + KPIs ---------- */
     function computeH(sigma, rho, D_m, theta_deg){
       return (4 * sigma * cosd(theta_deg)) / (rho * gval * D_m);
     }
@@ -225,7 +222,6 @@
         ? (h_m > 0 ? 'Rise' : (h_m < 0 ? 'Depression' : 'Zero')) : '—';
     }
 
-    /* ---------- plot (fixed axes + dragger) ---------- */
     function drawPlotFrame(){
       const svg = d3.select('#plot'); svg.selectAll('*').remove();
       const W = 760, H = 320, m = {l:64,r:16,t:14,b:54};
@@ -253,12 +249,12 @@
       const {svg, x, y} = scales;
 
       const Dmm = d3.range(X_MIN, X_MAX + 0.0001, 0.02);
-      const Hmm = Dmm.map(Dv => (4*sigma*cosd(thetaDeg))/(rho*gval*(Dv*1e-3))*1000);
+      const Hmm = Dmm.map(Dv => (4*sigma*Math.cos(thetaDeg*Math.PI/180))/(rho*gval*(Dv*1e-3))*1000);
       svg.append('path').attr('class','curve')
         .attr('d', d3.line().curve(d3.curveMonotoneX)(Dmm.map((d,i)=>[x(d), y(Hmm[i])])));
 
       const D_now_mm = Dm_clamped*1000;
-      const h_now_mm = (4*sigma*cosd(thetaDeg))/(rho*gval*Dm_clamped)*1000;
+      const h_now_mm = (4*sigma*Math.cos(thetaDeg*Math.PI/180))/(rho*gval*Dm_clamped)*1000;
 
       const dragpt = svg.append('circle').attr('class','dragpt')
         .attr('r',6).attr('cx', x(D_now_mm)).attr('cy', y(h_now_mm));
@@ -272,11 +268,10 @@
           const xm = Math.max(x(X_MIN), Math.min(x(X_MAX), event.x));
           let Dmm_new = x.invert(xm);
           Dmm_new = Math.round(Dmm_new*100)/100; // snap 0.01 mm
-          const h_mm_new = (4*sigma*cosd(thetaDeg))/(rho*gval*(Dmm_new*1e-3))*1000;
+          const h_mm_new = (4*sigma*Math.cos(thetaDeg*Math.PI/180))/(rho*gval*(Dmm_new*1e-3))*1000;
 
           dragpt.attr('cx', x(Dmm_new)).attr('cy', y(Math.max(-Y_MAX, Math.min(Y_MAX, h_mm_new))));
 
-          // sync number + slider
           const unit = $('Dunit').value;
           if (unit === 'mm') $('D').value = Dmm_new.toFixed(2);
           else if (unit === 'm') $('D').value = (Dmm_new*1e-3).toFixed(4);
@@ -290,7 +285,6 @@
       hit.call(drag);
     }
 
-    /* ---------- UI wiring ---------- */
     function setPresetMode(){
       const isCustom = $('fluid').value === 'custom';
       $('sigma').disabled = !isCustom;
@@ -298,8 +292,16 @@
       compute();
     }
 
+    function setDNumberBounds(){
+      const u = $('Dunit').value;
+      let min,max,step;
+      if (u==='mm'){ min=0.1; max=10.0; step=0.01; }
+      else if (u==='m'){  min=0.0001; max=0.01; step=0.0001; }
+      else { min=100; max=10000; step=1; }
+      $('D').min=min; $('D').max=max; $('D').step=step;
+    }
+
     function compute(){
-      // Lock σ,ρ if preset
       const preset = $('fluid').value;
       if (preset in PRESETS){
         $('sigma').value = PRESETS[preset].sigma.toString();
@@ -310,14 +312,12 @@
       const rho   = Math.max(1, parseFloat($('rho').value));
       const unit  = $('Dunit').value;
 
-      // Apply unit-aware bounds to the number input
       setDNumberBounds();
 
-      // Read D, clamp to plot domain (in mm), reflect back to inputs
       let Dm = toMeters($('D').value, unit);
       let Dmm = Dm*1000;
       if (!Number.isFinite(Dmm)) Dmm = 1.0;
-      const DmmC = clamp(Dmm, D_MIN_MM, D_MAX_MM);
+      const DmmC = Math.min(10.0, Math.max(0.1, Dmm));
 
       if (Dmm !== DmmC){
         if (unit==='mm') $('D').value = DmmC.toFixed(2);
@@ -329,8 +329,10 @@
       const DmC = DmmC*1e-3;
 
       const th = parseFloat($('theta').value);
-      const h  = computeH(sigma, rho, DmC, th);
-      updateKPIs(h);
+      const h  = (4 * sigma * Math.cos(th*Math.PI/180)) / (rho * 9.81 * DmC);
+      $('kpi_h_m').textContent  = Number.isFinite(h) ? h.toExponential(3) : '—';
+      $('kpi_h_mm').textContent = Number.isFinite(h) ? (h*1000).toFixed(3) : '—';
+      $('kpi_sign').textContent = Number.isFinite(h) ? (h>0?'Rise':(h<0?'Depression':'Zero')) : '—';
 
       const scales = drawPlotFrame();
       drawCurveAndDragger(scales, sigma, rho, th, DmC);
@@ -339,11 +341,9 @@
     function init(){
       $('fluid').addEventListener('change', setPresetMode);
 
-      // number input, unit select, theta, sigma, rho
       ['sigma','rho','D','theta'].forEach(id => $(id).addEventListener('input', compute));
       $('Dunit').addEventListener('change', ()=>{ setDNumberBounds(); compute(); });
 
-      // slider -> number (unit aware)
       $('D_s').addEventListener('input', e=>{
         const Dmm = parseFloat(e.target.value);
         const unit = $('Dunit').value;
@@ -353,7 +353,6 @@
         compute();
       });
 
-      // initial state
       setDNumberBounds();
       setPresetMode(); // calls compute()
       window.addEventListener('resize', compute);

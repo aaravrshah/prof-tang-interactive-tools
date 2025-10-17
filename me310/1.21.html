@@ -8,16 +8,13 @@
   <link rel="stylesheet" href="../styles.css" />
   <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
-    /* Header (consistent with other pages) */
     .site-header .container{padding-top:20px;padding-bottom:20px}
     .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
-         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
     .btn.primary{background:var(--accent);border-color:transparent}
-    .btn.primary:hover{filter:brightness(1.06)}
 
-    /* Two-column top section */
     .top-grid{display:grid;gap:12px}
     @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
 
@@ -25,25 +22,36 @@
     .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
     .eqbig{font-size:1.02em}
 
-    /* Inputs */
+    .eq-schem{display:grid;gap:12px}
+    @media (min-width:900px){ .eq-schem{grid-template-columns:1.2fr .8fr} }
+
+    .schem{
+      min-height:240px;border:1px solid var(--line);border-radius:12px;background:#fafcff;
+      display:flex;align-items:center;justify-content:center;overflow:hidden
+    }
+    .schem img{display:block;width:100%;height:100%;object-fit:contain;padding:6px}
+
     .controls{display:grid;gap:12px}
     .rowflex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .inline{display:flex;align-items:center;gap:8px}
     .num-sm{width:170px}
     .controls input.num-sm[type="number"]{width:170px !important}
-    .inline{display:flex;align-items:center;gap:8px}
+    input:disabled{background:#f3f4f6!important;color:#6b7280!important;cursor:not-allowed;opacity:1}
 
-    /* Readout KPIs (match reduced emphasis like Isentropic) */
     .kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(2,minmax(120px,1fr))}
     .kpi .lab{font-size:12px;color:#6b7280}
     .kpi .val{font-size:16px;font-weight:600;color:#334155}
 
-    /* Schematic placeholder */
-    .schem{height:260px;border:2px dashed var(--line);border-radius:12px;background:#fafcff;display:flex;align-items:center;justify-content:center;color:#64748b}
-    .schem small{display:block;margin-top:6px;color:#94a3b8}
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .axis text{font-size:14px}
+    .axis-title{font-size:15px}
+    .curve{stroke:#111;fill:none;stroke-width:2}
+    .dragpt{fill:#ef4444;stroke:#111;stroke-width:1.2}
+    .zeroline{stroke:#000;stroke-opacity:.35;stroke-dasharray:6 6}
+    .hit{fill:transparent;cursor:ew-resize}
   </style>
 </head>
 <body>
-  <!-- Header -->
   <header class="site-header">
     <div class="container">
       <div class="header-row">
@@ -58,52 +66,53 @@
       <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
     </nav>
 
-    <!-- Equations (left) + Inputs (right) -->
     <section class="top-grid">
-      <!-- Equations + Symbols -->
       <div class="ctl">
-        <div class="eqwrap">
-          <div class="note title-xl" style="margin-bottom:8px"><b>Laplace pressure jump for a spherical droplet</b></div>
+        <div class="eq-schem">
+          <div class="eqwrap">
+            <div class="note title-xl" style="margin-bottom:8px"><b>Laplace pressure jump for a spherical droplet</b></div>
 
-          <div class="eqbig">
-            \( \displaystyle
-               \Delta p = \frac{2\sigma}{R}
-            \)
+            <div class="eqbig">
+              \( \displaystyle
+                 \Delta p \;=\; p_i - p_{\text{atm}} \;=\; \frac{2\sigma}{R}
+              \)
+            </div>
+
+            <div class="note" style="margin-top:12px"><b>Symbols</b>
+              <ul style="margin:8px 0 0 20px">
+                <li><b>\(\Delta p\)</b> — gage pressure (Pa)</li>
+                <li><b>\(p_i\)</b> — pressure inside the droplet (Pa)</li>
+                <li><b>\(p_{\text{atm}}\)</b> — ambient atmospheric pressure (Pa, reference)</li>
+                <li><b>\(\sigma\)</b> — surface tension (N·m\(^{-1}\))</li>
+                <li><b>\(R\)</b> — droplet radius (m)</li>
+              </ul>
+            </div>
           </div>
 
-          <div class="note" style="margin-top:12px"><b>Symbols</b>
-            <ul style="margin:8px 0 0 20px">
-              <li><b>\(\Delta p\)</b> — pressure difference (inside minus outside)</li>
-              <li><b>\(\sigma\)</b> — surface tension (N·m\(^{-1}\))</li>
-              <li><b>\(R\)</b> — radius of curvature of the droplet (m)</li>
-            </ul>
+          <div class="schem" aria-label="Droplet schematic">
+            <img src="../assets/thumbs/1.21.png" alt="Spherical droplet schematic with pressure arrows">
           </div>
         </div>
 
-        <!-- Schematic placeholder -->
-        <div class="schem" style="margin-top:12px">
-          <div style="text-align:center">
-            <div>🔧 Schematic placeholder</div>
-            <small>(droplet, surface forces, and radius annotation to be added)</small>
-          </div>
+        <!-- Plot -->
+        <div class="viz" style="margin-top:12px">
+          <svg id="plot" viewBox="0 0 760 320" aria-label="Δp vs R plot"></svg>
         </div>
       </div>
 
-      <!-- Controls / Readout -->
       <div class="ctl">
         <div class="controls">
-          <!-- Fluid preset -->
           <div>
             <label>Fluid preset (σ at 20 °C)</label>
             <select id="fluid">
-              <option value="water">Water — σ = 0.0728 N/m</option>
+              <option value="water" selected>Water — σ = 0.0728 N/m</option>
               <option value="ethanol">Ethanol — σ = 0.0223 N/m</option>
               <option value="mercury">Mercury — σ = 0.4850 N/m</option>
               <option value="custom">Custom…</option>
             </select>
+            <div class="note" style="font-size:12px;color:#6b7280;margin-top:4px">Choose a preset or pick <b>Custom…</b> to edit σ.</div>
           </div>
 
-          <!-- Sigma / Radius -->
           <div class="rowflex">
             <div>
               <label>Surface tension, σ (N/m)</label>
@@ -114,15 +123,17 @@
               <div class="inline">
                 <input id="R" class="num-sm" type="number" step="0.000001" min="1e-7" value="0.0005" />
                 <select id="Runit" aria-label="radius unit">
-                  <option value="m" selected>m</option>
+                  <option value="m">m</option>
                   <option value="mm">mm</option>
-                  <option value="um">μm</option>
+                  <option value="um" selected>μm</option>
                 </select>
               </div>
+              <!-- linear, tighter range -->
+              <input id="R_s" type="range" min="1" max="200" step="1" value="500" style="width:260px;margin-top:8px">
+              <div class="note" style="font-size:12px;color:#6b7280;margin-top:4px">Plot range: 1–200 μm. Use the slider or drag the red dot.</div>
             </div>
           </div>
 
-          <!-- Readout -->
           <div>
             <label>Current values</label>
             <div class="kpi">
@@ -133,17 +144,15 @@
           </div>
 
           <p class="note" style="margin:0">
-            Assumes a static spherical interface with uniform curvature and negligible gravity/viscous effects.
+            Linear axes. Smaller \(R\) ⇒ larger \(\Delta p\). We treat atmospheric pressure as the reference (\(p_{\text{atm}}\)), so \(\Delta p\) is the gage pressure inside the droplet.
           </p>
         </div>
       </div>
     </section>
 
-    <!-- (Optional) Note / future plot area -->
     <section class="card" style="margin-top:12px">
       <div class="note">
-        Try very small radii (e.g., 10 μm) to see how surface tension can generate very large pressure differences.
-        A log–log Δp–R plot can be added here later if helpful.
+        This demo uses \(\Delta p = p_i - p_{\text{atm}} = 2\sigma/R\) for a spherical, static interface (gravity and viscosity neglected).
       </div>
     </section>
   </main>
@@ -155,9 +164,9 @@
   </footer>
 
   <script>
-    // ---------- state & helpers ----------
     const $ = id => document.getElementById(id);
-    const PSI_PER_PA = 1/6894.757293168; // 1 psi = 6894.757... Pa
+    const PSI_PER_PA = 1/6894.757293168;
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
     const unitToMeters = (val, unit) => {
       const v = parseFloat(val);
       if (!Number.isFinite(v) || v <= 0) return NaN;
@@ -167,42 +176,132 @@
       return v;
     };
 
-    // Surface-tension presets at 20 °C
-    const SIGMA = {
-      water:   0.0728,
-      ethanol: 0.0223,
-      mercury: 0.4850
-    };
+    const SIGMA = { water:0.0728, ethanol:0.0223, mercury:0.4850 };
 
-    function compute(){
-      const sigma  = Math.max(0, parseFloat($('sigma').value));
-      const Rm     = unitToMeters($('R').value, $('Runit').value);
-      const valid  = Number.isFinite(sigma) && Number.isFinite(Rm) && Rm > 0;
+    // Tighter, linear domain for visibility
+    const R_MIN_UM = 1, R_MAX_UM = 200;
 
-      let dP = NaN;
-      if (valid) dP = 2 * sigma / Rm;  // droplet only
-
-      $('kpi_Pa').textContent  = valid ? dP.toFixed(0) : '—';
-      $('kpi_kPa').textContent = valid ? (dP/1000).toFixed(3) : '—';
-      $('kpi_psi').textContent = valid ? (dP*PSI_PER_PA).toFixed(3) : '—';
+    function yMaxKPaForSigma(sigma){
+      // top value at R = 1 μm, rounded up to a tidy step
+      const top = (2*sigma/(R_MIN_UM*1e-6))/1000;
+      const step = Math.pow(10, Math.floor(Math.log10(top)));
+      return Math.ceil(top/step)*step;
     }
 
-    // wiring
-    function init(){
-      // preset drives sigma (custom leaves sigma editable)
-      $('fluid').addEventListener('change', e=>{
-        const f = e.target.value;
-        if (f in SIGMA) $('sigma').value = SIGMA[f].toString();
-        compute();
-      });
+    function updateKPIs(dP_Pa){
+      const ok = Number.isFinite(dP_Pa);
+      $('kpi_Pa').textContent  = ok ? dP_Pa.toFixed(0) : '—';
+      $('kpi_kPa').textContent = ok ? (dP_Pa/1000).toFixed(3) : '—';
+      $('kpi_psi').textContent = ok ? (dP_Pa*PSI_PER_PA).toFixed(3) : '—';
+    }
 
-      ['sigma','R','Runit'].forEach(id => $(id).addEventListener('input', compute));
+    function drawPlotFrame(yMaxKPa){
+      const svg = d3.select('#plot'); svg.selectAll('*').remove();
+      const W = 760, H = 320, m = {l:64,r:16,t:14,b:54};
+      const iw = W - m.l - m.r, ih = H - m.t - m.b;
+
+      const x = d3.scaleLinear().domain([R_MIN_UM, R_MAX_UM]).range([m.l, m.l+iw]);
+      const y = d3.scaleLinear().domain([0, yMaxKPa]).range([m.t+ih, m.t]);
+
+      svg.append('g').attr('class','axis').attr('transform',`translate(0,${m.t+ih})`).call(d3.axisBottom(x).ticks(10));
+      svg.append('g').attr('class','axis').attr('transform',`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(8));
+      svg.append('text').attr('class','axis-title').attr('x',W/2).attr('y',H-10).attr('text-anchor','middle').text('R (μm)');
+      svg.append('text').attr('class','axis-title').attr('x',-(H/2)).attr('y',18).attr('text-anchor','middle').attr('transform','rotate(-90)').text('Δp (kPa)');
+
+      svg.append('line').attr('class','zeroline')
+        .attr('x1', x(R_MIN_UM)).attr('x2', x(R_MAX_UM)).attr('y1', y(0)).attr('y2', y(0));
+
+      const hit = svg.append('rect').attr('class','hit')
+        .attr('x', x(R_MIN_UM)).attr('y', y(yMaxKPa))
+        .attr('width', x(R_MAX_UM)-x(R_MIN_UM)).attr('height', (m.t+ih)-y(yMaxKPa));
+
+      return {svg, x, y, hit};
+    }
+
+    function drawCurveAndDragger(scales, sigma, R_um_now, yMaxKPa){
+      const {svg, x, y, hit} = scales;
+      const Rum = d3.range(R_MIN_UM, R_MAX_UM+0.0001, 1);
+      const PkPa = Rum.map(ru => (2*sigma/(ru*1e-6))/1000);
+
+      svg.append('path').attr('class','curve')
+        .attr('d', d3.line()(Rum.map((r,i)=>[x(r), y(Math.min(yMaxKPa, PkPa[i]))])));
+
+      const P_now_kPa = Math.min(yMaxKPa, (2*sigma/(R_um_now*1e-6))/1000);
+      const dragpt = svg.append('circle').attr('class','dragpt')
+        .attr('r',6).attr('cx', x(R_um_now)).attr('cy', y(P_now_kPa));
+
+      const drag = d3.drag()
+        .on('start drag', (event)=>{
+          let Rnew_um = clamp(Math.round(x.invert(event.x)), R_MIN_UM, R_MAX_UM);
+          const P_new_kPa = Math.min(yMaxKPa, (2*sigma/(Rnew_um*1e-6))/1000);
+          dragpt.attr('cx', x(Rnew_um)).attr('cy', y(P_new_kPa));
+
+          $('R_s').value = Rnew_um;
+          const unit = $('Runit').value;
+          if (unit === 'um') $('R').value = Rnew_um.toFixed(0);
+          else if (unit === 'mm') $('R').value = (Rnew_um*1e-3).toFixed(3);
+          else $('R').value = (Rnew_um*1e-6).toFixed(6);
+
+          updateKPIs(2*sigma/(Rnew_um*1e-6));
+        })
+        .on('end', ()=> compute());
+
+      hit.call(drag);
+    }
+
+    function setPresetMode(){
+      const mode = $('fluid').value;
+      const isCustom = (mode === 'custom');
+      $('sigma').disabled = !isCustom;
+      if (!isCustom && mode in SIGMA) $('sigma').value = SIGMA[mode].toString();
       compute();
     }
-    window.addEventListener('DOMContentLoaded', init);
+
+    function setRNumberBounds(){
+      const u = $('Runit').value;
+      const Rum = clamp(parseFloat($('R_s').value)||50, R_MIN_UM, R_MAX_UM);
+      $('R').min = (u==='um') ? R_MIN_UM : (u==='mm'? R_MIN_UM*1e-3 : R_MIN_UM*1e-6);
+      $('R').max = (u==='um') ? R_MAX_UM : (u==='mm'? R_MAX_UM*1e-3 : R_MAX_UM*1e-6);
+      $('R').step= (u==='um') ? 1 : (u==='mm'? 0.001 : 0.000001);
+      $('R').value = (u==='um') ? Rum.toFixed(0) : (u==='mm' ? (Rum*1e-3).toFixed(3) : (Rum*1e-6).toFixed(6));
+    }
+
+    function compute(){
+      const mode = $('fluid').value;
+      if (mode in SIGMA) $('sigma').value = SIGMA[mode].toString();
+      $('sigma').disabled = (mode !== 'custom');
+
+      const sigma = Math.max(0, parseFloat($('sigma').value));
+      setRNumberBounds();
+
+      let Rum = unitToMeters($('R').value, $('Runit').value) * 1e6;
+      if (!Number.isFinite(Rum)) Rum = 50;
+      Rum = clamp(Math.round(Rum), R_MIN_UM, R_MAX_UM);
+      $('R_s').value = Rum;
+
+      const dP = 2*sigma/(Rum*1e-6);
+      updateKPIs(dP);
+
+      const yMax = yMaxKPaForSigma(sigma);
+      const scales = drawPlotFrame(yMax);
+      drawCurveAndDragger(scales, sigma, Rum, yMax);
+    }
+
+    function wire(){
+      $('fluid').addEventListener('change', setPresetMode);
+      ['sigma','R','Runit'].forEach(id => $(id).addEventListener('input', compute));
+      $('R_s').addEventListener('input', e=>{
+        const Rum = clamp(parseFloat(e.target.value)||50, R_MIN_UM, R_MAX_UM);
+        const u = $('Runit').value;
+        $('R').value = (u==='um') ? Rum.toFixed(0) : (u==='mm' ? (Rum*1e-3).toFixed(3) : (Rum*1e-6).toFixed(6));
+        compute();
+      });
+      setPresetMode(); // triggers compute
+      window.addEventListener('resize', compute);
+    }
+    window.addEventListener('DOMContentLoaded', wire);
   </script>
 
-  <!-- Feedback link context -->
   <script>
     const FEEDBACK = { course: 'ME 310', sim: 'Eq. 1.21: pressure difference between the inside and the outside of a liquid droplet' };
     document.addEventListener('DOMContentLoaded', () => {
