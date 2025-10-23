@@ -1,4 +1,3 @@
-<!-- /me310/2.7.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,18 +5,13 @@
   <title>Example 2.7 — Hydrostatic Force on a Plane Triangular Surface</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
-
-  <!-- D3 + MathJax -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script>
-    window.MathJax = { chtml:{scale:0.92}, options:{renderActions:{addMenu:[]}} };
-  </script>
+  <script>window.MathJax={chtml:{scale:0.92},options:{renderActions:{addMenu:[]}}};</script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
   <style>
-    :root{ --plot-h: 520px; }
+    :root{ --plot-h:520px; }
 
-    /* Inputs (sticky) */
+    /* Inputs */
     .inputs.card{position:sticky; top:0; z-index:50; backdrop-filter:saturate(1.05) blur(2px)}
     .inputs-grid{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
     .ctl{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
@@ -28,27 +22,30 @@
 
     /* Two-column sections */
     .two-ps{display:grid; gap:12px}
-    @media(min-width:980px){ .two-ps{grid-template-columns:0.9fr 1.1fr} }   /* main schematic a bit wider */
+    @media(min-width:980px){ .two-ps{grid-template-columns:0.9fr 1.1fr} }
+
     .two-ana{display:grid; gap:12px}
-    @media(min-width:980px){ .two-ana{grid-template-columns:1.15fr 1fr} }   /* analysis left a bit wider */
+    /* Make LEFT (overall) wider than RIGHT (triangle) */
+    @media(min-width:980px){ .two-ana{grid-template-columns:1.35fr 0.85fr} }
 
     .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
     .card img.contain{display:block;width:100%;height:100%;object-fit:contain}
 
-    /* Problem statement card — use site defaults; just light tweaks */
+    /* Problem statement box styled like equations */
     .ps.card{padding:14px}
-    .ps h3{margin:6px 0 10px}
-    .ps h4{margin:10px 0 6px;font-size:15px}
-    .ps p{margin:0 0 10px}
-    .ps ul{margin:6px 0 0 20px}
+    .ps .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
 
-    /* Equation boxes */
+    /* Equation / plugs */
     .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
-    .plug{
-      background:#fcfcff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    }
+    .plug{background:#fcfcff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+          font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
     .plug .mjx-container{font-size:1.08em !important;line-height:1.28}
+    .note.muted{color:#6b7280}
+
+    /* SVG labels via MathJax */
+    .mj-lbl{pointer-events:none; font-size:16px; line-height:1}
+    .biglbl{font-size:16px;fill:#111}
+    .dim{font-size:15px;fill:#0f766e}
 
     /* Plots */
     .plots{display:grid; gap:20px}
@@ -57,545 +54,473 @@
     .plots .viz svg{ width:100%; height:var(--plot-h); display:block }
     .plots .viz .axis text{ font-size:14px }
     .plots .viz .axis-title{ font-size:16px }
-
-    .note.muted{color:#6b7280}
-    .biglbl{font-size:16px;fill:#111}
-    .dim{font-size:15px;fill:#0f766e}
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container">
-      <div class="header-row">
-        <h1 style="margin:0">Example 2.7 — Hydrostatic Force on a Plane Triangular Surface</h1>
-        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+<header class="site-header">
+  <div class="container">
+    <div class="header-row">
+      <h1 style="margin:0">Example 2.7 — Hydrostatic Force on a Plane Triangular Surface</h1>
+      <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <nav class="back-row">
+    <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
+  </nav>
+
+  <!-- Known / Inputs -->
+  <section class="card inputs">
+    <h3 style="margin:6px 0 10px">Known / Inputs</h3>
+    <div class="inputs-grid">
+      <div class="ctl">
+        <label>Density, ρ (kg/m³) — 500–1000</label>
+        <div class="pair">
+          <input id="rho" type="number" step="0.1" min="500" max="1000" value="900.0">
+          <input id="rho_s" type="range"  step="0.1" min="500" max="1000" value="900.0">
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Depth, D (m) — 10.5–20.0</label>
+        <div class="pair">
+          <input id="D" type="number" step="0.1" min="10.5" max="20.0" value="15.0">
+          <input id="D_s" type="range"  step="0.1" min="10.5" max="20.0" value="15.0">
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Angle, θ (deg, measured clockwise from horizontal) — 30–60</label>
+        <div class="pair">
+          <input id="theta" type="number" step="0.1" min="30" max="60" value="60.0">
+          <input id="theta_s" type="range"  step="0.1" min="30" max="60" value="60.0">
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Triangle height, a (m) — 0.1–12.0</label>
+        <div class="pair">
+          <input id="a" type="number" step="0.1" min="0.1" max="12.0" value="10.0">
+          <input id="a_s" type="range"  step="0.1" min="0.1" max="12.0" value="10.0">
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Base width, b (m) — 0.1–12.0</label>
+        <div class="pair">
+          <input id="b" type="number" step="0.1" min="0.1" max="12.0" value="12.0">
+          <input id="b_s" type="range"  step="0.1" min="0.1" max="12.0" value="12.0">
+        </div>
+      </div>
+      <div class="ctl">
+        <label>Horizontal offset of apex, d (m) — 0.0–12.0</label>
+        <div class="pair">
+          <input id="d" type="number" step="0.1" min="0.0" max="12.0" value="8.0">
+          <input id="d_s" type="range"  step="0.1" min="0.0" max="12.0" value="8.0">
+        </div>
       </div>
     </div>
-  </header>
+  </section>
 
-  <main class="container">
-    <nav class="back-row">
-      <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
-    </nav>
-
-    <!-- Inputs (sticky) -->
-    <section class="card inputs">
-      <h3 style="margin:6px 0 10px">Known / Inputs</h3>
-      <div class="inputs-grid">
-        <div class="ctl">
-          <label>Density, ρ (kg/m³) — 500–1000</label>
-          <div class="pair">
-            <input id="rho"  type="number" step="0.1" min="500"  max="1000" value="900.0">
-            <input id="rho_s"  type="range"  step="0.1" min="500"  max="1000" value="900.0">
-          </div>
-        </div>
-
-        <div class="ctl">
-          <label>Depth, D (m) — 10.5–20.0</label>
-          <div class="pair">
-            <input id="D"    type="number" step="0.1" min="10.5" max="20.0" value="15.0">
-            <input id="D_s"  type="range"  step="0.1" min="10.5" max="20.0" value="15.0">
-          </div>
-        </div>
-
-        <div class="ctl">
-          <label>Angle, θ (deg, measured clockwise from horizontal) — 30–60</label>
-          <div class="pair">
-            <input id="theta"   type="number" step="0.1" min="30" max="60" value="60.0">
-            <input id="theta_s" type="range"  step="0.1" min="30" max="60" value="60.0">
-          </div>
-        </div>
-
-        <div class="ctl">
-          <label>Triangle height, a (m) — 0.1–12.0</label>
-          <div class="pair">
-            <input id="a"    type="number" step="0.1" min="0.1" max="12.0" value="10.0">
-            <input id="a_s"  type="range"  step="0.1" min="0.1" max="12.0" value="10.0">
-          </div>
-        </div>
-
-        <div class="ctl">
-          <label>Base width, b (m) — 0.1–12.0</label>
-          <div class="pair">
-            <input id="b"    type="number" step="0.1" min="0.1" max="12.0" value="12.0">
-            <input id="b_s"  type="range"  step="0.1" min="0.1" max="12.0" value="12.0">
-          </div>
-        </div>
-
-        <div class="ctl">
-          <label>Horizontal offset of apex, d (m) — 0.0–12.0</label>
-          <div class="pair">
-            <input id="d"    type="number" step="0.1" min="0.0" max="12.0" value="8.0">
-            <input id="d_s"  type="range"  step="0.1" min="0.0" max="12.0" value="8.0">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Problem statement + main figure -->
-    <section class="two-ps">
-      <div class="card ps">
-        <h3>Problem Statement</h3>
-
-        <h4>Known</h4>
-        <ul>
+  <!-- Problem statement + main schematic -->
+  <section class="two-ps">
+    <div class="card ps">
+      <h3 style="margin:6px 0 10px">Problem Statement</h3>
+      <div class="eqwrap">
+        <h4 style="margin:0 0 6px">Known</h4>
+        <ul style="margin:6px 0 10px 20px">
           <li>An open tank is fill with an oil whose density is \( \rho \).</li>
           <li>There is a triangular panel on the inclinde plane surface submerged in the oil.</li>
         </ul>
-
-        <h4>Find</h4>
-        <p>(a) The magnitude of the hydrostatic force acting on the triangular panel.</p>
-        <p>(b) Locate the point of action (i.e. center of pressure) of the hydrostatic force on the triangular panel.</p>
+        <h4 style="margin:0 0 6px">Find</h4>
+        <p style="margin:0 0 6px">(a) The magnitude of the hydrostatic force acting on the triangular panel.</p>
+        <p style="margin:0">(b) Locate the point of action (i.e. center of pressure) of the hydrostatic force on the triangular panel.</p>
       </div>
-
-      <div class="card">
-        <h3 style="margin:6px 0 6px">Main Schematic</h3>
-        <div class="viz" style="height:460px">
-          <!-- NOTE: using assets/thumbs as requested -->
-          <img class="contain" src="../assets/thumbs/2.7.png" alt="Main schematic for Example 2.7 (triangular panel)" />
-        </div>
-      </div>
-    </section>
-
-    <!-- Analysis: large schematic + triangle schematic -->
-    <section class="two-ana">
-      <div class="card">
-        <h3 style="margin:6px 0 6px">Analysis — Overall schematic</h3>
-        <div class="viz" style="height:420px">
-          <!-- Wider than right side; uses assets/thumbs/2.7.1.png -->
-          <img class="contain" src="../assets/thumbs/2.7.1.png" alt="Overall analysis schematic (Example 2.7)" />
-        </div>
-      </div>
-
-      <div class="card">
-        <h3 style="margin:6px 0 6px">Analysis — Triangle (front view)</h3>
-        <div class="viz">
-          <svg id="right" viewBox="0 0 640 400" aria-label="front view schematic"></svg>
-        </div>
-        <div class="eqwrap" style="margin-top:8px">
-          \( \displaystyle
-             A=\frac{ab}{2},\qquad
-             I_{xc}=\frac{b\,a^{3}}{36},\qquad
-             I_{xyc}=\frac{b\,a^{2}}{72}\,(b-2d).
-          \)
-        </div>
-      </div>
-    </section>
-
-    <!-- Calculations -->
-    <section class="card">
-      <h3 style="margin:6px 0 6px">Calculations</h3>
-
-      <div class="eqwrap">
-        <p><b>(a) Magnitude of the hydrostatic force acting on the plane triangular panel.</b></p>
-        \( \displaystyle
-          y_c = \frac{\text{Depth}}{\sin\theta} - \frac{a}{3},\qquad
-          h_c = y_c \sin\theta,\qquad
-          A = \frac{ab}{2},\qquad
-          F_R = \rho g h_c A.
-        \)
-      </div>
-      <div class="plug" id="plug3"></div>
-
-      <div class="eqwrap" style="margin-top:10px">
-        <p><b>(b) Locate the point of action of the hydrostatic force at &lt;x<sub>R</sub>, y<sub>R</sub>&gt;.</b></p>
-        \( \displaystyle
-          I_{xc} = \frac{b a^{3}}{36},\qquad
-          y_R = y_c + \frac{I_{xc}}{y_c A},\qquad
-          x_c = \frac{b+d}{3},\qquad
-          I_{xyc} = \frac{b a^{2}}{72}\,(b-2d),\qquad
-          x_R = x_c + \frac{I_{xyc}}{y_c A}.
-        \)
-      </div>
-      <div class="plug" id="plug4"></div>
-
-      <div class="eqwrap" style="margin-top:10px">
-        <p class="note muted" style="margin:0"><b>Geometry &amp; depth (numeric)</b></p>
-        <div id="plug1" class="plug" style="margin-top:6px"></div>
-        <div id="plug2" class="plug" style="margin-top:6px"></div>
-      </div>
-    </section>
-
-    <!-- Plots -->
-    <section class="card">
-      <h3 style="margin:6px 0 10px">Linked trends</h3>
-      <div class="plots">
-        <div class="viz"><svg id="p1"></svg></div>
-        <div class="viz"><svg id="p2"></svg></div>
-        <div class="viz"><svg id="p3"></svg></div>
-        <div class="viz"><svg id="p4"></svg></div>
-        <div class="viz"><svg id="p5"></svg></div>
-        <div class="viz"><svg id="p6"></svg></div>
-      </div>
-      <p class="note muted" style="margin:8px 0 0">
-        Top row: \(F_R\) vs Depth, Δx/Δy vs Depth, \(F_R\) vs θ. Bottom row: Δx/Δy vs θ, \(F_R\) vs \(d/b\), Δx/Δy vs \(d/b\).
-      </p>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container">
-      <a class="back-home" href="../index.html"><span class="chev">←</span> Home</a>
     </div>
-  </footer>
 
-  <script>
-    /* ---------- helpers & state ---------- */
-    const $ = id => document.getElementById(id);
-    const g = 9.81, fmtSI = d3.format("~s");
+    <div class="card">
+      <h3 style="margin:6px 0 6px">Main Schematic</h3>
+      <div class="viz" style="height:480px">
+        <img class="contain" src="../assets/thumbs/2.7.png" alt="Main schematic for Example 2.7 (triangular panel)">
+      </div>
+      <p class="note muted" style="margin:6px 2px 0">Reference figure supplied with the problem.</p>
+    </div>
+  </section>
 
-    let S = { rho:900.0, D:15.0, theta:60.0, a:10.0, b:12.0, d:8.0 };
-    const ranges = { rho:[500,1000], D:[10.5,20.0], theta:[30,60], a:[0.1,12], b:[0.1,12], d:[0,12] };
+  <!-- Analysis: overall (wider) + triangle (narrower) -->
+  <section class="two-ana">
+    <div class="card">
+      <h3 style="margin:6px 0 6px">Analysis — Overall schematic</h3>
+      <div class="viz" style="height:460px">
+        <img class="contain" src="../assets/thumbs/2.7.1.png" alt="Overall analysis schematic (Example 2.7)">
+      </div>
+      <p class="note muted" style="margin:6px 2px 0">Annotated overview used for distances and angles on the inclined surface.</p>
+    </div>
 
-    const rad = d=>d*Math.PI/180;
-    const soft = v => { const x=parseFloat(v); return Number.isFinite(x)?x:null; };
-    const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
-    const r1=x=>Math.round(x*10)/10;
+    <div class="card">
+      <h3 style="margin:6px 0 6px">Analysis — Triangle (front view)</h3>
+      <div class="viz"><svg id="right" viewBox="0 0 640 380" aria-label="front view schematic"></svg></div>
 
-    let SKIP_PLUGS = false; // while sliding
-    let LOCK_PLOTS = false; // freeze y-domains while sliding
-    const PLOT_DOMAINS = { p1:null, p2:null, p3:null, p5:null, p6:null };
+      <!-- Only the 3 relations from your image (no xC= or yC= here) -->
+      <div class="eqwrap" style="margin-top:8px">
+        \( \displaystyle
+           A=\frac{ab}{2},\qquad
+           I_{xc}=\frac{b\,a^{3}}{36},\qquad
+           I_{xyc}=\frac{b\,a^{2}}{72}\,(b-2d).
+        \)
+      </div>
+      <p class="note muted" style="margin:6px 2px 0">
+        Centroid \(C\) is shown on the figure. Distances \(a/3\) and \((b+d)/3\) are indicated graphically.
+      </p>
+    </div>
+  </section>
 
-    function syncPair(key){
-      $(key).value = r1(S[key]).toFixed(1);
-      $(key+'_s').value = r1(S[key]).toFixed(1);
+  <!-- Calculations -->
+  <section class="card">
+    <h3 style="margin:6px 0 6px">Calculations</h3>
+
+    <div class="eqwrap">
+      <p style="margin:0 0 6px"><b>(a) Magnitude of the hydrostatic force acting on the plane triangular panel.</b></p>
+      \( \displaystyle
+        y_c = \frac{\text{Depth}}{\sin\theta} - \frac{a}{3},\qquad
+        h_c = y_c \sin\theta,\qquad
+        A = \frac{ab}{2},\qquad
+        F_R = \rho g h_c A.
+      \)
+    </div>
+    <div class="plug" id="plug3"></div>
+
+    <div class="eqwrap" style="margin-top:10px">
+      <p style="margin:0 0 6px"><b>(b) Locate the point of action of the hydrostatic force at &lt;x<sub>R</sub>, y<sub>R</sub>&gt;.</b></p>
+      \( \displaystyle
+        I_{xc} = \frac{b a^{3}}{36},\qquad
+        y_R = y_c + \frac{I_{xc}}{y_c A},\qquad
+        I_{xyc} = \frac{b a^{2}}{72}\,(b-2d),\qquad
+        x_R = \frac{b+d}{3} + \frac{I_{xyc}}{y_c A}.
+      \)
+    </div>
+    <div class="plug" id="plug4"></div>
+
+    <div class="eqwrap" style="margin-top:10px">
+      <p class="note muted" style="margin:0"><b>Geometry &amp; depth (numeric)</b></p>
+      <div id="plug1" class="plug" style="margin-top:6px"></div>
+      <div id="plug2" class="plug" style="margin-top:6px"></div>
+    </div>
+  </section>
+
+  <!-- Plots -->
+  <section class="card">
+    <h3 style="margin:6px 0 10px">Linked trends</h3>
+    <div class="plots">
+      <div class="viz"><svg id="p1"></svg></div>
+      <div class="viz"><svg id="p2"></svg></div>
+      <div class="viz"><svg id="p3"></svg></div>
+      <div class="viz"><svg id="p4"></svg></div>
+      <div class="viz"><svg id="p5"></svg></div>
+      <div class="viz"><svg id="p6"></svg></div>
+    </div>
+    <p class="note muted" style="margin:8px 0 0">
+      Top row: \(F_R\) vs Depth, \((x_R-x_C),(y_R-y_C)\) vs Depth, \(F_R\) vs \(\theta\).
+      Bottom row: \((x_R-x_C),(y_R-y_C)\) vs \(\theta\), \(F_R\) vs \(d/b\), \((x_R-x_C),(y_R-y_C)\) vs \(d/b\).
+    </p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <a class="back-home" href="../index.html"><span class="chev">←</span> Home</a>
+  </div>
+</footer>
+
+<script>
+  const $=id=>document.getElementById(id);
+  const g=9.81, fmtSI=d3.format("~s");
+  let S={rho:900.0,D:15.0,theta:60.0,a:10.0,b:12.0,d:8.0};
+  const ranges={rho:[500,1000],D:[10.5,20.0],theta:[30,60],a:[0.1,12],b:[0.1,12],d:[0,12]};
+  const rad=d=>d*Math.PI/180, clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
+  const r1=x=>Math.round(x*10)/10;
+
+  /* wire inputs */
+  ['rho','D','theta','a','b','d'].forEach(k=>{
+    const t=$(k), s=$(k+'_s'); const [lo,hi]=ranges[k];
+    const sync=()=>{ t.value=S[k].toFixed(1); s.value=S[k].toFixed(1); };
+    t.addEventListener('input',e=>{ const v=parseFloat(e.target.value); if(Number.isFinite(v)){ S[k]=v; s.value=v; requestRender({skipPlugs:true,lockPlots:true}); }});
+    t.addEventListener('change',e=>{ let v=parseFloat(e.target.value); if(!Number.isFinite(v)) v=S[k]; S[k]=clamp(v,lo,hi); sync(); requestRender(); });
+    s.addEventListener('input',e=>{ S[k]=clamp(parseFloat(e.target.value),lo,hi); t.value=S[k].toFixed(1); requestRender({skipPlugs:true,lockPlots:true}); });
+    s.addEventListener('change',()=>requestRender());
+    sync();
+  });
+
+  /* geometry + hydrostatics */
+  function geom(){
+    const {a,b,d}=S;
+    return {
+      A:0.5*a*b,
+      xC:(b+d)/3,
+      yC:a/3,
+      Ixc:(b*Math.pow(a,3))/36,
+      Ixyc:(b*Math.pow(a,2)*(b-2*d))/72
+    };
+  }
+  function centroidDepth(){
+    const {D,theta,a}=S;
+    const yc_along = D/Math.sin(rad(theta)) - a/3;  // y_c along plane
+    const hc = yc_along*Math.sin(rad(theta));
+    return {yc_along,hc};
+  }
+  function forceAndCP(){
+    const G=geom(), H=centroidDepth();
+    const FR=S.rho*g*H.hc*G.A;
+    const yR=H.yc_along + (G.Ixc)/(H.yc_along*G.A);
+    const xR=G.xC       + (G.Ixyc)/(H.yc_along*G.A);
+    return {G,H,FR,xR,yR,dx:xR-G.xC,dy:yR-G.yC};
+  }
+
+  /* SVG helpers */
+  function addArrowDef(svg){
+    const defs=svg.append('defs');
+    defs.append('marker').attr('id','arrowEnd').attr('viewBox','0 0 10 10')
+      .attr('refX',8).attr('refY',5).attr('markerWidth',8).attr('markerHeight',8).attr('orient','auto')
+      .append('path').attr('d','M 0 0 L 10 5 L 0 10 z').attr('fill','#0f766e');
+  }
+  function latexLabel(svg,x,y,tex,opts={}){
+    const W=200,H=30;
+    const fo=svg.append('foreignObject').attr('x',x-(opts.align==='right'?W:(opts.align==='center'?W/2:0)))
+      .attr('y',y-18).attr('width',W).attr('height',H);
+    const div=fo.append('xhtml:div').attr('class','mj-lbl').style('width',W+'px').style('height',H+'px')
+      .style('display','flex').style('align-items','center')
+      .style('justify-content',opts.align==='right'?'flex-end':(opts.align==='center'?'center':'flex-start'))
+      .html(`\\(${tex}\\)`);
+    if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise([div.node()]); }
+  }
+
+  /* triangle schematic */
+  function drawRight(){
+    const svg=d3.select('#right'); svg.selectAll('*').remove();
+    const Wpx=600,Hpx=380,m={l:44,r:10,t:16,b:44};
+    const iw=Wpx-m.l-m.r, ih=Hpx-m.t-m.b;
+    const lim=13;
+    const x=d3.scaleLinear().domain([0,lim]).range([m.l,m.l+iw]);
+    const y=d3.scaleLinear().domain([0,lim]).range([m.t+ih,m.t]);
+
+    addArrowDef(svg);
+
+    // axes
+    svg.append('line').attr('x1',x(0)).attr('x2',x(lim)).attr('y1',y(0)).attr('y2',y(0)).attr('stroke','#111').attr('stroke-width',2);
+    svg.append('line').attr('x1',x(0)).attr('x2',x(0)).attr('y1',y(0)).attr('y2',y(lim)).attr('stroke','#111').attr('stroke-width',2);
+    svg.append('text').attr('x', x(lim)+6).attr('y', y(0)+4).attr('class','biglbl').text('x');
+    svg.append('text').attr('x', x(0)-8).attr('y', y(lim)+2).attr('text-anchor','end').attr('class','biglbl').text('y');
+
+    // triangle
+    const a=S.a,b=S.b,d=S.d, baseL={x:0,y:0}, baseR={x:b,y:0}, apex={x:d,y:a};
+    svg.append('polygon')
+      .attr('points',[baseL,apex,baseR].map(p=>[x(p.x),y(p.y)].join(',')).join(' '))
+      .attr('fill','#60a5fa33').attr('stroke','#111').attr('stroke-width',2);
+
+    // single-ended dimension arrows
+    svg.append('line').attr('x1',x(0)).attr('y1',y(a)).attr('x2',x(d)).attr('y2',y(a))
+      .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)'); // d
+    svg.append('line').attr('x1',x(b)).attr('y1',y(0)).attr('x2',x(b)).attr('y2',y(a))
+      .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)'); // a
+    svg.append('line').attr('x1',x(0)).attr('y1',y(0)).attr('x2',x(b)).attr('y2',y(0))
+      .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)'); // b
+
+    latexLabel(svg,(x(0)+x(d))/2, y(a)-8, 'd',{align:'center'});
+    latexLabel(svg,x(b)+8,(y(0)+y(a))/2,'a');
+    latexLabel(svg,(x(0)+x(b))/2, y(0)+16,'b',{align:'center'});
+
+    // centroid & CP
+    const {G,xR,yR}=forceAndCP();
+    const C={x:G.xC,y:G.yC}, CP={x:xR,y:yR};
+    svg.append('circle').attr('cx',x(C.x)).attr('cy',y(C.y)).attr('r',5).attr('fill','#10b981').attr('stroke','#111');
+    svg.append('text').attr('x',x(C.x)+8).attr('y',y(C.y)-6).attr('class','biglbl').text('C');
+    svg.append('circle').attr('cx',x(CP.x)).attr('cy',y(CP.y)).attr('r',6).attr('fill','#ef4444').attr('stroke','#111');
+    svg.append('text').attr('x',x(CP.x)+8).attr('y',y(CP.y)-6).attr('class','biglbl').text('CP');
+
+    // show a/3 and (b+d)/3 graphically only
+    svg.append('line').attr('x1',x(b)+18).attr('y1',y(0)).attr('x2',x(b)+18).attr('y2',y(G.yC))
+      .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)');
+    svg.append('line').attr('x1',x(0)).attr('y1',y(a)+18).attr('x2',x(G.xC)).attr('y2',y(a)+18)
+      .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)');
+    svg.append('line').attr('x1',x(G.xC)).attr('y1',y(a)).attr('x2',x(G.xC)).attr('y2',y(G.yC))
+      .attr('stroke','#111').attr('stroke-dasharray','6 4');
+    svg.append('line').attr('x1',x(0)).attr('y1',y(G.yC)).attr('x2',x(G.xC)).attr('y2',y(G.yC))
+      .attr('stroke','#111').attr('stroke-dasharray','6 4');
+
+    latexLabel(svg, x(b)+24, (y(0)+y(G.yC))/2, 'a/3');
+    latexLabel(svg, x(G.xC)/2, y(a)+32, '(b+d)/3', {align:'center'});
+  }
+
+  /* MathJax numeric plugs */
+  let mjTimer=null;
+  function typeset(nodes){ if(!window.MathJax||!MathJax.typesetPromise) return; clearTimeout(mjTimer); mjTimer=setTimeout(()=>MathJax.typesetPromise(nodes).catch(()=>{}),60); }
+  function updatePlugs(){
+    const {G,H,FR,xR,yR,dx,dy}=forceAndCP();
+    const f1=x=>Number(x).toFixed(1), f3=x=>Number(x).toFixed(3), g2=x=>Number(x).toFixed(2);
+
+    // Geometry: no "xC=" or "yC=" — just the fractions
+    $('plug1').innerHTML=`
+    \\[
+    \\begin{aligned}
+    A &= \\tfrac12 ab = \\tfrac12\\,(\\,${f1(S.a)}\\,)(\\,${f1(S.b)}\\,) = \\boxed{${f3(G.A)}}\\;\\mathrm{m^{2}}\\\\[4pt]
+    \\frac{b+d}{3} &= \\frac{${f1(S.b)}+${f1(S.d)}}{3} = \\boxed{${f3(G.xC)}}\\;\\mathrm{m},\\quad
+    \\frac{a}{3} = \\frac{${f1(S.a)}}{3} = \\boxed{${f3(G.yC)}}\\;\\mathrm{m}\\\\[4pt]
+    I_{xc} &= \\dfrac{b\\,a^{3}}{36} = \\boxed{${f3(G.Ixc)}}\\;\\mathrm{m^{4}},\\quad
+    I_{xyc} = \\dfrac{b\\,a^{2}}{72}(b-2d) = \\boxed{${f3(G.Ixyc)}}\\;\\mathrm{m^{4}}
+    \\end{aligned}
+    \\]`;
+
+    $('plug2').innerHTML=`
+    \\[
+    \\begin{aligned}
+    y_c &= \\dfrac{\\text{Depth}}{\\sin\\theta}-\\dfrac{a}{3}
+        = \\dfrac{${f1(S.D)}}{\\sin ${f1(S.theta)}^{\\circ}} - ${f3(G.yC)} = \\boxed{${f3(H.yc_along)}}\\;\\mathrm{m}\\\\[4pt]
+    h_c &= y_c\\,\\sin\\theta = ${f3(H.yc_along)}\\,\\sin ${f1(S.theta)}^{\\circ} = \\boxed{${f3(H.hc)}}\\;\\mathrm{m}
+    \\end{aligned}
+    \\]`;
+
+    $('plug3').innerHTML=`
+    \\[
+    F_R = \\rho g h_c A
+    = (${f1(S.rho)})\\,(${g2(g)})\\,(${f3(H.hc)})\\,(${f3(G.A)})
+    = \\boxed{${Math.round(FR)}}\\;\\mathrm{N}
+    \\]`;
+
+    $('plug4').innerHTML=`
+    \\[
+    \\begin{aligned}
+    y_R &= y_c + \\dfrac{I_{xc}}{y_cA}
+        = ${f3(H.yc_along)} + \\dfrac{${f3(G.Ixc)}}{${f3(H.yc_along)}\\,${f3(G.A)}} = \\boxed{${f3(yR)}}\\;\\mathrm{m}\\\\[4pt]
+    x_R &= \\frac{b+d}{3} + \\dfrac{I_{xyc}}{y_cA}
+        = ${f3(G.xC)} + \\dfrac{${f3(G.Ixyc)}}{${f3(H.yc_along)}\\,${f3(G.A)}} = \\boxed{${f3(xR)}}\\;\\mathrm{m}\\\\[4pt]
+    x_R-x_C &= \\boxed{${f3(dx)}}\\;\\mathrm{m},\\quad
+    y_R-y_C = \\boxed{${f3(dy)}}\\;\\mathrm{m}
+    \\end{aligned}
+    \\]`;
+
+    typeset([$('plug1'),$('plug2'),$('plug3'),$('plug4')]);
+  }
+
+  /* plots (unchanged labels already use xR-xC / yR-yC) */
+  function chartHeight(){ return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--plot-h'))||520; }
+  function plotSingle(hostSel,xLab,yLab,xs,ys,xNow,yNow,domain,opts={}){
+    const host=d3.select(hostSel); host.selectAll('*').remove();
+    const Hpx=chartHeight(); const W=Math.max(300,host.node().clientWidth||300);
+    const m={l:64,r:18,t:24,b:60};
+    const svg=host.append('svg').attr('viewBox',`0 0 ${W} ${Hpx}`).attr('width','100%').attr('height',Hpx);
+    const x=d3.scaleLinear().domain(d3.extent(xs)).range([m.l,W-m.r]).nice();
+    let yDom=domain;
+    if(!yDom){
+      let yMin=d3.min(ys), yMax=d3.max(ys); let span=yMax-yMin;
+      if(!span||span<(opts.minSpan||0.2)){ const c=0.5*(yMax+yMin||0); span=opts.minSpan||0.2; yMin=c-span/2; yMax=c+span/2; }
+      const pad=Math.max(Math.abs(0.5*(yMax+yMin))*0.08, span*0.08);
+      yDom=[yMin-pad,yMax+pad];
     }
-    function syncAll(){ Object.keys(S).forEach(syncPair); }
-
-    function wirePair(key, lo, hi){
-      const t=$(key), s=$(key+'_s');
-
-      t.addEventListener('input', e=>{
-        const v=soft(e.target.value); if(v===null) return;
-        S[key]=v; s.value=e.target.value;
-        requestRender({skipPlugs:true, lockPlots:true});
-      });
-      t.addEventListener('change', e=>{
-        let v=soft(e.target.value); if(v===null) v=S[key];
-        S[key]=clamp(v,lo,hi); syncPair(key);
-        requestRender({skipPlugs:false, lockPlots:false});
-      });
-
-      s.addEventListener('pointerdown', ()=>{ SKIP_PLUGS=true; LOCK_PLOTS=true; });
-      window.addEventListener('pointerup', ()=>{
-        if(SKIP_PLUGS||LOCK_PLOTS){ SKIP_PLUGS=false; LOCK_PLOTS=false; requestRender({skipPlugs:false, lockPlots:false}); }
-      });
-      s.addEventListener('input', e=>{
-        S[key]=clamp(parseFloat(e.target.value),lo,hi);
-        t.value=r1(S[key]).toFixed(1);
-        requestRender({skipPlugs:true, lockPlots:true});
-      });
-      s.addEventListener('change', e=>{
-        S[key]=clamp(parseFloat(e.target.value),lo,hi); syncPair(key);
-        requestRender({skipPlugs:false, lockPlots:false});
-      });
+    const y=d3.scaleLinear().domain(yDom).range([Hpx-m.b,m.t]).nice();
+    const yAxis=d3.axisLeft(y).ticks(6).tickFormat(opts.si?fmtSI:d=>d);
+    svg.append('g').attr('class','axis').attr('transform',`translate(${m.l},0)`).call(yAxis);
+    svg.append('g').attr('class','axis').attr('transform',`translate(0,${Hpx-m.b})`).call(d3.axisBottom(x));
+    svg.append('text').attr('class','axis-title').attr('x',W/2).attr('y',Hpx-14).attr('text-anchor','middle').text(xLab);
+    svg.append('text').attr('class','axis-title').attr('x',-(Hpx/2)).attr('y',24).attr('text-anchor','middle').attr('transform','rotate(-90)').text(yLab);
+    svg.append('path').attr('d',d3.line()(xs.map((v,i)=>[x(v),y(ys[i])]))).attr('stroke','#111').attr('fill','none');
+    if(xNow!=null&&yNow!=null){ svg.append('circle').attr('cx',x(xNow)).attr('cy',y(yNow)).attr('r',7).attr('fill','#ef4444').attr('stroke','#111'); }
+    return y.domain();
+  }
+  function plotDouble(hostSel,xLab,yLab,xs,ys1,ys2,xNow,y1Now,y2Now,domain){
+    const host=d3.select(hostSel); host.selectAll('*').remove();
+    const Hpx=chartHeight(); const W=Math.max(300,host.node().clientWidth||300);
+    const m={l:64,r:18,t:24,b:60};
+    const svg=host.append('svg').attr('viewBox',`0 0 ${W} ${Hpx}`).attr('width','100%').attr('height',Hpx);
+    const x=d3.scaleLinear().domain(d3.extent(xs)).range([m.l,W-m.r]).nice();
+    let yDom=domain;
+    if(!yDom){
+      const all=[...ys1,...ys2]; let yMin=d3.min(all), yMax=d3.max(all); let span=yMax-yMin;
+      if(!span||span<0.2){ const c=0.5*(yMax+yMin||0); span=0.2; yMin=c-span/2; yMax=c+span/2; }
+      const pad=Math.max(Math.abs(0.5*(yMax+yMin))*0.08, span*0.08);
+      yDom=[yMin-pad,yMax+pad];
     }
+    const y=d3.scaleLinear().domain(yDom).range([Hpx-m.b,m.t]).nice();
+    svg.append('g').attr('transform',`translate(${m.l},0)`).attr('class','axis').call(d3.axisLeft(y));
+    svg.append('g').attr('transform',`translate(0,${Hpx-m.b})`).attr('class','axis').call(d3.axisBottom(x));
+    svg.append('text').attr('class','axis-title').attr('x',W/2).attr('y',Hpx-14).attr('text-anchor','middle').text(xLab);
+    svg.append('text').attr('class','axis-title').attr('x',-(Hpx/2)).attr('y',24).attr('text-anchor','middle').attr('transform','rotate(-90)').text(yLab);
+    svg.append('path').attr('d',d3.line()(xs.map((v,i)=>[x(v),y(ys1[i])]))).attr('stroke','#2563eb').attr('fill','none');
+    svg.append('path').attr('d',d3.line()(xs.map((v,i)=>[x(v),y(ys2[i])]))).attr('stroke','#ef4444').attr('fill','none').attr('opacity',0.9);
+    svg.append('circle').attr('cx',x(xNow)).attr('cy',y(y1Now)).attr('r',7).attr('fill','#2563eb').attr('stroke','#111');
+    svg.append('circle').attr('cx',x(xNow)).attr('cy',y(y2Now)).attr('r',7).attr('fill','#ef4444').attr('stroke','#111');
+    return y.domain();
+  }
 
-    /* ---------- math ---------- */
-    function geom(){
-      const {a,b,d}=S;
-      return {
-        A:0.5*a*b,
-        xc:(b+d)/3,
-        yc:a/3,
-        Ixc:(b*Math.pow(a,3))/36,
-        Ixyc:(b*Math.pow(a,2)*(b-2*d))/72
-      };
-    }
-    function centroidDepth(){
-      const {D,theta,a}=S;
-      const yc_along = D/Math.sin(rad(theta)) - a/3;
-      const hc = yc_along*Math.sin(rad(theta));
-      return {yc_along,hc};
-    }
-    function forceAndCP(){
-      const G=geom(), H=centroidDepth();
-      const FR=S.rho*g*H.hc*G.A;
-      const yR=G.yc + (G.Ixc)/(G.yc*G.A);
-      const xR=G.xc + (G.Ixyc)/(G.yc*G.A);
-      return {G,H,FR,xR,yR,dx:xR-G.xc,dy:yR-G.yc};
-    }
+  let LOCK_PLOTS=false;
+  const PLOT_DOMAINS={p1:null,p2:null,p3:null,p5:null,p6:null};
 
-    /* ---------- right schematic (triangle) ---------- */
-    function drawRight(){
-      const svg=d3.select('#right'); svg.selectAll('*').remove();
-      const Wpx=600, Hpx=400, m={l:44,r:10,t:16,b:44};
-      const iw=Wpx-m.l-m.r, ih=Hpx-m.t-m.b;
+  function drawPlots(){
+    const base=forceAndCP();
 
-      const lim=13;
-      const x=d3.scaleLinear().domain([0,lim]).range([m.l,m.l+iw]);
-      const y=d3.scaleLinear().domain([0,lim]).range([m.t+ih,m.t]);
-
-      const defs=svg.append('defs');
-      defs.append('marker').attr('id','dimArrow').attr('viewBox','0 0 10 10').attr('refX',5).attr('refY',5)
-        .attr('markerWidth',8).attr('markerHeight',8).attr('orient','auto')
-        .append('path').attr('d','M 0 0 L 10 5 L 0 10 z').attr('fill','#0f766e');
-
-      svg.append('line').attr('x1',x(0)).attr('x2',x(lim)).attr('y1',y(0)).attr('y2',y(0)).attr('stroke','#111').attr('stroke-width',2);
-      svg.append('line').attr('x1',x(0)).attr('x2',x(0)).attr('y1',y(0)).attr('y2',y(lim)).attr('stroke','#111').attr('stroke-width',2);
-      svg.append('text').attr('x', x(lim)+6).attr('y', y(0)+4).attr('class','biglbl').text('x');
-      svg.append('text').attr('x', x(0)-8).attr('y', y(lim)+2).attr('text-anchor','end').attr('class','biglbl').text('y');
-
-      const a=S.a,b=S.b,d=S.d, baseL={x:0,y:0}, baseR={x:b,y:0}, apex={x:d,y:a};
-      svg.append('polygon')
-        .attr('points',[baseL,apex,baseR].map(p=>[x(p.x),y(p.y)].join(',')).join(' '))
-        .attr('fill','#60a5fa33').attr('stroke','#111').attr('stroke-width',2);
-
-      svg.append('line').attr('x1',x(0)).attr('x2',x(d)).attr('y1',y(a)).attr('y2',y(a))
-        .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-start','url(#dimArrow)').attr('marker-end','url(#dimArrow)');
-      svg.append('text').attr('x',(x(0)+x(d))/2).attr('y',y(a)-6).attr('class','dim').text('d');
-
-      svg.append('line').attr('x1',x(b)).attr('x2',x(b)).attr('y1',y(0)).attr('y2',y(a))
-        .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-start','url(#dimArrow)').attr('marker-end','url(#dimArrow)');
-      svg.append('text').attr('x',x(b)+8).attr('y',y(a/2)).attr('class','dim').text('a');
-
-      svg.append('line').attr('x1',x(0)).attr('x2',x(b)).attr('y1',y(0)).attr('y2',y(0))
-        .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-start','url(#dimArrow)').attr('marker-end','url(#dimArrow)');
-      svg.append('text').attr('x',(x(0)+x(b))/2).attr('y',y(0)+16).attr('class','dim').text('b');
-
-      const {G,xR,yR}=forceAndCP();
-      const C={x:G.xc,y:G.yc}, CP={x:xR,y:yR};
-      svg.append('circle').attr('cx',x(C.x)).attr('cy',y(C.y)).attr('r',5).attr('fill','#10b981').attr('stroke','#111');
-      svg.append('text').attr('x',x(C.x)+8).attr('y',y(C.y)-6).attr('class','biglbl').text('C');
-      svg.append('circle').attr('cx',x(CP.x)).attr('cy',y(CP.y)).attr('r',6).attr('fill','#ef4444').attr('stroke','#111');
-      svg.append('text').attr('x',x(CP.x)+8).attr('y',y(CP.y)-6).attr('class','biglbl').text('CP');
-
-      // a/3, (b+d)/3 helpers
-      svg.append('line')
-        .attr('x1',x(b)+18).attr('x2',x(b)+18).attr('y1',y(0)).attr('y2',y(G.yc))
-        .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-start','url(#dimArrow)').attr('marker-end','url(#dimArrow)');
-      svg.append('line')
-        .attr('x1',x(b)).attr('x2',x(G.xc)).attr('y1',y(G.yc)).attr('y2',y(G.yc))
-        .attr('stroke','#111').attr('stroke-dasharray','6 4');
-      svg.append('text').attr('x',x(b)+24).attr('y',y(G.yc/2)).attr('class','dim').text('a/3');
-
-      svg.append('line')
-        .attr('x1',x(0)).attr('x2',x(G.xc)).attr('y1',y(a)+18).attr('y2',y(a)+18)
-        .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-start','url(#dimArrow)').attr('marker-end','url(#dimArrow)');
-      svg.append('line')
-        .attr('x1',x(G.xc)).attr('x2',x(G.xc)).attr('y1',y(a)).attr('y2',y(G.yc))
-        .attr('stroke','#111').attr('stroke-dasharray','6 4');
-      svg.append('text').attr('x',x(G.xc)/2).attr('y',y(a)+32).attr('class','dim').text('(b+d)/3');
-    }
-
-    /* ---------- plugs ---------- */
-    let mjTimer=null;
-    function typeset(nodes){
-      if (!window.MathJax || !MathJax.typesetPromise) return;
-      clearTimeout(mjTimer);
-      mjTimer=setTimeout(()=>MathJax.typesetPromise(nodes).catch(()=>{}), 60);
-    }
-    function updatePlugs(){
-      const {G,H,FR,xR,yR,dx,dy}=forceAndCP();
-      const f1=x=>Number(x).toFixed(1), f3=x=>Number(x).toFixed(3), g2=x=>Number(x).toFixed(2);
-
-      $('plug1').innerHTML = `
-      \\[
-      \\begin{aligned}
-      A &= \\tfrac12 ab = \\tfrac12\\,(\\,${f1(S.a)}\\,)(\\,${f1(S.b)}\\,) = \\boxed{${f3(G.A)}}\\;\\mathrm{m^{2}}\\\\[4pt]
-      x_c &= \\tfrac{b+d}{3} = \\tfrac{${f1(S.b)}+${f1(S.d)}}{3} = \\boxed{${f3(G.xc)}}\\;\\mathrm{m},\\quad
-      y_c = \\tfrac{a}{3} = \\tfrac{${f1(S.a)}}{3} = \\boxed{${f3(G.yc)}}\\;\\mathrm{m}\\\\[4pt]
-      I_{xc} &= \\dfrac{b\\,a^{3}}{36} = \\boxed{${f3(G.Ixc)}}\\;\\mathrm{m^{4}},\\quad
-      I_{xyc} = \\dfrac{b\\,a^{2}}{72}(b-2d) = \\boxed{${f3(G.Ixyc)}}\\;\\mathrm{m^{4}}
-      \\end{aligned}
-      \\]`;
-
-      $('plug2').innerHTML = `
-      \\[
-      \\begin{aligned}
-      y_c^{(\\text{along})} &= \\dfrac{D}{\\sin\\theta}-\\dfrac{a}{3}
-      = \\dfrac{${f1(S.D)}}{\\sin ${f1(S.theta)}^{\\circ}} - ${f3(G.yc)} = \\boxed{${f3(H.yc_along)}}\\;\\mathrm{m}\\\\[4pt]
-      h_c &= y_c\\,\\sin\\theta = ${f3(H.yc_along)}\\,\\sin ${f1(S.theta)}^{\\circ} = \\boxed{${f3(H.hc)}}\\;\\mathrm{m}
-      \\end{aligned}
-      \\]`;
-
-      $('plug3').innerHTML = `
-      \\[
-      F_R = \\rho g h_c A
-      = (${f1(S.rho)})\\,(${g2(g)})\\,(${f3(H.hc)})\\,(${f3(G.A)})
-      = \\boxed{${Math.round(FR)}}\\;\\mathrm{N}
-      \\]`;
-
-      $('plug4').innerHTML = `
-      \\[
-      \\begin{aligned}
-      y_R &= y_c + \\dfrac{I_{xc}}{y_cA}
-          = ${f3(G.yc)} + \\dfrac{${f3(G.Ixc)}}{${f3(G.yc)}\\,${f3(G.A)}} = \\boxed{${f3(yR)}}\\;\\mathrm{m}\\\\[4pt]
-      x_R &= x_c + \\dfrac{I_{xyc}}{y_cA}
-          = ${f3(G.xc)} + \\dfrac{${f3(G.Ixyc)}}{${f3(G.yc)}\\,${f3(G.A)}} = \\boxed{${f3(xR)}}\\;\\mathrm{m}\\\\[4pt]
-      \\Delta y &= y_R-y_c = \\boxed{${f3(dy)}}\\;\\mathrm{m},\\quad
-      \\Delta x = x_R-x_c = \\boxed{${f3(dx)}}\\;\\mathrm{m}
-      \\end{aligned}
-      \\]`;
-
-      typeset([$('plug1'),$('plug2'),$('plug3'),$('plug4')]);
-    }
-
-    /* ---------- plots ---------- */
-    function chartHeight(){
-      return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--plot-h')) || 520;
-    }
-    function plotSingle(hostSel, xLab, yLab, xs, ys, xNow, yNow, domain, opts={}){
-      const host=d3.select(hostSel); host.selectAll('*').remove();
-      const Hpx = chartHeight();
-      const W=Math.max(300,host.node().clientWidth || 300);
-      const m={l:64,r:18,t:24,b:60};
-      const svg=host.append('svg')
-        .attr('viewBox',`0 0 ${W} ${Hpx}`)
-        .attr('width','100%').attr('height',Hpx);
-
-      const x=d3.scaleLinear().domain(d3.extent(xs)).range([m.l,W-m.r]).nice();
-
-      let yDom = domain;
-      if(!yDom){
-        let yMin=d3.min(ys), yMax=d3.max(ys); let span=yMax-yMin;
-        if (!span || span< (opts.minSpan||0.2)){ const c=0.5*(yMax+yMin||0); span=opts.minSpan||0.2; yMin=c-span/2; yMax=c+span/2; }
-        const pad=Math.max(Math.abs(0.5*(yMax+yMin))*0.08, span*0.08);
-        yDom=[yMin-pad,yMax+pad];
-      }
-      const y=d3.scaleLinear().domain(yDom).range([Hpx-m.b,m.t]).nice();
-
-      const yAxis = d3.axisLeft(y).ticks(6).tickFormat(opts.si?fmtSI:d=>d);
-      svg.append('g').attr('class','axis').attr('transform',`translate(${m.l},0)`).call(yAxis);
-      svg.append('g').attr('class','axis').attr('transform',`translate(0,${Hpx-m.b})`).call(d3.axisBottom(x));
-      svg.append('text').attr('class','axis-title').attr('x',W/2).attr('y',Hpx-14).attr('text-anchor','middle').text(xLab);
-      svg.append('text').attr('class','axis-title').attr('x',-(Hpx/2)).attr('y',24).attr('text-anchor','middle').attr('transform','rotate(-90)').text(yLab);
-
-      svg.append('path').attr('d', d3.line()(xs.map((v,i)=>[x(v),y(ys[i])]))).attr('stroke','#111').attr('fill','none');
-      if(xNow!=null && yNow!=null){ svg.append('circle').attr('cx',x(xNow)).attr('cy',y(yNow)).attr('r',7).attr('fill','#ef4444').attr('stroke','#111'); }
-
-      return y.domain();
-    }
-    function plotDouble(hostSel, xLab, yLab, xs, ys1, ys2, xNow, y1Now, y2Now, domain){
-      const host=d3.select(hostSel); host.selectAll('*').remove();
-      const Hpx = chartHeight();
-      const W=Math.max(300,host.node().clientWidth || 300);
-      const m={l:64,r:18,t:24,b:60};
-      const svg=host.append('svg')
-        .attr('viewBox',`0 0 ${W} ${Hpx}`)
-        .attr('width','100%').attr('height',Hpx);
-
-      const x=d3.scaleLinear().domain(d3.extent(xs)).range([m.l,W-m.r]).nice();
-
-      let yDom = domain;
-      if(!yDom){
-        const all=[...ys1,...ys2]; let yMin=d3.min(all), yMax=d3.max(all); let span=yMax-yMin;
-        if (!span || span<0.2){ const c=0.5*(yMax+yMin||0); span=0.2; yMin=c-span/2; yMax=c+span/2; }
-        const pad=Math.max(Math.abs(0.5*(yMax+yMin))*0.08, span*0.08);
-        yDom=[yMin-pad,yMax+pad];
-      }
-      const y=d3.scaleLinear().domain(yDom).range([Hpx-m.b,m.t]).nice();
-
-      svg.append('g').attr('transform',`translate(${m.l},0)`).attr('class','axis').call(d3.axisLeft(y));
-      svg.append('g').attr('transform',`translate(0,${Hpx-m.b})`).attr('class','axis').call(d3.axisBottom(x));
-      svg.append('text').attr('class','axis-title').attr('x',W/2).attr('y',Hpx-14).attr('text-anchor','middle').text(xLab);
-      svg.append('text').attr('class','axis-title').attr('x',-(Hpx/2)).attr('y',24).attr('text-anchor','middle').attr('transform','rotate(-90)').text(yLab);
-
-      svg.append('path').attr('d', d3.line()(xs.map((v,i)=>[x(v),y(ys1[i])]))).attr('stroke','#2563eb').attr('fill','none');
-      svg.append('path').attr('d', d3.line()(xs.map((v,i)=>[x(v),y(ys2[i])]))).attr('stroke','#ef4444').attr('fill','none').attr('opacity',0.9);
-
-      svg.append('circle').attr('cx',x(xNow)).attr('cy',y(y1Now)).attr('r',7).attr('fill','#2563eb').attr('stroke','#111');
-      svg.append('circle').attr('cx',x(xNow)).attr('cy',y(y2Now)).attr('r',7).attr('fill','#ef4444').attr('stroke','#111');
-
-      return y.domain();
-    }
-    function drawPlots(){
-      const base=forceAndCP();
-
-      // 1) FR vs Depth (kN)
-      {
-        const Dvals=d3.range(ranges.D[0], ranges.D[1]+0.0001, 0.1);
-        const Y=Dvals.map(D0=>{ const keep={...S,D:D0}; const tS=S; S=keep; const v=forceAndCP().FR/1000; S=tS; return v; });
-        const dom = LOCK_PLOTS ? PLOT_DOMAINS.p1 : null;
-        PLOT_DOMAINS.p1 = plotSingle('#p1','Depth (m)','F_R (kN)',Dvals,Y,S.D,base.FR/1000,dom,{si:true, minSpan:0.05*Math.abs(base.FR/1000)});
-      }
-
-      // 2) Δx, Δy vs Depth
-      (function(){
-        const Dvals=d3.range(ranges.D[0], ranges.D[1]+0.0001, 0.1);
-        const dX=[], dY=[];
-        for(const D0 of Dvals){ const keep={...S,D:D0}; const tS=S; S=keep; const v=forceAndCP(); S=tS; dX.push(v.dx); dY.push(v.dy); }
-        const dom = LOCK_PLOTS ? PLOT_DOMAINS.p2 : null;
-        PLOT_DOMAINS.p2 = plotDouble('#p2','Depth (m)','Δx, Δy (m)',Dvals,dX,dY,S.D,base.dx,base.dy,dom);
-      })();
-
-      // 3) FR vs θ (kN)
-      {
-        const T=d3.range(ranges.theta[0], ranges.theta[1]+0.0001, 0.25);
-        const Y=T.map(th=>{ const keep={...S,theta:th}; const tS=S; S=keep; const v=forceAndCP().FR/1000; S=tS; return v; });
-        const dom = LOCK_PLOTS ? PLOT_DOMAINS.p3 : null;
-        PLOT_DOMAINS.p3 = plotSingle('#p3','θ (deg)','F_R (kN)',T,Y,S.theta,base.FR/1000,dom,{si:true, minSpan:0.05*Math.abs(base.FR/1000)});
-      }
-
-      // 4) Δx, Δy vs θ
-      (function(){
-        const T=d3.range(ranges.theta[0], ranges.theta[1]+0.0001, 0.25);
-        const dX=[], dY=[];
-        for(const th of T){ const keep={...S,theta:th}; const tS=S; S=keep; const v=forceAndCP(); S=tS; dX.push(v.dx); dY.push(v.dy); }
-        const dom = LOCK_PLOTS ? PLOT_DOMAINS.p4 : null;
-        PLOT_DOMAINS.p4 = plotDouble('#p4','θ (deg)','Δx, Δy (m)',T,dX,dY,S.theta,base.dx,base.dy,dom);
-      })();
-
-      // 5) FR vs d/b (kN)
-      {
-        const ratio=d3.range(0,2.0001,0.02);
-        const Y=ratio.map(rb=>{ const keep={...S,d:Math.min(12, rb*S.b)}; const tS=S; S=keep; const v=forceAndCP().FR/1000; S=tS; return v; });
-        const dom = LOCK_PLOTS ? PLOT_DOMAINS.p5 : null;
-        PLOT_DOMAINS.p5 = plotSingle('#p5','d/b (–)','F_R (kN)',ratio,Y,S.d/Math.max(0.1,S.b),base.FR/1000,dom,{si:true, minSpan:0.05*Math.abs(base.FR/1000)});
-      }
-
-      // 6) Δx, Δy vs d/b
-      (function(){
-        const ratio=d3.range(0,2.0001,0.02);
-        const dX=[], dY=[];
-        for(const rb of ratio){ const keep={...S,d:Math.min(12, rb*S.b)}; const tS=S; S=keep; const v=forceAndCP(); S=tS; dX.push(v.dx); dY.push(v.dy); }
-        const dom = LOCK_PLOTS ? PLOT_DOMAINS.p6 : null;
-        PLOT_DOMAINS.p6 = plotDouble('#p6','d/b (–)','Δx, Δy (m)',ratio,dX,dY,S.d/Math.max(0.1,S.b),base.dx,base.dy,dom);
-      })();
-    }
-
-    /* ---------- render loop ---------- */
-    let raf=null;
-    function render(){
-      drawRight();
-      updatePlugs();
-      drawPlots();
-      raf=null;
-    }
-    function requestRender({skipPlugs=false, lockPlots=false}={}){
-      SKIP_PLUGS = skipPlugs;
-      LOCK_PLOTS = lockPlots;
-      if(!raf) raf=requestAnimationFrame(render);
+    // 1) F_R vs Depth (kN)
+    {
+      const Dvals=d3.range(ranges.D[0], ranges.D[1]+0.0001, 0.1);
+      const Y=Dvals.map(D0=>{ const keep={...S,D:D0}; const tS=S; S=keep; const v=forceAndCP().FR/1000; S=tS; return v; });
+      const dom=LOCK_PLOTS?PLOT_DOMAINS.p1:null;
+      PLOT_DOMAINS.p1=plotSingle('#p1','Depth (m)','F_R (kN)',Dvals,Y,S.D,base.FR/1000,dom,{si:true,minSpan:0.05*Math.abs(base.FR/1000)});
     }
 
-    function init(){
-      ['rho','D','theta','a','b','d'].forEach(k=>{
-        const min = ranges[k][0], max = ranges[k][1];
-        const t=$(k), s=$(k+'_s');
-        t.addEventListener('input', e=>{ const v=parseFloat(e.target.value); if(Number.isFinite(v)){ S[k]=v; s.value=v; requestRender({skipPlugs:true, lockPlots:true}); }});
-        t.addEventListener('change', e=>{ let v=parseFloat(e.target.value); if(!Number.isFinite(v)) v=S[k]; S[k]=Math.min(max,Math.max(min,v)); t.value=S[k].toFixed(1); s.value=t.value; requestRender(); });
-        s.addEventListener('input', e=>{ S[k]=Math.min(max,Math.max(min,parseFloat(e.target.value))); t.value=S[k].toFixed(1); requestRender({skipPlugs:true, lockPlots:true}); });
-        s.addEventListener('change', ()=>requestRender());
-      });
-      ['rho','D','theta','a','b','d'].forEach(k=>{ $(k).value=S[k].toFixed(1); $(k+'_s').value=S[k].toFixed(1); });
-      requestRender();
-      window.addEventListener('resize', ()=>requestRender({skipPlugs:true, lockPlots:true}));
-    }
-    window.addEventListener('DOMContentLoaded', init);
-  </script>
+    // 2) (xR-xC),(yR-yC) vs Depth
+    (function(){
+      const Dvals=d3.range(ranges.D[0], ranges.D[1]+0.0001, 0.1);
+      const dX=[], dY=[];
+      for(const D0 of Dvals){ const keep={...S,D:D0}; const tS=S; S=keep; const v=forceAndCP(); S=tS; dX.push(v.dx); dY.push(v.dy); }
+      const dom=LOCK_PLOTS?PLOT_DOMAINS.p2:null;
+      PLOT_DOMAINS.p2=plotDouble('#p2','Depth (m)','x_R - x_C,  y_R - y_C (m)',Dvals,dX,dY,S.D,base.dx,base.dy,dom);
+    })();
 
-  <!-- Feedback context -->
-  <script>
-    const FEEDBACK = { course: 'ME 310', sim: 'Ex. 2.7 Hydrostatic Force on a Plane Triangular Surface' };
-    document.addEventListener('DOMContentLoaded', () => {
-      const url = new URL('../feedback.html', location.href);
-      url.searchParams.set('course', FEEDBACK.course);
-      url.searchParams.set('sim', FEEDBACK.sim);
-      document.querySelectorAll('a.feedback-link').forEach(a => {
-        a.href = url.toString();
-        try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
-      });
+    // 3) F_R vs θ (kN)
+    {
+      const T=d3.range(ranges.theta[0], ranges.theta[1]+0.0001, 0.25);
+      const Y=T.map(th=>{ const keep={...S,theta:th}; const tS=S; S=keep; const v=forceAndCP().FR/1000; S=tS; return v; });
+      const dom=LOCK_PLOTS?PLOT_DOMAINS.p3:null;
+      PLOT_DOMAINS.p3=plotSingle('#p3','θ (deg)','F_R (kN)',T,Y,S.theta,base.FR/1000,dom,{si:true,minSpan:0.05*Math.abs(base.FR/1000)});
+    }
+
+    // 4) (xR-xC),(yR-yC) vs θ
+    (function(){
+      const T=d3.range(ranges.theta[0], ranges.theta[1]+0.0001, 0.25);
+      const dX=[], dY=[];
+      for(const th of T){ const keep={...S,theta:th}; const tS=S; S=keep; const v=forceAndCP(); S=tS; dX.push(v.dx); dY.push(v.dy); }
+      PLOT_DOMAINS.p4=plotDouble('#p4','θ (deg)','x_R - x_C,  y_R - y_C (m)',T,dX,dY,S.theta,base.dx,base.dy,null);
+    })();
+
+    // 5) F_R vs d/b (kN)
+    {
+      const ratio=d3.range(0,2.0001,0.02);
+      const Y=ratio.map(rb=>{ const keep={...S,d:Math.min(12, rb*S.b)}; const tS=S; S=keep; const v=forceAndCP().FR/1000; S=tS; return v; });
+      const dom=LOCK_PLOTS?PLOT_DOMAINS.p5:null;
+      PLOT_DOMAINS.p5=plotSingle('#p5','d/b (–)','F_R (kN)',ratio,Y,S.d/Math.max(0.1,S.b),base.FR/1000,dom,{si:true,minSpan:0.05*Math.abs(base.FR/1000)});
+    }
+
+    // 6) (xR-xC),(yR-yC) vs d/b
+    (function(){
+      const ratio=d3.range(0,2.0001,0.02);
+      const dX=[], dY=[];
+      for(const rb of ratio){ const keep={...S,d:Math.min(12, rb*S.b)}; const tS=S; S=keep; const v=forceAndCP(); S=tS; dX.push(v.dx); dY.push(v.dy); }
+      PLOT_DOMAINS.p6=plotDouble('#p6','d/b (–)','x_R - x_C,  y_R - y_C (m)',ratio,dX,dY,S.d/Math.max(0.1,S.b),base.dx,base.dy,null);
+    })();
+  }
+
+  /* render */
+  let raf=null;
+  function render(){ drawRight(); updatePlugs(); drawPlots(); raf=null; }
+  function requestRender({skipPlugs=false,lockPlots=false}={}){ LOCK_PLOTS=lockPlots; if(!raf){ raf=requestAnimationFrame(render); } }
+  window.addEventListener('DOMContentLoaded',()=>{ requestRender(); window.addEventListener('resize',()=>requestRender({skipPlugs:true,lockPlots:true})); });
+
+  /* feedback ctx */
+  (function(){
+    const FEEDBACK={course:'ME 310', sim:'Ex. 2.7 Hydrostatic Force on a Plane Triangular Surface'};
+    document.addEventListener('DOMContentLoaded',()=>{
+      const url=new URL('../feedback.html',location.href);
+      url.searchParams.set('course',FEEDBACK.course);
+      url.searchParams.set('sim',FEEDBACK.sim);
+      document.querySelectorAll('a.feedback-link').forEach(a=>{a.href=url.toString(); try{localStorage.setItem('fb_ctx',JSON.stringify(FEEDBACK));}catch{}});
     });
-  </script>
+  })();
+</script>
 </body>
 </html>
