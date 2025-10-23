@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eq. 3.16: velocity measurement by the Pitot-static tube</title>
+  <title>Eq. 3.16: velocity measurement by the Pitot–static tube</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
 
@@ -12,59 +12,56 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
   <style>
-    /* Header */
     .site-header .container{padding-top:20px;padding-bottom:20px}
     .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
-         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
     .btn.primary{background:var(--accent);border-color:transparent}
-    .btn.primary:hover{filter:brightness(1.06)}
 
-    /* Top layout */
     .top-grid{display:grid;gap:12px}
     @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
-    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;overflow-x:hidden}
 
-    /* Eq + schematic side-by-side (like 1.22) */
-    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff;overflow-x:hidden}
     .eqbig{font-size:1.02em;margin-top:2px}
+    .eq-lines{display:grid;row-gap:6px}       /* stack the equations so they never overflow */
+    .eq-lines .mjx-container{display:block}   /* ensure each MathJax block behaves like a block */
+
     .note.title-xl{font-size:16px;line-height:1.15}
     .eq-schem{display:grid;gap:12px}
     @media (min-width:820px){ .eq-schem{grid-template-columns:1.1fr .9fr} }
 
     .schem{min-height:220px;border:2px dashed var(--line);border-radius:12px;background:#fafcff;
-           display:flex;align-items:center;justify-content:center;color:#64748b}
-    .schem small{display:block;margin-top:6px;color:#94a3b8}
+           display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .schem img{display:block;max-width:100%;max-height:100%;object-fit:contain}
 
-    /* Inputs */
-    .controls{display:grid;gap:12px}
-    .rowflex{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .controls{display:grid;gap:14px}
+    .rowflex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
     .num-sm{width:170px}
     .controls input.num-sm[type="number"]{width:170px !important}
     .hint{font-size:12px;color:#6b7280;margin-top:4px}
     input:disabled{background:#f3f4f6!important;color:#6b7280!important;cursor:not-allowed;opacity:1}
-
     .badge-lite{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:#fff}
 
-    /* KPIs */
-    .kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(3,minmax(120px,1fr))}
+    .kpi{display:grid;gap:10px;margin-top:4px;grid-template-columns:repeat(3,minmax(120px,1fr))}
     .kpi .lab{font-size:12px;color:#555}
     .kpi .val{font-size:16px;font-weight:600}
 
-    /* Plot box (like other pages) */
     .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
     .axis text{font-size:14px;fill:#111}
     .axis-title{font-size:15px;fill:#111}
-    svg text{
-      paint-order:stroke; stroke:#fff; stroke-width:3px; stroke-linejoin:round;
-    }
+    svg text{paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+
+    /* Property equations card: stacked so they always fit */
+    .prop-card{padding:10px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .prop-stack{display:grid;row-gap:6px;justify-items:start}
+    .prop-stack .mjx-container{display:block}   /* each line is a block */
   </style>
 </head>
 <body>
   <header class="site-header">
     <div class="container">
       <div class="header-row">
-        <h1 style="margin:0">Eq. 3.16: velocity measurement by the Pitot-static tube</h1>
+        <h1 style="margin:0">Eq. 3.16: velocity measurement by the Pitot–static tube</h1>
         <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
       </div>
     </div>
@@ -76,87 +73,93 @@
     </nav>
 
     <section class="top-grid">
-      <!-- Left: Eq + (right) schematic, then plot -->
       <div class="ctl">
         <div class="eq-schem">
           <div class="eqwrap">
             <div class="note title-xl" style="margin-bottom:10px"><b>Velocity from Pitot–static pressure difference (incompressible)</b></div>
-            <div class="eqbig">
-              \( \displaystyle
-                V \;=\; \sqrt{\frac{2\,\Delta p}{\rho}}, \qquad \Delta p = p_0 - p.
-              \)
+            <div class="eqbig eq-lines">
+              \( V \;=\; \sqrt{\frac{2\,\Delta p}{\rho}} \)
+              \( \Delta p \,=\, p_{2}-p_{3} \)
+              \( p_{0}=p_{2},\;\; p_{1}=p_{3} \)
             </div>
+
             <div class="note" style="margin-top:10px">
               <b>Symbols</b>
               <div class="symgrid">
                 <ul>
                   <li><b>V</b> — local flow speed (m·s\(^{-1}\))</li>
-                  <li><b>p₀</b> — stagnation (total) pressure (Pa)</li>
-                  <li><b>p</b> — static pressure (Pa)</li>
-                  <li><b>Δp</b> — \(p_0 - p\) (Pa)</li>
+                  <li><b>\(\Delta p\)</b> — gauge reading between stagnation tap \(p_2\) and static tap \(p_3\) (Pa)</li>
+                  <li><b>\(\rho\)</b> — density \(=\tfrac{p}{RT}\)</li>
                 </ul>
                 <ul>
-                  <li><b>ρ</b> — working-fluid density (kg·m\(^{-3}\))</li>
-                  <li><b>a</b> — speed of sound at 20 °C (\(\approx\) 343 m·s\(^{-1}\))</li>
-                  <li><b>Ma</b> — Mach number \(=V/a\) (tool enforces \( \le 0.3\))</li>
+                  <li><b>R</b> — 286.99 J·kg\(^{-1}\)·K\(^{-1}\); <b>k</b> — 1.40 (air)</li>
+                  <li><b>c</b> — speed of sound \(=\sqrt{kRT}\)</li>
+                  <li><b>Ma</b> — Mach number \(=V/c\) (tool caps \( \le 0.3\))</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          <div class="schem">
-            <img src="../assets/thumbs/3.16.png"
-                alt="Pitot-static tube schematic showing stagnation and static ports" />
+          <div class="schem" aria-label="Pitot-static schematic">
+            <img src="../assets/thumbs/3.16.png" alt="Pitot-static tube with taps p0, p1 and gauges p2 (stagnation), p3 (static)" />
           </div>
-
         </div>
 
-        <!-- Plot -->
         <div class="viz" style="margin-top:12px">
           <svg id="plot" viewBox="0 0 680 300" aria-label="V vs Δp"></svg>
         </div>
       </div>
 
-      <!-- Right: controls -->
+      <!-- Right panel -->
       <div class="ctl">
         <div class="controls">
-          <!-- Preset like 1.22 -->
           <div>
-            <label>Air density preset (20 °C)</label>
-            <div class="rowflex">
-              <select id="atm" aria-label="standard atmosphere altitude">
-                <option value="custom">Custom…</option>
-                <option value="0" selected>Sea level (0 m)</option>
-                <option value="5000">5,000 m</option>
-                <option value="10000">10,000 m</option>
-                <option value="15000">15,000 m</option>
-                <option value="20000">20,000 m</option>
-              </select>
-              <span id="rhoBadge" class="badge-lite" aria-live="polite">ρ = 1.225 kg/m³</span>
+            <label>Preset (standard atmosphere)</label>
+            <select id="atm" aria-label="altitude preset">
+              <option value="0" selected>0 m</option>
+              <option value="2000">2000 m</option>
+              <option value="4000">4000 m</option>
+              <option value="6000">6000 m</option>
+              <option value="8000">8000 m</option>
+              <option value="10000">10000 m</option>
+              <option value="custom">Custom…</option>
+            </select>
+            <div class="hint">Choose a preset or pick <b>Custom…</b> to edit \(T\) and \(p\).</div>
+          </div>
+
+          <div class="rowflex">
+            <div>
+              <label>Temperature, T (°C) — [−50, 50]</label>
+              <input id="T_C" class="num-sm" type="number" step="0.1" min="-50" max="50" value="15" />
             </div>
-            <div class="hint">Choose a preset <i>or</i> select <b>Custom…</b> to enter ρ yourself.</div>
+            <div>
+              <label>Pressure, p (PaA) — [2.5e4, 1.0e5]</label>
+              <input id="p_abs" class="num-sm" type="number" step="100" min="25000" max="100000" value="101300" />
+            </div>
           </div>
 
           <div>
-            <label>Working-fluid density, ρ (kg/m³)</label>
-            <input id="rho" class="num-sm" type="number" min="0.1" step="0.001" value="1.225" />
-          </div>
-
-          <div>
-            <label>Pressure difference, Δp (Pa)
+            <label>Pressure difference, \( \Delta p = p_{2}-p_{3} \) (Pa)
               <span id="dpCap" class="badge-lite">Ma ≤ 0.3 limit: —</span>
             </label>
             <input id="dp" class="num-sm" type="number" min="0" step="1" value="100" />
             <input id="dpRange" type="range" min="0" max="5000" step="1" value="100" />
-            <div class="hint">Δp is the instrument reading; for incompressible use of \( V=\sqrt{2Δp/ρ} \) the tool caps \( \mathrm{Ma}\le 0.3 \).</div>
           </div>
 
-          <div>
-            <label>Current values</label>
-            <div class="kpi">
-              <div><div class="lab">V (m/s)</div><div id="kpi_V" class="val">—</div></div>
-              <div><div class="lab">Mach number, Ma (–)</div><div id="kpi_Ma" class="val">—</div></div>
-              <div><div class="lab">Δp (Pa)</div><div id="kpi_dp" class="val">—</div></div>
+          <div class="kpi">
+            <div><div class="lab">V (m/s)</div><div id="kpi_V" class="val">—</div></div>
+            <div><div class="lab">Mach, Ma (–)</div><div id="kpi_Ma" class="val">—</div></div>
+            <div><div class="lab">Δp (Pa)</div><div id="kpi_dp" class="val">—</div></div>
+            <div><div class="lab">ρ (kg/m³)</div><div id="kpi_rho" class="val">—</div></div>
+            <div><div class="lab">c (m/s)</div><div id="kpi_c" class="val">—</div></div>
+          </div>
+
+          <!-- Stacked property equations: no overflow, no scrollbar -->
+          <div class="prop-card">
+            <div class="prop-stack">
+              \[ \rho=\frac{p}{RT} \]
+              \[ c=\sqrt{kRT} \]
+              \[ R=286.99\ \mathrm{J/(kg\cdot K)},\quad k=1.40 \]
             </div>
           </div>
         </div>
@@ -165,10 +168,11 @@
 
     <section class="card" style="margin-top:12px">
       <div class="note">
-        A Pitot-static probe **measures** \(Δp=p_0-p\).  
-        For \( \mathrm{Ma}\le 0.3\) (incompressible), **velocity is inferred** by \( V=\sqrt{2Δp/ρ}\).  
-        Try changing ρ (preset vs custom) and dragging the point on the curve: for the **same \(Δp\)**, **lower ρ → higher \(V\)**.  
-        For a **fixed \(V\)**, **higher ρ** requires a **larger \(Δp\)**.
+        In a Pitot–static probe the center hole senses the <b>stagnation pressure</b> and the side ports sense the <b>static pressure</b>.  
+        The tubing carries those pressures to the remote gauges, so \(p_0=p_2\) (stagnation) and \(p_1=p_3\) (static).  
+        The instrument therefore reads \( \Delta p = p_2 - p_3 = p_0 - p_1 \).  
+        For \( \mathrm{Ma}\le 0.3\) we use \( V=\sqrt{2\,\Delta p/\rho} \) with \( \rho=p/(RT) \).  
+        The limit shown uses \( c(T)=\sqrt{kRT} \) from the current \(T,p\).
       </div>
     </section>
   </main>
@@ -180,101 +184,106 @@
   </footer>
 
   <script>
-    // ---- Atmosphere (20 °C) alt -> rho (kg/m^3)
-    const ATM = { 0:1.225, 5000:0.7364, 10000:0.4135, 15000:0.1948, 20000:0.08891 };
-
-    // constants
-    const a_air = 343.0;           // m/s
+    /* constants & presets */
+    const R_air = 286.99; // J/(kg·K)
+    const K_RATIO = 1.40; // k
     const Ma_max = 0.3;
-    const V_cap  = Ma_max * a_air; // m/s
+
+    const PRESETS = {
+      "0":     { T_C:  15.00, p: 1.013e5 },
+      "2000":  { T_C:   2.00, p: 7.950e4 },
+      "4000":  { T_C: -10.98, p: 6.166e4 },
+      "6000":  { T_C: -23.96, p: 4.722e4 },
+      "8000":  { T_C: -36.94, p: 3.565e4 },
+      "10000": { T_C: -49.90, p: 2.650e4 }
+    };
 
     const $ = id => document.getElementById(id);
     const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-    // state helpers
-    function rhoNow(){
-      const v = parseFloat($('rho').value);
-      return Number.isFinite(v) ? clamp(v, 0.1, 20000) : 1.225;
-    }
-    function dpMaxForRho(rho){ return 0.5 * rho * V_cap * V_cap; } // cap for Ma<=0.3
+    const TKfromC = tC => tC + 273.15;
+    const rhoFrom = (TK,p) => p/(R_air*TK);
+    const cFrom   = TK => Math.sqrt(K_RATIO*R_air*TK);
 
-    // --------- UI wiring ----------
-    function setAtmosphereMode(){
+    const isCustom = () => $('atm').value === 'custom';
+    const TK = () => TKfromC(parseFloat($('T_C').value));
+    const pAbs = () => parseFloat($('p_abs').value);
+    const rhoNow = () => rhoFrom(TK(), pAbs());
+    const cNow   = () => cFrom(TK());
+    const Vcap   = () => Ma_max * cNow();
+    const dpCap  = () => 0.5 * rhoNow() * Vcap() * Vcap();
+
+    function setPresetMode(){
       const sel = $('atm').value;
-      const isCustom = (sel === 'custom');
-      $('rho').disabled = !isCustom;
-      if (!isCustom && ATM[sel]) $('rho').value = ATM[sel].toFixed(3);
-      $('rhoBadge').textContent = `ρ = ${rhoNow().toFixed(3)} kg/m³`;
-      updateDpCapAndClamp();
+      const custom = (sel === 'custom');
+      $('T_C').disabled = !custom;
+      $('p_abs').disabled = !custom;
+
+      if (!custom) {
+        const P = PRESETS[sel];
+        $('T_C').value   = P.T_C.toFixed(2);
+        $('p_abs').value = Math.round(P.p);
+      }
+      refreshCapsAndCompute();
     }
 
     function setDp(v){
-      const rho = rhoNow();
-      const cap = Math.round(dpMaxForRho(rho));
-      const dp  = clamp(Math.round(v), 0, cap);
+      const cap = Math.round(dpCap());
+      const dp  = clamp(Math.round(v)||0, 0, cap);
       $('dp').value = dp.toString();
       $('dpRange').value = dp.toString();
       compute();
-      drawPlot(); // move the draggable
+      drawPlot();
     }
 
-    function updateDpCapAndClamp(){
-      const rho = rhoNow();
-      const cap = Math.round(dpMaxForRho(rho));
+    function refreshCapsAndCompute(){
+      const cap = Math.round(dpCap());
       $('dpCap').textContent = `Ma ≤ 0.3 limit: ${cap} Pa`;
       $('dp').max = cap; $('dpRange').max = cap;
-      // Clamp current dp and refresh
       setDp(parseFloat($('dp').value)||0);
     }
 
     function compute(){
       const rho = rhoNow();
-      const dp  = clamp(Math.round(parseFloat($('dp').value)||0), 0, Math.round(dpMaxForRho(rho)));
+      const c   = cNow();
+      const dp  = clamp(Math.round(parseFloat($('dp').value)||0), 0, Math.round(dpCap()));
       const V   = Math.sqrt((2*dp)/rho);
-      const Ma  = V / a_air;
+      const Ma  = V / c;
 
-      $('kpi_V').textContent  = Number.isFinite(V)  ? V.toFixed(2) : '—';
-      $('kpi_Ma').textContent = Number.isFinite(Ma) ? Ma.toFixed(3) : '—';
-      $('kpi_dp').textContent = dp.toString();
-
-      // keep ρ neat
-      $('rho').value = rho.toFixed(3);
-      $('rhoBadge').textContent = `ρ = ${rho.toFixed(3)} kg/m³`;
+      $('kpi_V').textContent   = Number.isFinite(V)  ? V.toFixed(2) : '—';
+      $('kpi_Ma').textContent  = Number.isFinite(Ma) ? Ma.toFixed(3) : '—';
+      $('kpi_dp').textContent  = dp.toString();
+      $('kpi_rho').textContent = Number.isFinite(rho)? rho.toFixed(3) : '—';
+      $('kpi_c').textContent   = Number.isFinite(c)  ? c.toFixed(1) : '—';
     }
 
     function wire(){
-      $('atm').addEventListener('change', setAtmosphereMode);
-      $('rho').addEventListener('input', ()=>{ if(!$('rho').disabled) updateDpCapAndClamp(); });
-
+      $('atm').addEventListener('change', setPresetMode);
+      ['T_C','p_abs'].forEach(id => $(id).addEventListener('input', refreshCapsAndCompute));
       $('dp').addEventListener('input',  e=> setDp(e.target.value));
       $('dpRange').addEventListener('input', e=> setDp(e.target.value));
-
-      setAtmosphereMode();
+      setPresetMode();
     }
 
-    // --------- Plot (V vs Δp with draggable) ----------
     function drawPlot(){
       const host = d3.select('#plot'); host.selectAll('*').remove();
       const W = 680, H = 300, m = {l:60,r:16,t:12,b:48};
       const svg = host.attr('viewBox',`0 0 ${W} ${H}`);
 
       const rho = rhoNow();
-      const cap = Math.round(dpMaxForRho(rho));        // x max (Pa), fixed for current rho
+      const cap = Math.round(dpCap());
       const x = d3.scaleLinear().domain([0, cap]).range([m.l, W-m.r]);
-      const y = d3.scaleLinear().domain([0, V_cap]).range([H-m.b, m.t]); // V from 0..0.3a
+      const y = d3.scaleLinear().domain([0, Vcap()]).range([H-m.b, m.t]);
 
-      // axes
       svg.append('g').attr('class','axis').attr('transform',`translate(0,${H-m.b})`).call(d3.axisBottom(x));
       svg.append('g').attr('class','axis').attr('transform',`translate(${m.l},0)`).call(d3.axisLeft(y));
       svg.append('text').attr('class','axis-title').attr('x',W/2).attr('y',H-10).attr('text-anchor','middle').text('Δp (Pa)');
       svg.append('text').attr('class','axis-title').attr('x',-(H/2)).attr('y',18).attr('transform','rotate(-90)').attr('text-anchor','middle').text('V (m/s)');
 
-      // curve: V = sqrt(2 dp / rho)
-      const n=200, xs = d3.range(n).map(i=> i*cap/(n-1));
+      const n=220, xs = d3.range(n).map(i=> i*cap/(n-1));
       const linePts = xs.map(dp => [x(dp), y(Math.sqrt((2*dp)/rho))]);
       svg.append('path').attr('d', d3.line()(linePts)).attr('stroke','#111').attr('fill','none');
 
-      // current point
       let dpNow = Math.round(parseFloat($('dp').value)||0);
       dpNow = Math.min(dpNow, cap);
       const handle = svg.append('circle')
@@ -282,20 +291,17 @@
         .attr('cx', x(dpNow))
         .attr('cy', y(Math.sqrt((2*dpNow)/rho)));
 
-      // drag behavior (horizontal)
-      const drag = d3.drag()
-        .on('drag', (event)=>{
-          const xPix = clamp(event.x, x(0), x(cap));
-          const dpNew = Math.round(x.invert(xPix));
-          setDp(dpNew);
-        });
+      const drag = d3.drag().on('drag', (event)=>{
+        const xPix = Math.min(Math.max(event.x, x(0)), x(cap));
+        const dpNew = Math.round(x.invert(xPix));
+        setDp(dpNew);
+      });
       handle.call(drag);
     }
 
     window.addEventListener('DOMContentLoaded', ()=>{ wire(); drawPlot(); });
     window.addEventListener('resize', drawPlot);
 
-    // Feedback link context
     const FEEDBACK = { course: 'ME 310', sim: 'Eq. 3.16: Pitot-static (incompressible)' };
     document.addEventListener('DOMContentLoaded', () => {
       const url = new URL('../feedback.html', location.href);

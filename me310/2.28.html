@@ -92,8 +92,8 @@
         <div class="controls">
           <div>
             <label>\(a_y\) (m/s²) — range [−20, 20]</label>
-            <input id="ayRange" type="range" min="-20" max="20" step="1" value="5" />
-            <input id="ay" class="num-sm" type="number" min="-20" max="20" step="1" value="5" />
+            <input id="ayRange" type="range" min="-20" max="20" step="1" value="15" />
+            <input id="ay" class="num-sm" type="number" min="-20" max="20" step="1" value="15" />
           </div>
           <div>
             <label>\(a_z\) (m/s²) — range [−5, 5]</label>
@@ -298,17 +298,28 @@
       svg.append('g').attr('class','axis').attr('transform',`translate(${m.l},0)`)
         .call(d3.axisLeft(y).ticks(9));
 
+      // light grid
       x.ticks(20).forEach(t=>svg.append('line').attr('x1',x(t)).attr('x2',x(t)).attr('y1',m.t).attr('y2',m.t+ih).attr('stroke','#0001'));
       y.ticks(18).forEach(t=>svg.append('line').attr('x1',m.l).attr('x2',m.l+iw).attr('y1',y(t)).attr('y2',y(t)).attr('stroke','#0001'));
 
-      svg.append('text').attr('class','axis-title').attr('x',m.l+iw/2).attr('y',H-10).attr('text-anchor','middle').text('a_y (m/s²)');
-      svg.append('text').attr('class','axis-title').attr('x',m.l-40).attr('y',m.t+12).text('dz/dy');
+      // x-axis title unchanged
+      svg.append('text').attr('class','axis-title')
+        .attr('x',m.l+iw/2).attr('y',H-10).attr('text-anchor','middle')
+        .text('a_y (m/s²)');
 
-      const pts = d3.range(-20, 20.0001, 0.5).map(A => [x(A), y(slope(A, az))]);
+      // y-axis title as a stacked fraction "dz" over "dy", centered vertically, left of axis
+      const fx = m.l - 40;                 // how far left of the y-axis
+      const fy = m.t + ih/2;               // vertical center
+      const frac = svg.append('g').attr('transform',`translate(${fx},${fy})`);
+      frac.append('text').attr('class','axis-title').attr('text-anchor','middle').attr('dy',-12).text('dz');
+      frac.append('line').attr('x1',-12).attr('x2',12).attr('y1',0).attr('y2',0).attr('stroke','#111');
+      frac.append('text').attr('class','axis-title').attr('text-anchor','middle').attr('dy',16).text('dy');
+
+      const pts = d3.range(-20, 20.0001, 0.5).map(A => [x(A), y(-(A)/(g+az))]);
       svg.append('path').attr('d', d3.line()(pts)).attr('stroke','#111').attr('fill','none');
       svg.append('line').attr('x1',m.l).attr('x2',m.l+iw).attr('y1',y(0)).attr('y2',y(0))
         .attr('stroke','#111').attr('stroke-dasharray','4 4').attr('opacity',0.6);
-      svg.append('circle').attr('cx',x(ay)).attr('cy',y(slope(ay, az))).attr('r',6).attr('fill','#ef4444').attr('stroke','#111');
+      svg.append('circle').attr('cx',x(ay)).attr('cy',y(-(ay)/(g+az))).attr('r',6).attr('fill','#ef4444').attr('stroke','#111');
     }
 
     function updateReadouts(){
