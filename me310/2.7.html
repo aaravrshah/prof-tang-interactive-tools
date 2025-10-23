@@ -10,18 +10,14 @@
   <!-- D3 + MathJax -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script>
-    // Lightweight MathJax; we typeset only when the user releases sliders.
     window.MathJax = { chtml:{scale:0.92}, options:{renderActions:{addMenu:[]}} };
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
-    /* ---- page-local polish ---- */
+    :root{ --plot-h: 520px; }
 
-    /* One knob to control chart height everywhere */
-    :root{ --plot-h: 520px; }   /* ← make taller/shorter as you like */
-
-    /* Inputs look like other pages + sticky */
+    /* Inputs (sticky) */
     .inputs.card{position:sticky; top:0; z-index:50; backdrop-filter:saturate(1.05) blur(2px)}
     .inputs-grid{display:grid; gap:10px; grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
     .ctl{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
@@ -30,35 +26,41 @@
     .pair input[type="number"]{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px}
     .pair input[type="range"]{width:100%}
 
-    /* Two schematics side-by-side */
-    .two{display:grid;gap:12px}
-    @media(min-width:980px){ .two{grid-template-columns:1fr 1fr} }
+    /* Two-column sections */
+    .two-ps{display:grid; gap:12px}
+    @media(min-width:980px){ .two-ps{grid-template-columns:0.9fr 1.1fr} }   /* main schematic a bit wider */
+    .two-ana{display:grid; gap:12px}
+    @media(min-width:980px){ .two-ana{grid-template-columns:1.15fr 1fr} }   /* analysis left a bit wider */
+
     .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
-    .note.muted{color:#6b7280}
+    .card img.contain{display:block;width:100%;height:100%;object-fit:contain}
 
-    /* Schematic labels */
-    .biglbl{font-size:16px;fill:#111}
-    .dim{font-size:15px;fill:#0f766e}
+    /* Problem statement card — use site defaults; just light tweaks */
+    .ps.card{padding:14px}
+    .ps h3{margin:6px 0 10px}
+    .ps h4{margin:10px 0 6px;font-size:15px}
+    .ps p{margin:0 0 10px}
+    .ps ul{margin:6px 0 0 20px}
 
-    /* Calcs block */
-    .calc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
-    .step{margin:10px 0}
-    .calc .eqwrap{margin:8px 0}
-
-    /* Pretty plugs (MathJax), not monospace */
+    /* Equation boxes */
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
     .plug{
       background:#fcfcff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
     .plug .mjx-container{font-size:1.08em !important;line-height:1.28}
 
-    /* Big plot grid: 2 columns, TALL cards */
+    /* Plots */
     .plots{display:grid; gap:20px}
     @media(min-width:960px){ .plots{grid-template-columns:repeat(2,1fr)} }
     .plots .viz{padding:14px; border-radius:14px}
     .plots .viz svg{ width:100%; height:var(--plot-h); display:block }
     .plots .viz .axis text{ font-size:14px }
     .plots .viz .axis-title{ font-size:16px }
+
+    .note.muted{color:#6b7280}
+    .biglbl{font-size:16px;fill:#111}
+    .dim{font-size:15px;fill:#0f766e}
   </style>
 </head>
 <body>
@@ -130,79 +132,87 @@
       </div>
     </section>
 
-    <!-- Schematics -->
-    <section class="two">
-      <div class="card">
-        <h3 style="margin:6px 0 6px">Sketch &amp; axes (fixed 0–20 m)</h3>
-        <p class="note muted" style="margin:0 0 8px">
-          Side view (<i>y</i> along the inclined plane; <i>z</i> vertical). Depth is vertical; the plane forms a chamfer at the
-          <b>bottom-left</b> corner. The chamfer line has slope \(\tan\theta\), keeps a fixed length, and always intersects the left wall and the line \(z=D\).
-        </p>
-        <div class="viz">
-          <svg id="left" viewBox="0 0 640 400" aria-label="side view schematic"></svg>
-        </div>
+    <!-- Problem statement + main figure -->
+    <section class="two-ps">
+      <div class="card ps">
+        <h3>Problem Statement</h3>
+
+        <h4>Known</h4>
+        <ul>
+          <li>An open tank is fill with an oil whose density is \( \rho \).</li>
+          <li>There is a triangular panel on the inclinde plane surface submerged in the oil.</li>
+        </ul>
+
+        <h4>Find</h4>
+        <p>(a) The magnitude of the hydrostatic force acting on the triangular panel.</p>
+        <p>(b) Locate the point of action (i.e. center of pressure) of the hydrostatic force on the triangular panel.</p>
       </div>
 
       <div class="card">
-        <h3 style="margin:6px 0 6px">Front view (panel coordinates)</h3>
-        <p class="note muted" style="margin:0 0 8px">
-          Axes fixed at 0–13 m in <i>x</i> and <i>y</i> (larger than max <i>b,a</i>). Base at the bottom; apex at \((x=d,\,y=a)\).
-          Shows centroid <i>C</i> and center of pressure <i>CP</i> with labels <i>a</i>, <i>b</i>, <i>d</i>, \(a/3\), \((b+d)/3\).
-        </p>
-        <div class="viz">
-          <svg id="right" viewBox="0 0 640 400" aria-label="front view schematic"></svg>
+        <h3 style="margin:6px 0 6px">Main Schematic</h3>
+        <div class="viz" style="height:460px">
+          <!-- NOTE: using assets/thumbs as requested -->
+          <img class="contain" src="../assets/thumbs/2.7.png" alt="Main schematic for Example 2.7 (triangular panel)" />
         </div>
       </div>
     </section>
 
-    <!-- Narrative + Steps -->
-    <section class="card calc">
-      <div class="note" style="margin-bottom:6px">
-        <b>What we compute & why</b> — The resultant hydrostatic force on the triangular panel has magnitude
-        \(F_R=\rho g h_c A\). Here \(h_c\) is the vertical depth to the <i>centroid</i> \(C\) of the triangle (not the CP).
-        The resultant force acts at the <i>center of pressure</i> \(CP\): \(\displaystyle y_R = y_c + \tfrac{I_{xc}}{y_c A}\), \(\displaystyle x_R = x_c + \tfrac{I_{xyc}}{y_c A}\).
+    <!-- Analysis: large schematic + triangle schematic -->
+    <section class="two-ana">
+      <div class="card">
+        <h3 style="margin:6px 0 6px">Analysis — Overall schematic</h3>
+        <div class="viz" style="height:420px">
+          <!-- Wider than right side; uses assets/thumbs/2.7.1.png -->
+          <img class="contain" src="../assets/thumbs/2.7.1.png" alt="Overall analysis schematic (Example 2.7)" />
+        </div>
       </div>
 
-      <div class="step">
-        <h3 style="margin:8px 0 6px">Step 1 — Geometry of the triangular plate</h3>
-        <div class="eqwrap">
+      <div class="card">
+        <h3 style="margin:6px 0 6px">Analysis — Triangle (front view)</h3>
+        <div class="viz">
+          <svg id="right" viewBox="0 0 640 400" aria-label="front view schematic"></svg>
+        </div>
+        <div class="eqwrap" style="margin-top:8px">
           \( \displaystyle
-            A=\frac{ab}{2},\qquad x_c=\frac{b+d}{3},\qquad y_c=\frac{a}{3},\qquad
-            I_{xc}=\frac{b\,a^3}{36},\qquad I_{xyc}=\frac{b\,a^2}{72}\,(b-2d).
+             A=\frac{ab}{2},\qquad
+             I_{xc}=\frac{b\,a^{3}}{36},\qquad
+             I_{xyc}=\frac{b\,a^{2}}{72}\,(b-2d).
           \)
         </div>
-        <div class="plug" id="plug1"></div>
       </div>
+    </section>
 
-      <div class="step">
-        <h3 style="margin:8px 0 6px">Step 2 — Depth of the centroid along the plane</h3>
-        <div class="eqwrap">
-          \( \displaystyle
-            y_c^{\text{(global along plane)}} = \frac{D}{\sin\theta} - \frac{a}{3},\qquad
-            h_c = y_c\,\sin\theta.
-          \)
-        </div>
-        <div class="plug" id="plug2"></div>
+    <!-- Calculations -->
+    <section class="card">
+      <h3 style="margin:6px 0 6px">Calculations</h3>
+
+      <div class="eqwrap">
+        <p><b>(a) Magnitude of the hydrostatic force acting on the plane triangular panel.</b></p>
+        \( \displaystyle
+          y_c = \frac{\text{Depth}}{\sin\theta} - \frac{a}{3},\qquad
+          h_c = y_c \sin\theta,\qquad
+          A = \frac{ab}{2},\qquad
+          F_R = \rho g h_c A.
+        \)
       </div>
+      <div class="plug" id="plug3"></div>
 
-      <div class="step">
-        <h3 style="margin:8px 0 6px">Step 3 — Resultant force (magnitude)</h3>
-        <div class="eqwrap">
-          \( \displaystyle F_R=\rho\,g\,h_c\,A. \)
-        </div>
-        <div class="plug" id="plug3"></div>
+      <div class="eqwrap" style="margin-top:10px">
+        <p><b>(b) Locate the point of action of the hydrostatic force at &lt;x<sub>R</sub>, y<sub>R</sub>&gt;.</b></p>
+        \( \displaystyle
+          I_{xc} = \frac{b a^{3}}{36},\qquad
+          y_R = y_c + \frac{I_{xc}}{y_c A},\qquad
+          x_c = \frac{b+d}{3},\qquad
+          I_{xyc} = \frac{b a^{2}}{72}\,(b-2d),\qquad
+          x_R = x_c + \frac{I_{xyc}}{y_c A}.
+        \)
       </div>
+      <div class="plug" id="plug4"></div>
 
-      <div class="step">
-        <h3 style="margin:8px 0 6px">Step 4 — Center of pressure (point of action)</h3>
-        <div class="eqwrap">
-          \( \displaystyle
-            y_R = y_c + \frac{I_{xc}}{y_c A},\qquad
-            x_R = x_c + \frac{I_{xyc}}{y_c A},\qquad
-            \Delta y = y_R - y_c,\; \Delta x = x_R - x_c.
-          \)
-        </div>
-        <div class="plug" id="plug4"></div>
+      <div class="eqwrap" style="margin-top:10px">
+        <p class="note muted" style="margin:0"><b>Geometry &amp; depth (numeric)</b></p>
+        <div id="plug1" class="plug" style="margin-top:6px"></div>
+        <div id="plug2" class="plug" style="margin-top:6px"></div>
       </div>
     </section>
 
@@ -230,7 +240,7 @@
   </footer>
 
   <script>
-    /* ---------------- helpers & state ---------------- */
+    /* ---------- helpers & state ---------- */
     const $ = id => document.getElementById(id);
     const g = 9.81, fmtSI = d3.format("~s");
 
@@ -246,7 +256,6 @@
     let LOCK_PLOTS = false; // freeze y-domains while sliding
     const PLOT_DOMAINS = { p1:null, p2:null, p3:null, p5:null, p6:null };
 
-    /* keep simple, as you asked earlier (allow d independent of b) */
     function syncPair(key){
       $(key).value = r1(S[key]).toFixed(1);
       $(key+'_s').value = r1(S[key]).toFixed(1);
@@ -256,7 +265,6 @@
     function wirePair(key, lo, hi){
       const t=$(key), s=$(key+'_s');
 
-      // number typing
       t.addEventListener('input', e=>{
         const v=soft(e.target.value); if(v===null) return;
         S[key]=v; s.value=e.target.value;
@@ -268,7 +276,6 @@
         requestRender({skipPlugs:false, lockPlots:false});
       });
 
-      // slider drag
       s.addEventListener('pointerdown', ()=>{ SKIP_PLUGS=true; LOCK_PLOTS=true; });
       window.addEventListener('pointerup', ()=>{
         if(SKIP_PLUGS||LOCK_PLOTS){ SKIP_PLUGS=false; LOCK_PLOTS=false; requestRender({skipPlugs:false, lockPlots:false}); }
@@ -284,7 +291,7 @@
       });
     }
 
-    /* ---------------- math ---------------- */
+    /* ---------- math ---------- */
     function geom(){
       const {a,b,d}=S;
       return {
@@ -309,55 +316,7 @@
       return {G,H,FR,xR,yR,dx:xR-G.xc,dy:yR-G.yc};
     }
 
-    /* ---------------- schematics ---------------- */
-    function drawLeft(){
-      const svg = d3.select('#left'); svg.selectAll('*').remove();
-      const Wpx=600, Hpx=400, m={l:55,r:12,t:16,b:40};
-      const iw=Wpx-m.l-m.r, ih=Hpx-m.t-m.b;
-
-      const yMax=10;
-      const x=d3.scaleLinear().domain([0,yMax]).range([m.l,m.l+iw]);
-      const z=d3.scaleLinear().domain([0,20]).range([m.t,m.t+ih]);
-
-      // left & bottom black boundaries
-      svg.append('line').attr('x1',x(0)).attr('x2',x(0)).attr('y1',z(0)).attr('y2',z(20)).attr('stroke','#111').attr('stroke-width',2);
-      svg.append('line').attr('x1',x(0)).attr('x2',x(yMax)).attr('y1',z(20)).attr('y2',z(20)).attr('stroke','#111').attr('stroke-width',2);
-
-      // free surface tint (open at the top)
-      svg.append('rect')
-        .attr('x',x(0)).attr('y',z(0))
-        .attr('width',x(yMax)-x(0)).attr('height',z(S.D)-z(0))
-        .attr('fill','#60a5fa33').attr('stroke','none');
-
-      // axes labels
-      svg.append('text').attr('x', x(0)-8).attr('y', z(0)+16).attr('text-anchor','end').attr('class','biglbl').text('z');
-      svg.append('text').attr('x', x(yMax)+6).attr('y', z(20)+4).attr('class','biglbl').text('y');
-
-      // depth arrow on RIGHT
-      const defs = svg.append('defs');
-      defs.append('marker').attr('id','arrowD').attr('viewBox','0 0 10 10').attr('refX',6).attr('refY',5)
-        .attr('markerWidth',8).attr('markerHeight',8).attr('orient','auto-start-reverse')
-        .append('path').attr('d','M 0 0 L 10 5 L 0 10 z').attr('fill','#0f766e');
-      const xDepth = x(yMax)-8;
-      svg.append('line').attr('x1',xDepth).attr('x2',xDepth).attr('y1',z(0)).attr('y2',z(S.D))
-        .attr('stroke','#0f766e').attr('stroke-width',3).attr('marker-end','url(#arrowD)');
-      svg.append('text').attr('x', xDepth+12).attr('y', z(S.D/2)).attr('class','dim').text('Depth');
-
-      // chamfer line (fixed length) with θ arc
-      const L=6.5, y2=L*Math.cos(rad(S.theta)), z1=S.D-L*Math.sin(rad(S.theta));
-      const P1={x:0, z:Math.max(0,z1)}, P2={x:y2, z:S.D};
-      svg.append('line').attr('x1',x(P1.x)).attr('y1',z(P1.z)).attr('x2',x(P2.x)).attr('y2',z(P2.z))
-        .attr('stroke','#111').attr('stroke-width',3);
-
-      const dashLen=Math.min(1.4,yMax*0.12);
-      svg.append('line').attr('x1',x(P1.x)).attr('y1',z(P1.z)).attr('x2',x(P1.x+dashLen)).attr('y2',z(P1.z))
-        .attr('stroke','#111').attr('stroke-dasharray','5 4');
-
-      const arcR=1.2, arc=d3.arc().innerRadius(0.9*arcR).outerRadius(arcR).startAngle(0).endAngle(rad(S.theta));
-      svg.append('path').attr('d',arc()).attr('transform',`translate(${x(P1.x)},${z(P1.z)}) rotate(180)`).attr('fill','#0003');
-      svg.append('text').attr('x', x(P1.x + 0.95*arcR)).attr('y', z(P1.z + 0.75*arcR)).attr('class','biglbl').text('θ');
-    }
-
+    /* ---------- right schematic (triangle) ---------- */
     function drawRight(){
       const svg=d3.select('#right'); svg.selectAll('*').remove();
       const Wpx=600, Hpx=400, m={l:44,r:10,t:16,b:44};
@@ -372,19 +331,16 @@
         .attr('markerWidth',8).attr('markerHeight',8).attr('orient','auto')
         .append('path').attr('d','M 0 0 L 10 5 L 0 10 z').attr('fill','#0f766e');
 
-      // axes
       svg.append('line').attr('x1',x(0)).attr('x2',x(lim)).attr('y1',y(0)).attr('y2',y(0)).attr('stroke','#111').attr('stroke-width',2);
       svg.append('line').attr('x1',x(0)).attr('x2',x(0)).attr('y1',y(0)).attr('y2',y(lim)).attr('stroke','#111').attr('stroke-width',2);
       svg.append('text').attr('x', x(lim)+6).attr('y', y(0)+4).attr('class','biglbl').text('x');
       svg.append('text').attr('x', x(0)-8).attr('y', y(lim)+2).attr('text-anchor','end').attr('class','biglbl').text('y');
 
-      // triangle
       const a=S.a,b=S.b,d=S.d, baseL={x:0,y:0}, baseR={x:b,y:0}, apex={x:d,y:a};
       svg.append('polygon')
         .attr('points',[baseL,apex,baseR].map(p=>[x(p.x),y(p.y)].join(',')).join(' '))
         .attr('fill','#60a5fa33').attr('stroke','#111').attr('stroke-width',2);
 
-      // dimensions (double-headed)
       svg.append('line').attr('x1',x(0)).attr('x2',x(d)).attr('y1',y(a)).attr('y2',y(a))
         .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-start','url(#dimArrow)').attr('marker-end','url(#dimArrow)');
       svg.append('text').attr('x',(x(0)+x(d))/2).attr('y',y(a)-6).attr('class','dim').text('d');
@@ -397,7 +353,6 @@
         .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-start','url(#dimArrow)').attr('marker-end','url(#dimArrow)');
       svg.append('text').attr('x',(x(0)+x(b))/2).attr('y',y(0)+16).attr('class','dim').text('b');
 
-      // centroid / CP
       const {G,xR,yR}=forceAndCP();
       const C={x:G.xc,y:G.yc}, CP={x:xR,y:yR};
       svg.append('circle').attr('cx',x(C.x)).attr('cy',y(C.y)).attr('r',5).attr('fill','#10b981').attr('stroke','#111');
@@ -405,7 +360,7 @@
       svg.append('circle').attr('cx',x(CP.x)).attr('cy',y(CP.y)).attr('r',6).attr('fill','#ef4444').attr('stroke','#111');
       svg.append('text').attr('x',x(CP.x)+8).attr('y',y(CP.y)-6).attr('class','biglbl').text('CP');
 
-      // a/3: green vertical + dashed horizontal to C
+      // a/3, (b+d)/3 helpers
       svg.append('line')
         .attr('x1',x(b)+18).attr('x2',x(b)+18).attr('y1',y(0)).attr('y2',y(G.yc))
         .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-start','url(#dimArrow)').attr('marker-end','url(#dimArrow)');
@@ -414,7 +369,6 @@
         .attr('stroke','#111').attr('stroke-dasharray','6 4');
       svg.append('text').attr('x',x(b)+24).attr('y',y(G.yc/2)).attr('class','dim').text('a/3');
 
-      // (b+d)/3: green horizontal + dashed vertical to C
       svg.append('line')
         .attr('x1',x(0)).attr('x2',x(G.xc)).attr('y1',y(a)+18).attr('y2',y(a)+18)
         .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-start','url(#dimArrow)').attr('marker-end','url(#dimArrow)');
@@ -424,7 +378,7 @@
       svg.append('text').attr('x',x(G.xc)/2).attr('y',y(a)+32).attr('class','dim').text('(b+d)/3');
     }
 
-    /* ---------------- nice plugs (MathJax) ---------------- */
+    /* ---------- plugs ---------- */
     let mjTimer=null;
     function typeset(nodes){
       if (!window.MathJax || !MathJax.typesetPromise) return;
@@ -477,11 +431,10 @@
       typeset([$('plug1'),$('plug2'),$('plug3'),$('plug4')]);
     }
 
-    /* ---------------- plots (axes lock while dragging) ---------------- */
+    /* ---------- plots ---------- */
     function chartHeight(){
       return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--plot-h')) || 520;
     }
-
     function plotSingle(hostSel, xLab, yLab, xs, ys, xNow, yNow, domain, opts={}){
       const host=d3.select(hostSel); host.selectAll('*').remove();
       const Hpx = chartHeight();
@@ -511,9 +464,8 @@
       svg.append('path').attr('d', d3.line()(xs.map((v,i)=>[x(v),y(ys[i])]))).attr('stroke','#111').attr('fill','none');
       if(xNow!=null && yNow!=null){ svg.append('circle').attr('cx',x(xNow)).attr('cy',y(yNow)).attr('r',7).attr('fill','#ef4444').attr('stroke','#111'); }
 
-      return y.domain(); // return actual domain used
+      return y.domain();
     }
-
     function plotDouble(hostSel, xLab, yLab, xs, ys1, ys2, xNow, y1Now, y2Now, domain){
       const host=d3.select(hostSel); host.selectAll('*').remove();
       const Hpx = chartHeight();
@@ -547,7 +499,6 @@
 
       return y.domain();
     }
-
     function drawPlots(){
       const base=forceAndCP();
 
@@ -603,12 +554,11 @@
       })();
     }
 
-    /* ---------------- render loop ---------------- */
+    /* ---------- render loop ---------- */
     let raf=null;
     function render(){
-      drawLeft();
       drawRight();
-      if(!SKIP_PLUGS) updatePlugs();
+      updatePlugs();
       drawPlots();
       raf=null;
     }
@@ -619,15 +569,16 @@
     }
 
     function init(){
-      wirePair('rho', ...ranges.rho);
-      wirePair('D', ...ranges.D);
-      wirePair('theta', ...ranges.theta);
-      wirePair('a', ...ranges.a);
-      wirePair('b', ...ranges.b);
-      wirePair('d', ...ranges.d);
-      syncAll();
+      ['rho','D','theta','a','b','d'].forEach(k=>{
+        const min = ranges[k][0], max = ranges[k][1];
+        const t=$(k), s=$(k+'_s');
+        t.addEventListener('input', e=>{ const v=parseFloat(e.target.value); if(Number.isFinite(v)){ S[k]=v; s.value=v; requestRender({skipPlugs:true, lockPlots:true}); }});
+        t.addEventListener('change', e=>{ let v=parseFloat(e.target.value); if(!Number.isFinite(v)) v=S[k]; S[k]=Math.min(max,Math.max(min,v)); t.value=S[k].toFixed(1); s.value=t.value; requestRender(); });
+        s.addEventListener('input', e=>{ S[k]=Math.min(max,Math.max(min,parseFloat(e.target.value))); t.value=S[k].toFixed(1); requestRender({skipPlugs:true, lockPlots:true}); });
+        s.addEventListener('change', ()=>requestRender());
+      });
+      ['rho','D','theta','a','b','d'].forEach(k=>{ $(k).value=S[k].toFixed(1); $(k+'_s').value=S[k].toFixed(1); });
       requestRender();
-      // maintain plot height on resize
       window.addEventListener('resize', ()=>requestRender({skipPlugs:true, lockPlots:true}));
     }
     window.addEventListener('DOMContentLoaded', init);
