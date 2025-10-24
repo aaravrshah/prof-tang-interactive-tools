@@ -212,3 +212,34 @@ svg text{
   background:#fff;      /* optional: white behind transparent PNG */
   border-radius:10px;   /* matches your card rounding */
 }
+/* ==== Plots: minimum vertical space (you already liked 350px) ==== */
+:root{
+  --plot-min-h: 350px;          /* tweak here if you want taller/shorter plots */
+  --schem-scale: 0.94;          /* < 1.0 shrinks the two schematics a bit */
+  --schem-left-pad: 14px;       /* left padding to push the triangle image right */
+}
+
+/* Make every plot SVG respect the min height */
+.plots .viz svg{ width:100%; display:block; min-height:var(--plot-min-h) }
+
+/* ==== Schematic sizing helpers (non-destructive to layout) ==== */
+/* Wrap each schematic image in .schem-wrap; shrink width slightly and align right
+   so the left-side cards feel larger without touching the grid columns. */
+.schem-wrap{
+  display:block;
+}
+.schem-wrap .schem-img{
+  width: calc(100% * var(--schem-scale));
+  height: auto;
+  display:block;
+  margin-left: auto;            /* shrink from the left edge */
+}
+
+/* Push the triangle schematic to the right so the a/3 label never gets clipped */
+.schem-wrap.schem-tri{
+  padding-left: var(--schem-left-pad);   /* tune this if you need more space */
+  box-sizing: content-box;               /* so padding doesn't shrink the image */
+}
+
+/* Keep plot legends readable when they stack */
+.plotly .legend { max-width: 40%; }
