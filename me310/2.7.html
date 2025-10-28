@@ -290,17 +290,19 @@
   }
   function centroidDepth(){
     const {D,theta,a}=S;
-    const yc_along = D/Math.sin(rad(theta)) - a/3;  // y_c along plane (correct)
-    const hc = yc_along*Math.sin(rad(theta));
-    return {yc_along,hc};
+    const yc = D/Math.sin(rad(theta)) - a/3;   // along-plane centroid distance
+    const hc = yc * Math.sin(rad(theta));      // vertical depth
+    return {yc, hc};
   }
+
   function forceAndCP(){
-    const G=geom(), H=centroidDepth();
-    const FR=S.rho*g*H.hc*G.A;
-    const yR=H.yc_along + (G.Ixc)/(H.yc_along*G.A);
-    const xR=G.xC       + (G.Ixyc)/(H.yc_along*G.A);
-    return {G,H,FR,xR,yR,dx:xR-G.xC,dy:yR-(S.a/3)}; // dy relative to triangle C (a/3)
+    const G = geom(), H = centroidDepth();
+    const FR = S.rho * g * H.hc * G.A;
+    const yR = H.yc + (G.Ixc)  / (H.yc * G.A);
+    const xR = G.xC + (G.Ixyc) / (H.yc * G.A);
+    return { G, H, FR, xR, yR, dx: xR - G.xC, dy: yR - H.yc };
   }
+
 
   /* ---------- SVG helpers ---------- */
   function addArrowDef(svg){
@@ -429,9 +431,9 @@
     \\begin{aligned}
     y_c &= \\dfrac{D}{\\sin\\theta}-\\dfrac{a}{3}
         = \\dfrac{${f1(S.D)}}{\\sin ${f1(S.theta)}^{\\circ}} - \\dfrac{${f1(S.a)}}{3}
-        = \\boxed{${f3(H.yc_along)}}\\;\\mathrm{m}\\\\[4pt]
+        = \\boxed{${f3(H.yc)}}\\;\\mathrm{m}\\\\[4pt]
     h_c &= y_c\\,\\sin\\theta
-        = ${f3(H.yc_along)}\\,\\sin ${f1(S.theta)}^{\\circ}
+        = ${f3(H.yc)}\\,\\sin ${f1(S.theta)}^{\\circ}
         = \\boxed{${f3(H.hc)}}\\;\\mathrm{m}\\\\[4pt]
     A &= \\tfrac12 ab = \\tfrac12\\,(\\,${f1(S.a)}\\,)(\\,${f1(S.b)}\\,) = \\boxed{${f3(G.A)}}\\;\\mathrm{m^{2}}\\\\[4pt]
     F_R &= \\rho g h_c A
@@ -453,9 +455,9 @@
     \\[
     \\begin{aligned}
     y_R &= y_c + \\dfrac{I_{xc}}{y_cA}
-        = ${f3(H.yc_along)} + \\dfrac{${f3(G.Ixc)}}{${f3(H.yc_along)}\\,${f3(G.A)}} = \\boxed{${f3(yR)}}\\;\\mathrm{m}\\\\[4pt]
+        = ${f3(H.yc)} + \\dfrac{${f3(G.Ixc)}}{${f3(H.yc)}\\,${f3(G.A)}} = \\boxed{${f3(yR)}}\\;\\mathrm{m}\\\\[4pt]
     x_R &= \\frac{b+d}{3} + \\dfrac{I_{xyc}}{y_cA}
-        = ${f3(G.xC)} + \\dfrac{${f3(G.Ixyc)}}{${f3(H.yc_along)}\\,${f3(G.A)}} = \\boxed{${f3(xR)}}\\;\\mathrm{m}\\\\[4pt]
+        = ${f3(G.xC)} + \\dfrac{${f3(G.Ixyc)}}{${f3(H.yc)}\\,${f3(G.A)}} = \\boxed{${f3(xR)}}\\;\\mathrm{m}\\\\[4pt]
     (x_R-x_C) &= \\boxed{${f3(dx)}}\\;\\mathrm{m},\\quad
     (y_R-y_C) = \\boxed{${f3(dy)}}\\;\\mathrm{m}
     \\end{aligned}
