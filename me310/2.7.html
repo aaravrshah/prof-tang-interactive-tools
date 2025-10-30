@@ -7,18 +7,14 @@
   <link rel="stylesheet" href="../styles.css" />
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
-  <!-- MathJax -->
+  <!-- MathJax (for equations + SVG labels) -->
   <script>
-    window.MathJax = { chtml:{scale:0.92}, options:{renderActions:{addMenu:[]}} };
+    window.MathJax={chtml:{scale:0.92},options:{renderActions:{addMenu:[]}}};
   </script>
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
-    :root{
-      /* plot height will be computed from the container width (3:4 ratio);
-         this is a floor so tiny screens don’t go too small */
-      --plot-min-h: 350px;
-    }
+    :root{ --plot-min-h: 350px; }
 
     /* Inputs */
     .inputs.card{position:sticky; top:0; z-index:50; backdrop-filter:saturate(1.05) blur(2px)}
@@ -34,33 +30,31 @@
     @media(min-width:980px){ .two-ps{grid-template-columns:1fr 1fr} }
 
     .two-ana{display:grid; gap:12px}
-    /* Equal widths for overall + triangle schematics */
-    @media(min-width:980px){ .two-ana{grid-template-columns:1fr 1fr} }
+    /* wider overall schematic, narrower triangle schematic */
+    @media(min-width:980px){ .two-ana{grid-template-columns:1.18fr 0.82fr} }
 
     .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .viz.compact{padding:6px} /* tighter padding for main schematic box */
     .card img.contain{display:block;width:100%;height:100%;object-fit:contain}
 
-    /* Section boxes styled like equations */
+    /* Equation panels */
     .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
     .plug{background:#fcfcff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;
           font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
     .plug .mjx-container{font-size:1.08em !important;line-height:1.28}
     .note.muted{color:#6b7280}
 
-    /* SVG labels */
+    /* SVG schematic labels */
     .biglbl{font-size:18px;fill:#111}
-    .dim{font-size:16px;fill:#0f766e}
 
-    /* Plots grid (3:4 ratio + bigger cells) */
+    /* Plots grid */
     .plots{display:grid; gap:20px}
     @media(min-width:960px){ .plots{grid-template-columns:repeat(2,1fr)} }
     .plots .viz{padding:14px; border-radius:14px}
     .plots .viz svg{ width:100%; display:block; min-height:var(--plot-min-h) }
     .plots .viz .axis text{ font-size:14px }
     .plots .viz .axis-title{ font-size:16px }
-
-    /* TeX legend (vertical) */
-    .legend-tex{font-size:14px; line-height:1; }
+    .legend{font-size:13px}
   </style>
 </head>
 <body>
@@ -145,7 +139,8 @@
 
     <div class="card">
       <h3 style="margin:6px 0 6px">Main Schematic</h3>
-      <div class="viz" style="height:420px">
+      <!-- tighter vertical whitespace -->
+      <div class="viz compact" style="height:360px">
         <img class="contain" src="../assets/thumbs/2.7.png" alt="Main schematic for Example 2.7 (triangular panel)">
       </div>
       <p class="note muted" style="margin:6px 2px 0">Reference figure supplied with the problem.</p>
@@ -165,13 +160,14 @@
 
     <div class="card">
       <h4 style="margin:6px 0 6px">Triangle (front view)</h4>
-      <div class="viz"><svg id="right" viewBox="0 0 640 380" aria-label="front view schematic"></svg></div>
+      <!-- slightly narrower viewBox -->
+      <div class="viz"><svg id="right" viewBox="0 0 560 360" aria-label="front view schematic"></svg></div>
 
       <div class="eqwrap" style="margin-top:8px">
         \( \displaystyle
            A=\frac{ab}{2},\qquad
-           I_{xc}=\frac{b\,a^{3}}{36},\qquad
-           I_{xyc}=\frac{b\,a^{2}}{72}\,(b-2d).
+           I_{xC}=\frac{b\,a^{3}}{36},\qquad
+           I_{xyC}=\frac{b\,a^{2}}{72}\,(b-2d).
         \)
       </div>
       <p class="note muted" style="margin:6px 2px 0">
@@ -196,23 +192,24 @@
     </div>
     <div class="plug" id="plug3"></div>
 
-    <!-- (b) geometry first, then numeric, then CP -->
+    <!-- (b) geometry first -->
     <div class="eqwrap" style="margin-top:10px">
       <p style="margin:0 0 6px"><b>(b) Geometry relations (used for the center of pressure)</b></p>
       \( \displaystyle
         A=\frac{ab}{2},\qquad
         x_C=\frac{b+d}{3},\qquad
-        I_{xc}=\frac{b a^3}{36},\qquad
-        I_{xyc}=\frac{b a^2}{72}(b-2d).
+        I_{xC}=\frac{b a^3}{36},\qquad
+        I_{xyC}=\frac{b a^2}{72}(b-2d).
       \)
     </div>
     <div class="plug" id="plugG"></div>
 
+    <!-- (c) locate CP -->
     <div class="eqwrap" style="margin-top:10px">
-      <p style="margin:0 0 6px"><b>Locate the point of action of the hydrostatic force at &lt;x<sub>R</sub>, y<sub>R</sub>&gt;.</b></p>
+      <p style="margin:0 0 6px"><b>(c) Locate the point of action of the hydrostatic force at &lt;x<sub>R</sub>, y<sub>R</sub>&gt;.</b></p>
       \( \displaystyle
-        y_R = y_c + \frac{I_{xc}}{y_c A},\qquad
-        x_R = \frac{b+d}{3} + \frac{I_{xyc}}{y_c A}.
+        y_R = y_c + \frac{I_{xC}}{y_c A},\qquad
+        x_R = \frac{b+d}{3} + \frac{I_{xyC}}{y_c A}.
       \)
     </div>
     <div class="plug" id="plug4"></div>
@@ -249,60 +246,53 @@
   let S={rho:900.0,D:15.0,theta:60.0,a:10.0,b:12.0,d:8.0};
   const ranges={rho:[500,1000],D:[10.5,20.0],theta:[30,60],a:[0.1,12],b:[0.1,12],d:[0,12]};
   const rad=d=>d*Math.PI/180, clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
-  const r1=x=>Math.round(x*10)/10;
 
-  /* ---------- drag behavior: avoid MathJax flicker ---------- */
-  let SKIP_PLUGS=false;     // don't typeset while dragging
-  let SKIP_SCHEM=false;     // don't redraw triangle while dragging (labels remain MathJax)
+  // avoid MathJax flicker while dragging
+  let SKIP_PLUGS=false, SKIP_SCHEM=false;
 
-  /* wire inputs */
+  // wire inputs
   ['rho','D','theta','a','b','d'].forEach(k=>{
     const t=$(k), s=$(k+'_s'); const [lo,hi]=ranges[k];
-
     const sync=()=>{ t.value=S[k].toFixed(1); s.value=S[k].toFixed(1); };
     t.addEventListener('input',e=>{
       const v=parseFloat(e.target.value);
       if(Number.isFinite(v)){ S[k]=v; s.value=v; requestRender({skipPlugs:true,skipSchem:true,lockPlots:true}); }
     });
     t.addEventListener('change',e=>{
-      let v=parseFloat(e.target.value);
-      if(!Number.isFinite(v)) v=S[k];
+      let v=parseFloat(e.target.value); if(!Number.isFinite(v)) v=S[k];
       S[k]=clamp(v,lo,hi); sync(); requestRender();
     });
     s.addEventListener('input',e=>{
-      S[k]=clamp(parseFloat(e.target.value),lo,hi);
-      t.value=S[k].toFixed(1);
+      S[k]=clamp(parseFloat(e.target.value),lo,hi); t.value=S[k].toFixed(1);
       requestRender({skipPlugs:true,skipSchem:true,lockPlots:true});
     });
     s.addEventListener('change',()=>requestRender());
     sync();
   });
 
-  /* geometry + hydrostatics */
+  // geometry + hydrostatics
   function geom(){
     const {a,b,d}=S;
     return {
       A:0.5*a*b,
       xC:(b+d)/3,
-      Ixc:(b*Math.pow(a,3))/36,
-      Ixyc:(b*Math.pow(a,2)*(b-2*d))/72
+      IxC:(b*Math.pow(a,3))/36,
+      IxyC:(b*Math.pow(a,2)*(b-2*d))/72
     };
   }
   function centroidDepth(){
     const {D,theta,a}=S;
-    const yc = D/Math.sin(rad(theta)) - a/3;   // along-plane centroid distance
-    const hc = yc * Math.sin(rad(theta));      // vertical depth
-    return {yc, hc};
+    const yc = D/Math.sin(rad(theta)) - a/3;   // along-plane centroid depth
+    const hC = yc*Math.sin(rad(theta));
+    return {yc,hC};
   }
-
   function forceAndCP(){
-    const G = geom(), H = centroidDepth();
-    const FR = S.rho * g * H.hc * G.A;
-    const yR = H.yc + (G.Ixc)  / (H.yc * G.A);
-    const xR = G.xC + (G.Ixyc) / (H.yc * G.A);
-    return { G, H, FR, xR, yR, dx: xR - G.xC, dy: yR - H.yc };
+    const G=geom(), H=centroidDepth();
+    const FR=S.rho*g*H.hC*G.A;
+    const yR=H.yc + (G.IxC)/(H.yc*G.A);
+    const xR=G.xC + (G.IxyC)/(H.yc*G.A);
+    return {G,H,FR,xR,yR,dx:xR-G.xC,dy:yR-H.yc};
   }
-
 
   /* ---------- SVG helpers ---------- */
   function addArrowDef(svg){
@@ -311,50 +301,41 @@
       .attr('refX',8).attr('refY',5).attr('markerWidth',8).attr('markerHeight',8).attr('orient','auto')
       .append('path').attr('d','M 0 0 L 10 5 L 0 10 z').attr('fill','#0f766e');
   }
-  function latexLabel(svg,x,y,tex,opts={}){
-    const W=220,H=32;
-    const fo=svg.append('foreignObject').attr('x',x-(opts.align==='right'?W:(opts.align==='center'?W/2:0)))
-      .attr('y',y-18).attr('width',W).attr('height',H);
-    const div=fo.append('xhtml:div').style('width',W+'px').style('height',H+'px')
-      .style('display','flex').style('align-items','center').style('font-size','18px')
-      .style('justify-content',opts.align==='right'?'flex-end':(opts.align==='center'?'center':'flex-start'))
-      .html(`\\(${tex}\\)`);
-    if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise([div.node()]); }
-  }
-
-  /* NEW: generic TeX box into SVG (for axes/legend) */
-  function texFO(svg, x, y, tex, {anchor='start', rotate=0, w=220, h=28, cls='legend-tex'} = {}){
-    const g = svg.append('g').attr('transform', `translate(${x},${y}) rotate(${rotate})`);
-    const xOffset = anchor==='middle' ? -w/2 : (anchor==='end' ? -w : 0);
-    const fo = g.append('foreignObject').attr('x', xOffset).attr('y', -h/2).attr('width', w).attr('height', h);
+  function latexLabel(svg, x, y, tex, opts = {}) {
+    const W = opts.width || 160, H = opts.height || 30, align = opts.align || 'left';
+    const fo = svg.append('foreignObject')
+      .attr('x', x - (align === 'right' ? W : align === 'center' ? W/2 : 0))
+      .attr('y', y - H/2)
+      .attr('width', W)
+      .attr('height', H);
     const div = fo.append('xhtml:div')
-      .attr('class', cls)
-      .style('width', w+'px').style('height', h+'px')
-      .style('display','flex').style('align-items','center').style('justify-content','center')
+      .style('width', W + 'px').style('height', H + 'px')
+      .style('display', 'flex').style('align-items', 'center')
+      .style('justify-content', align === 'right' ? 'flex-end' : align === 'center' ? 'center' : 'flex-start')
+      .style('font-size', '18px')
       .html(`\\(${tex}\\)`);
-    if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise([div.node()]); }
-  }
-  /* NEW: vertical legend with TeX labels */
-  function legendTeX(svg, xRight, yTop, items){
-    const pad=8, sw=10, gap=8, lineH=22, w=150, h=pad*2 + items.length*lineH;
-    const g = svg.append('g').attr('transform', `translate(${xRight-w-8},${yTop})`);
-    g.append('rect').attr('x',0).attr('y',0).attr('rx',10).attr('width',w).attr('height',h)
-      .attr('fill','#fff').attr('stroke','#e5e7eb');
-    items.forEach((it,i)=>{
-      const cy = pad + i*lineH + lineH/2;
-      g.append('circle').attr('cx',pad+sw/2).attr('cy',cy).attr('r',5)
-        .attr('fill',it.color).attr('stroke','#111');
-      // TeX text next to swatch
-      const sub = svg.append('g');
-      texFO(g, pad+sw+gap + (w - (pad+sw+gap))/2, cy, it.tex, {anchor:'middle', w: w-(pad+sw+gap)-pad, h: lineH});
-    });
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([div.node()]);
   }
 
-  /* triangle schematic — readable labels, a & a/3 to left, (b+d)/3 on top */
+  // LaTeX y-axis title (rotated). Increase spacing with Y_TITLE_PAD.
+  const Y_TITLE_PAD = 22;
+  function drawYLatex(svg, H, tex) {
+    const g = svg.append('g').attr('transform', `translate(${Y_TITLE_PAD},${H/2}) rotate(-90)`);
+    const fo = g.append('foreignObject')
+      .attr('x', -H/2).attr('y', -22).attr('width', H).attr('height', 44);
+    const div = fo.append('xhtml:div')
+      .style('width','100%').style('height','100%')
+      .style('display','flex').style('align-items','center').style('justify-content','center')
+      .style('font-size','16px')
+      .html(`\\(${tex}\\)`);
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([div.node()]);
+  }
+
+  // triangle schematic (wider left margin so a/3 never clips, with CP point)
   function drawRight(){
-    if(SKIP_SCHEM) return;  // keep existing MathJax render while dragging
+    if(SKIP_SCHEM) return;
     const svg=d3.select('#right'); svg.selectAll('*').remove();
-    const Wpx=600,Hpx=380,m={l:56,r:22,t:22,b:56};
+    const Wpx=540,Hpx=340,m={l:78,r:24,t:20,b:52};
     const iw=Wpx-m.l-m.r, ih=Hpx-m.t-m.b;
     const lim=13;
     const x=d3.scaleLinear().domain([0,lim]).range([m.l,m.l+iw]);
@@ -366,54 +347,53 @@
     svg.append('line').attr('x1',x(0)).attr('x2',x(lim)).attr('y1',y(0)).attr('y2',y(0)).attr('stroke','#111').attr('stroke-width',2);
     svg.append('line').attr('x1',x(0)).attr('x2',x(0)).attr('y1',y(0)).attr('y2',y(lim)).attr('stroke','#111').attr('stroke-width',2);
     svg.append('text').attr('x', x(lim)+6).attr('y', y(0)+4).attr('class','biglbl').text('x');
-    svg.append('text').attr('x', x(0)-10).attr('y', y(lim)+0).attr('text-anchor','end').attr('class','biglbl').text('y');
+    svg.append('text').attr('x', x(0)-10).attr('y', y(lim)).attr('text-anchor','end').attr('class','biglbl').text('y');
 
     // triangle
-    const a=S.a,b=S.b,d=S.d, baseL={x:0,y:0}, baseR={x:b,y:0}, apex={x:d,y:a};
+    const a=S.a,b=S.b,d=S.d;
+    const baseL={x:0,y:0}, baseR={x:b,y:0}, apex={x:d,y:a};
     svg.append('polygon')
       .attr('points',[baseL,apex,baseR].map(p=>[x(p.x),y(p.y)].join(',')).join(' '))
       .attr('fill','#60a5fa33').attr('stroke','#111').attr('stroke-width',2);
 
-    // dimensions: move a & a/3 left, and (b+d)/3 at top
-    // a (left)
+    // left vertical a and a/3
     svg.append('line').attr('x1',x(-0.6)).attr('y1',y(0)).attr('x2',x(-0.6)).attr('y2',y(a))
       .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)');
-    // a/3 (left)
-    svg.append('line').attr('x1',x(-1.3)).attr('y1',y(0)).attr('x2',x(-1.3)).attr('y2',y(a/3))
+    svg.append('line').attr('x1',x(-1.0)).attr('y1',y(0)).attr('x2',x(-1.0)).attr('y2',y(a/3))
       .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)');
-    latexLabel(svg,x(-1.3)-6,(y(0)+y(a/3))/2,'a/3',{align:'right'});
-    latexLabel(svg,x(-0.6)-6,(y(0)+y(a))/2,'a',{align:'right'});
+    latexLabel(svg,x(-1.0)-4,(y(0)+y(a/3))/2,'a/3',{align:'right',width:80});
+    latexLabel(svg,x(-0.6)-4,(y(0)+y(a))/2,'a',{align:'right',width:60});
 
-    // b (bottom)
+    // b bottom
     svg.append('line').attr('x1',x(0)).attr('y1',y(-0.6)).attr('x2',x(b)).attr('y2',y(-0.6))
       .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)');
-    latexLabel(svg,(x(0)+x(b))/2, y(-0.6)+18,'b',{align:'center'});
+    latexLabel(svg,(x(0)+x(b))/2, y(-0.6)+18,'b',{align:'center',width:40});
 
-    // d (top small arrow) + (b+d)/3 label
-    svg.append('line').attr('x1',x(0)).attr('y1',y(a)+0).attr('x2',x(d)).attr('y2',y(a)+0)
+    // d and (b+d)/3
+    svg.append('line').attr('x1',x(0)).attr('y1',y(a)).attr('x2',x(d)).attr('y2',y(a))
       .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)');
-    latexLabel(svg,(x(0)+x(d))/2, y(a)-12,'d',{align:'center'});
-    // (b+d)/3 along the top
+    latexLabel(svg,(x(0)+x(d))/2, y(a)-12,'d',{align:'center',width:40});
     svg.append('line').attr('x1',x(0)).attr('y1',y(a)+26).attr('x2',x((S.b+S.d)/3)).attr('y2',y(a)+26)
       .attr('stroke','#0f766e').attr('stroke-width',2).attr('marker-end','url(#arrowEnd)');
-    latexLabel(svg,(x(0)+x((S.b+S.d)/3))/2, y(a)+42,'(b+d)/3',{align:'center'});
+    latexLabel(svg,(x(0)+x((S.b+S.d)/3))/2, y(a)+42,'(b+d)/3',{align:'center',width:120});
 
-    // centroid & CP
+    // C and CP (computed)
     const {G,xR,yR}=forceAndCP();
     const C={x:G.xC,y:S.a/3}, CP={x:xR,y:yR};
     svg.append('circle').attr('cx',x(C.x)).attr('cy',y(C.y)).attr('r',5).attr('fill','#10b981').attr('stroke','#111');
     svg.append('text').attr('x',x(C.x)+8).attr('y',y(C.y)-6).attr('class','biglbl').text('C');
+
     svg.append('circle').attr('cx',x(CP.x)).attr('cy',y(CP.y)).attr('r',6).attr('fill','#ef4444').attr('stroke','#111');
     svg.append('text').attr('x',x(CP.x)+8).attr('y',y(CP.y)-6).attr('class','biglbl').text('CP');
 
-    // dashed projection to show C location
+    // dashed guides to C
     svg.append('line').attr('x1',x(C.x)).attr('y1',y(a)).attr('x2',x(C.x)).attr('y2',y(C.y))
       .attr('stroke','#111').attr('stroke-dasharray','6 4');
     svg.append('line').attr('x1',x(0)).attr('y1',y(C.y)).attr('x2',x(C.x)).attr('y2',y(C.y))
       .attr('stroke','#111').attr('stroke-dasharray','6 4');
   }
 
-  /* ---------- MathJax numeric plugs ---------- */
+  /* ---------- MathJax plugs ---------- */
   let mjTimer=null;
   function typeset(nodes){
     if(!window.MathJax||!MathJax.typesetPromise) return;
@@ -421,11 +401,11 @@
     mjTimer=setTimeout(()=>MathJax.typesetPromise(nodes).catch(()=>{}), 60);
   }
   function updatePlugs(){
-    if(SKIP_PLUGS) return;  // skip while dragging
+    if(SKIP_PLUGS) return;
     const {G,H,FR,xR,yR,dx,dy}=forceAndCP();
     const f1=x=>Number(x).toFixed(1), f3=x=>Number(x).toFixed(3), g2=x=>Number(x).toFixed(2);
 
-    // (a) numeric
+    // (a)
     $('plug3').innerHTML=`
     \\[
     \\begin{aligned}
@@ -434,52 +414,55 @@
         = \\boxed{${f3(H.yc)}}\\;\\mathrm{m}\\\\[4pt]
     h_c &= y_c\\,\\sin\\theta
         = ${f3(H.yc)}\\,\\sin ${f1(S.theta)}^{\\circ}
-        = \\boxed{${f3(H.hc)}}\\;\\mathrm{m}\\\\[4pt]
+        = \\boxed{${f3(H.hC)}}\\;\\mathrm{m}\\\\[4pt]
     A &= \\tfrac12 ab = \\tfrac12\\,(\\,${f1(S.a)}\\,)(\\,${f1(S.b)}\\,) = \\boxed{${f3(G.A)}}\\;\\mathrm{m^{2}}\\\\[4pt]
     F_R &= \\rho g h_c A
-    = (${f1(S.rho)})\\,(${g2(g)})\\,(${f3(H.hc)})\\,(${f3(G.A)})
+    = (${f1(S.rho)})\\,(${g2(g)})\\,(${f3(H.hC)})\\,(${f3(G.A)})
     = \\boxed{${Math.round(FR)}}\\;\\mathrm{N}
     \\end{aligned}
     \\]`;
-    // (b) numeric geometry line
+
+    // (b) geometry numeric
     $('plugG').innerHTML=`
     \\[
       A=\\tfrac12 ab=\\boxed{${f3(G.A)}}\\;\\mathrm{m^2},\\quad
       x_C=\\dfrac{b+d}{3}=\\boxed{${f3(G.xC)}}\\;\\mathrm{m},\\quad
-      I_{xc}=\\dfrac{b a^{3}}{36}=\\boxed{${f3(G.Ixc)}}\\;\\mathrm{m^{4}},\\quad
-      I_{xyc}=\\dfrac{b a^{2}}{72}(b-2d)=\\boxed{${f3(G.Ixyc)}}\\;\\mathrm{m^{4}}
+      I_{xC}=\\dfrac{b a^{3}}{36}=\\boxed{${f3(G.IxC)}}\\;\\mathrm{m^{4}},\\quad
+      I_{xyC}=\\dfrac{b a^{2}}{72}(b-2d)=\\boxed{${f3(G.IxyC)}}\\;\\mathrm{m^{4}}
     \\]`;
 
-    // CP numeric
+    // (c) CP numeric
     $('plug4').innerHTML=`
     \\[
     \\begin{aligned}
-    y_R &= y_c + \\dfrac{I_{xc}}{y_cA}
-        = ${f3(H.yc)} + \\dfrac{${f3(G.Ixc)}}{${f3(H.yc)}\\,${f3(G.A)}} = \\boxed{${f3(yR)}}\\;\\mathrm{m}\\\\[4pt]
-    x_R &= \\frac{b+d}{3} + \\dfrac{I_{xyc}}{y_cA}
-        = ${f3(G.xC)} + \\dfrac{${f3(G.Ixyc)}}{${f3(H.yc)}\\,${f3(G.A)}} = \\boxed{${f3(xR)}}\\;\\mathrm{m}\\\\[4pt]
+    y_R &= y_c + \\dfrac{I_{xC}}{y_cA}
+        = ${f3(H.yc)} + \\dfrac{${f3(G.IxC)}}{${f3(H.yc)}\\,${f3(G.A)}} = \\boxed{${f3(yR)}}\\;\\mathrm{m}\\\\[4pt]
+    x_R &= \\frac{b+d}{3} + \\dfrac{I_{xyC}}{y_cA}
+        = ${f3(G.xC)} + \\dfrac{${f3(G.IxyC)}}{${f3(H.yc)}\\,${f3(G.A)}} = \\boxed{${f3(xR)}}\\;\\mathrm{m}\\\\[4pt]
     (x_R-x_C) &= \\boxed{${f3(dx)}}\\;\\mathrm{m},\\quad
-    (y_R-y_C) = \\boxed{${f3(dy)}}\\;\\mathrm{m}
+    (y_R-y_c) = \\boxed{${f3(dy)}}\\;\\mathrm{m}
     \\end{aligned}
     \\]`;
-
     typeset([$('plug3'),$('plugG'),$('plug4')]);
   }
 
-  /* ---------- plots (3:4 ratio + fixed right-plot y domain) ---------- */
+  /* ---------- plots (LaTeX y-axis titles) ---------- */
   function chartSize(hostSel){
     const host=document.querySelector(hostSel);
     const W=Math.max(300, host.clientWidth||300);
     const H=Math.max(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--plot-min-h'))||260,
-                     Math.round(W*0.75)); // 3:4 ratio
+                     Math.round(W*0.75));
     return {W,H};
   }
-  function plotSingle(hostSel,xLab,yLab,xs,ys,xNow,yNow,domain,opts={}){
+
+  function plotSingle(hostSel,xLab,yTex,xs,ys,xNow,yNow,domain,opts={}){
     const host=d3.select(hostSel); host.selectAll('*').remove();
     const {W,H}=chartSize(hostSel);
-    const m={l:64,r:18,t:24,b:60};
+    const m={l:64,r:18,t:26,b:60};
+
     const svg=host.append('svg').attr('viewBox',`0 0 ${W} ${H}`).attr('width','100%').attr('height',H);
     const x=d3.scaleLinear().domain(d3.extent(xs)).range([m.l,W-m.r]).nice();
+
     let yDom=domain;
     if(!yDom){
       let yMin=d3.min(ys), yMax=d3.max(ys); let span=yMax-yMin;
@@ -487,47 +470,81 @@
       const pad=Math.max(Math.abs(0.5*(yMax+yMin))*0.08, span*0.08);
       yDom=[yMin-pad,yMax+pad];
     }
+
     const y=d3.scaleLinear().domain(yDom).range([H-m.b,m.t]).nice();
     const yAxis=d3.axisLeft(y).ticks(6).tickFormat(opts.si?fmtSI:d=>d);
+
     svg.append('g').attr('class','axis').attr('transform',`translate(${m.l},0)`).call(yAxis);
     svg.append('g').attr('class','axis').attr('transform',`translate(0,${H-m.b})`).call(d3.axisBottom(x).ticks(6));
-    // plain titles here (no subscripts needed)
+
     svg.append('text').attr('class','axis-title').attr('x',W/2).attr('y',H-14).attr('text-anchor','middle').text(xLab);
-    svg.append('text').attr('class','axis-title').attr('x',-(H/2)).attr('y',26).attr('text-anchor','middle').attr('transform','rotate(-90)').text(yLab);
+    drawYLatex(svg, H, yTex); // LaTeX y-axis title
+
     svg.append('path').attr('d',d3.line()(xs.map((v,i)=>[x(v),y(ys[i])]))).attr('stroke','#111').attr('fill','none');
-    if(xNow!=null&&yNow!=null){ svg.append('circle').attr('cx',x(xNow)).attr('cy',y(yNow)).attr('r',7).attr('fill','#ef4444').attr('stroke','#111'); }
+    if(xNow!=null&&yNow!=null){
+      svg.append('circle').attr('cx',x(xNow)).attr('cy',y(yNow)).attr('r',7).attr('fill','#ef4444').attr('stroke','#111');
+    }
     return y.domain();
   }
 
-  // fixed y-domain for all “difference” plots (covers full input ranges safely)
-  const DIFF_Y_DOMAIN=[-1.2, 1.2];
+  function plotDouble(hostSel, xLab, yTex, xs, ys1, ys2, xNow, y1Now, y2Now, domain){
+    const host = d3.select(hostSel); host.selectAll('*').remove();
+    const { W, H } = chartSize(hostSel);
+    const m = { l:64, r:18, t:26, b:60 };
 
-  function plotDouble(hostSel,xLab,yLabTex,xs,ys1,ys2,xNow,y1Now,y2Now,domain){
-    const host=d3.select(hostSel); host.selectAll('*').remove();
-    const {W,H}=chartSize(hostSel);
-    const m={l:64,r:18,t:24,b:60};
-    const svg=host.append('svg').attr('viewBox',`0 0 ${W} ${H}`).attr('width','100%').attr('height',H);
-    const x=d3.scaleLinear().domain(d3.extent(xs)).range([m.l,W-m.r]).nice();
-    const y=d3.scaleLinear().domain(domain).range([H-m.b,m.t]); // fixed domain provided
-    svg.append('g').attr('transform',`translate(${m.l},0)`).attr('class','axis').call(d3.axisLeft(y).ticks(6));
-    svg.append('g').attr('transform',`translate(0,${H-m.b})`).attr('class','axis').call(d3.axisBottom(x).ticks(6));
+    const svg = host.append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('width', '100%')
+      .attr('height', H);
 
-    // x-axis title (plain)
-    svg.append('text').attr('class','axis-title').attr('x',W/2).attr('y',H-14).attr('text-anchor','middle').text(xLab);
-    // y-axis title WITH TeX, nudged left
-    texFO(svg, 22, H/2, yLabTex, {anchor:'middle', rotate:-90, w: 220, h: 32});
+    // scales & axes
+    const x = d3.scaleLinear().domain(d3.extent(xs)).range([m.l, W - m.r]).nice();
+    const y = d3.scaleLinear().domain(domain).range([H - m.b, m.t]);
+    svg.append('g').attr('class','axis').attr('transform', `translate(${m.l},0)`)
+      .call(d3.axisLeft(y).ticks(6));
+    svg.append('g').attr('class','axis').attr('transform', `translate(0,${H - m.b})`)
+      .call(d3.axisBottom(x).ticks(6));
 
-    svg.append('path').attr('d',d3.line()(xs.map((v,i)=>[x(v),y(ys1[i])]))).attr('stroke','#2563eb').attr('fill','none');
-    svg.append('path').attr('d',d3.line()(xs.map((v,i)=>[x(v),y(ys2[i])]))).attr('stroke','#ef4444').attr('fill','none').attr('opacity',0.95);
-    svg.append('circle').attr('cx',x(xNow)).attr('cy',y(y1Now)).attr('r',6).attr('fill','#2563eb').attr('stroke','#111');
-    svg.append('circle').attr('cx',x(xNow)).attr('cy',y(y2Now)).attr('r',6).attr('fill','#ef4444').attr('stroke','#111');
+    // titles (x in plain text, y in LaTeX)
+    svg.append('text').attr('class','axis-title')
+      .attr('x', W/2).attr('y', H - 14).attr('text-anchor','middle').text(xLab);
+    drawYLatex(svg, H, yTex);
 
-    // vertical TeX legend (top-right)
-    legendTeX(svg, W-8, m.t+6, [
-      {color:'#2563eb', tex:'x_R - x_C'},
-      {color:'#ef4444', tex:'y_R - y_C'}
-    ]);
+    // lines + current-point markers
+    const line = d3.line().x((d,i)=>x(xs[i])).y(d=>y(d));
+    svg.append('path').attr('d', line(ys1)).attr('stroke', '#2563eb').attr('fill','none');
+    svg.append('path').attr('d', line(ys2)).attr('stroke', '#ef4444').attr('fill','none').attr('opacity', 0.95);
+    svg.append('circle').attr('cx', x(xNow)).attr('cy', y(y1Now)).attr('r', 6).attr('fill', '#2563eb').attr('stroke', '#111');
+    svg.append('circle').attr('cx', x(xNow)).attr('cy', y(y2Now)).attr('r', 6).attr('fill', '#ef4444').attr('stroke', '#111');
+
+    // stacked MathJax legend (centered rows)
+    const legendW = 152, pad = 10, rowH = 28;
+    const L = svg.append('g').attr('class','legend')
+      .attr('transform', `translate(${W - m.r - legendW}, ${m.t + 8})`);
+
+    L.append('rect')
+      .attr('x', 0).attr('y', 0)
+      .attr('width', legendW).attr('height', rowH * 2 + pad * 2)
+      .attr('rx', 10).attr('fill', '#fff').attr('stroke', '#e5e7eb');
+
+    function addLegendRow(yOffset, color, latex){
+      const row = L.append('g').attr('transform', `translate(0, ${pad + yOffset})`);
+      row.append('circle').attr('cx', 14).attr('cy', rowH/2).attr('r', 5).attr('fill', color).attr('stroke', '#111');
+      const fo = row.append('foreignObject')
+        .attr('x', 28).attr('y', (rowH - 22)/2)
+        .attr('width', legendW - 40).attr('height', 22);
+      const div = fo.append('xhtml:div')
+        .style('height','100%').style('display','flex').style('align-items','center')
+        .style('font-size','14px').html(`\\(${latex}\\)`);
+      return div;
+    }
+    const l1 = addLegendRow(0,    '#2563eb', 'x_R - x_C');
+    const l2 = addLegendRow(rowH, '#ef4444', 'y_R - y_C');
+    if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([l1.node(), l2.node()]);
   }
+
+  // fixed y-domain for Δ plots (covers ranges)
+  const DIFF_Y_DOMAIN=[-1.2, 1.2];
 
   let LOCK_PLOTS=false;
   const PLOT_DOMAINS={p1:null,p3:null,p5:null};
@@ -540,15 +557,15 @@
       const Dvals=d3.range(ranges.D[0], ranges.D[1]+0.0001, 0.1);
       const Y=Dvals.map(D0=>{ const keep={...S,D:D0}; const tS=S; S=keep; const v=forceAndCP().FR/1000; S=tS; return v; });
       const dom=LOCK_PLOTS?PLOT_DOMAINS.p1:null;
-      PLOT_DOMAINS.p1=plotSingle('#p1','Depth (m)','F_R (kN)',Dvals,Y,S.D,base.FR/1000,dom,{si:true,minSpan:0.05*Math.abs(base.FR/1000)});
+      PLOT_DOMAINS.p1=plotSingle('#p1','Depth (m)','F_R \\text{ (kN)}',Dvals,Y,S.D,base.FR/1000,dom,{si:true,minSpan:0.05*Math.abs(base.FR/1000)});
     }
 
-    // 2) (xR-xC),(yR-yC) vs Depth — fixed y range + TeX axis/legend
+    // 2) Δx & Δy vs Depth
     (function(){
       const Dvals=d3.range(ranges.D[0], ranges.D[1]+0.0001, 0.1);
       const dX=[], dY=[];
       for(const D0 of Dvals){ const keep={...S,D:D0}; const tS=S; S=keep; const v=forceAndCP(); S=tS; dX.push(v.dx); dY.push(v.dy); }
-      plotDouble('#p2','Depth (m)','(x_R - x_C) \\;\\&\\; (y_R - y_C)\\; (\\mathrm{m})',Dvals,dX,dY,S.D,base.dx,base.dy,DIFF_Y_DOMAIN);
+      plotDouble('#p2','Depth (m)','x_R - x_C \\ \\&\\ y_R - y_C \\text{ (m)}',Dvals,dX,dY,S.D,base.dx,base.dy,DIFF_Y_DOMAIN);
     })();
 
     // 3) F_R vs θ (kN)
@@ -556,38 +573,39 @@
       const T=d3.range(ranges.theta[0], ranges.theta[1]+0.0001, 0.25);
       const Y=T.map(th=>{ const keep={...S,theta:th}; const tS=S; S=keep; const v=forceAndCP().FR/1000; S=tS; return v; });
       const dom=LOCK_PLOTS?PLOT_DOMAINS.p3:null;
-      PLOT_DOMAINS.p3=plotSingle('#p3','θ (deg)','F_R (kN)',T,Y,S.theta,base.FR/1000,dom,{si:true,minSpan:0.05*Math.abs(base.FR/1000)});
+      PLOT_DOMAINS.p3=plotSingle('#p3','θ (deg)','F_R \\text{ (kN)}',T,Y,S.theta,base.FR/1000,dom,{si:true,minSpan:0.05*Math.abs(base.FR/1000)});
     }
 
-    // 4) (xR-xC),(yR-yC) vs θ — TeX axis/legend
+    // 4) Δx & Δy vs θ
     (function(){
       const T=d3.range(ranges.theta[0], ranges.theta[1]+0.0001, 0.25);
       const dX=[], dY=[];
       for(const th of T){ const keep={...S,theta:th}; const tS=S; S=keep; const v=forceAndCP(); S=tS; dX.push(v.dx); dY.push(v.dy); }
-      plotDouble('#p4','θ (deg)','(x_R - x_C) \\;\\&\\; (y_R - y_C)\\; (\\mathrm{m})',T,dX,dY,S.theta,base.dx,base.dy,DIFF_Y_DOMAIN);
+      plotDouble('#p4','θ (deg)','x_R - x_C \\ \\&\\ y_R - y_C \\text{ (m)}',T,dX,dY,S.theta,base.dx,base.dy,DIFF_Y_DOMAIN);
     })();
 
-    // 5) F_R vs d/b (kN) — dynamic x-range buckets
+    // 5) F_R vs d/b (kN) — dynamic x buckets: 2 → 20 → 120
     {
       const rNow = S.d/Math.max(0.1,S.b);
       const limit = (rNow<=2)?2:((rNow<=20)?20:120);
       const ratio=d3.range(0,limit+1e-6, limit<=2?0.02:(limit<=20?0.1:0.6));
       const Y=ratio.map(rb=>{ const keep={...S,d:Math.min(12, rb*S.b)}; const tS=S; S=keep; const v=forceAndCP().FR/1000; S=tS; return v; });
-      plotSingle('#p5','d/b (–)','F_R (kN)',ratio,Y,rNow,base.FR/1000,null,{si:true,minSpan:0.05*Math.abs(base.FR/1000)});
+      const dom=LOCK_PLOTS?PLOT_DOMAINS.p5:null;
+      PLOT_DOMAINS.p5=plotSingle('#p5','d/b (–)','F_R \\text{ (kN)}',ratio,Y,rNow,base.FR/1000,dom,{si:true,minSpan:0.05*Math.abs(base.FR/1000)});
     }
 
-    // 6) (xR-xC),(yR-yC) vs d/b — dynamic x-range + TeX axis/legend
+    // 6) Δx & Δy vs d/b — dynamic x buckets
     (function(){
       const rNow=S.d/Math.max(0.1,S.b);
       const limit = (rNow<=2)?2:((rNow<=20)?20:120);
       const ratio=d3.range(0,limit+1e-6, limit<=2?0.02:(limit<=20?0.1:0.6));
       const dX=[], dY=[];
       for(const rb of ratio){ const keep={...S,d:Math.min(12, rb*S.b)}; const tS=S; S=keep; const v=forceAndCP(); S=tS; dX.push(v.dx); dY.push(v.dy); }
-      plotDouble('#p6','d/b (–)','(x_R - x_C) \\;\\&\\; (y_R - y_C)\\; (\\mathrm{m})',ratio,dX,dY,rNow,base.dx,base.dy,DIFF_Y_DOMAIN);
+      plotDouble('#p6','d/b (–)','x_R - x_C \\ \\&\\ y_R - y_C \\text{ (m)}',ratio,dX,dY,rNow,base.dx,base.dy,DIFF_Y_DOMAIN);
     })();
   }
 
-  /* ---------- render ---------- */
+  /* ---------- render pipeline ---------- */
   let raf=null;
   function render(){
     drawRight();
@@ -604,14 +622,17 @@
     window.addEventListener('resize',()=>requestRender({skipPlugs:true,skipSchem:true,lockPlots:true}));
   });
 
-  /* feedback ctx */
+  // feedback context
   (function(){
     const FEEDBACK={course:'ME 310', sim:'Ex. 2.7 Hydrostatic Force on a Plane Triangular Surface'};
     document.addEventListener('DOMContentLoaded',()=>{
       const url=new URL('../feedback.html',location.href);
       url.searchParams.set('course',FEEDBACK.course);
       url.searchParams.set('sim',FEEDBACK.sim);
-      document.querySelectorAll('a.feedback-link').forEach(a=>{a.href=url.toString(); try{localStorage.setItem('fb_ctx',JSON.stringify(FEEDBACK));}catch{}});
+      document.querySelectorAll('a.feedback-link').forEach(a=>{
+        a.href=url.toString();
+        try{localStorage.setItem('fb_ctx',JSON.stringify(FEEDBACK));}catch{}
+      });
     });
   })();
 </script>
