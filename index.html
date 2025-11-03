@@ -3,64 +3,78 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Interactive Thermal/Fluids Tools</title>
+  <title>Professor Tang's Interactive Tools</title>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    /* smooth anchor jump */
-    html{scroll-behavior:smooth}
+    /* ===== Home-only polish (scoped) ===== */
+    .home .pane{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-sm);padding:10px;margin-top:12px}
 
-    /* Header: match inner pages (title left, buttons right) */
-    .site-header .container{padding-top:20px;padding-bottom:0}
-    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-    .subline{margin-top:6px;max-width:900px}
+    /* Tabs (ribbon) — uses classes your styles.css already defines */
+    .home .course-tabs{--tab-h:56px;--ink-h:4px;position:relative;display:flex;gap:0;border-radius:10px;background:#fff;border:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.04);padding:6px;margin:4px 4px 12px}
+    .home .course-tabs .tab{position:relative;flex:1 1 0;height:var(--tab-h);display:grid;place-items:center;border:none;background:transparent;font-size:16px;font-weight:700;color:#334155;border-radius:10px;cursor:pointer;transition:color .15s,background-color .15s,transform .08s}
+    .home .course-tabs .tab:hover{background:#f8fafc}
+    .home .course-tabs .tab.is-active{color:var(--accent);background:#eff6ff}
+    .home .course-tabs .tab:active{transform:translateY(1px)}
+    .home .course-tabs .ink{position:absolute;left:6px;bottom:6px;height:4px;width:0;background:var(--accent);border-radius:999px;box-shadow:0 4px 14px rgba(14,165,233,.35);transform:translateX(0);transition:transform .24s cubic-bezier(.22,.61,.36,1), width .24s cubic-bezier(.22,.61,.36,1);pointer-events:none}
 
-    /* Buttons */
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
-         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
-    .btn.primary{background:var(--accent);border-color:transparent}
-    .btn.primary:hover{filter:brightness(1.06)}
-    .btn.ghost{background:#ffffffcc;color:#111;border-color:var(--line)}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    /* Two-column layout: outline (left) + content (right) */
+    .home .course-layout{display:grid;grid-template-columns:240px 1fr;gap:14px}
+    @media (max-width: 900px){ .home .course-layout{grid-template-columns:1fr} }
 
-    /* Cards / thumbs */
-    .thumb{display:block;width:100%;aspect-ratio:16/9;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px}
-    .thumb img{display:block;width:100%;height:100%;object-fit:cover}
-    .card h3{margin:6px 0 6px}
-    .card p{margin:0;color:#4b5563}
-
-    /* Bottom info tiles */
-    #howto .card{display:flex;flex-direction:column}
-    #howto .card h3{margin:4px 0 8px;font-size:20px}
-    #howto .card p{line-height:1.5;margin-bottom:8px}
-    #howto .card .btn{margin-top:10px}
-
-    /* Simple placeholder art (no numbers shown) */
-    .ph{display:flex;align-items:center;justify-content:center;width:100%;height:100%;
-        background:linear-gradient(135deg,#f3f4f6 0%,#ffffff 100%);color:#374151;font-weight:600}
-
-    /* “Coming soon” badge for placeholders */
-    .soon{position:relative}
-    .soon::after{
-      content:"Coming soon";
-      position:absolute;right:8px;top:8px;
-      background:#111;color:#fff;font-size:12px;padding:4px 8px;border-radius:999px;
+    /* Left outline */
+    .home .toc{
+      position:sticky; top:84px; align-self:start;
+      border:1px solid var(--line); border-radius:12px; background:#fff; padding:8px; box-shadow:var(--shadow-sm);
     }
+    .home .toc h3{margin:6px 8px 8px;font-size:16px}
+    .home .toc a{
+      display:block; padding:8px 10px; margin:4px 4px; border-radius:8px; color:#334155;
+      text-decoration:none; border:1px solid transparent; font-size:14px;
+    }
+    .home .toc a:hover{background:#f8fafc}
+    .home .toc a.active{background:#eff6ff; color:var(--accent); border-color:#dbeafe}
+
+    /* Topic sections (right column) */
+    .home .topic{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;margin:10px 0}
+    .home .topic h2{font-size:18px;margin:6px 8px 10px}
+    .home .cards{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media (max-width:960px){ .home .cards{grid-template-columns:repeat(2,minmax(0,1fr))} }
+    @media (max-width:620px){ .home .cards{grid-template-columns:1fr} }
+
+    /* Card look (matches site) */
+    .home .sim-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;text-decoration:none;color:inherit;min-height:260px;box-shadow:var(--shadow-sm);transition:transform .06s, box-shadow .2s}
+    .home .sim-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+    .home .thumb{width:100%;aspect-ratio:16/10;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:#fff}
+    .home .thumb img{width:100%;height:100%;object-fit:contain;padding:10px}
+    .home .sim-card h3{
+      margin:10px 12px 12px;font-size:16px;line-height:1.25;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.25em * 2);
+    }
+
+    /* “Coming soon” placeholder */
+    .home .thumb.ph{background:repeating-linear-gradient(-45deg,#f3f4f6 0 10px,#f8fafc 10px 20px);color:#475569;font-weight:700}
+
+    /* Info tiles */
+    .home .grid-3{display:grid;gap:16px;margin-top:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+    .home .info-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:var(--shadow-sm)}
+    .home .info-card h3{margin:0 0 8px}
+    .home .muted{color:#4b5563}
+
+    /* Anchor offset so “How to use” isn’t hidden by header */
+    #how { scroll-margin-top: 110px; }
   </style>
 </head>
-<body>
+<body class="home">
   <!-- Header -->
   <header class="site-header">
     <div class="container">
       <div class="header-row">
         <div>
           <h1 style="margin:0">Professor Tang's Interactive Tools</h1>
-          <p class="subline">
-            Explore core equations through interactive plots &amp; schematics.
-            Adjust inputs → see the math respond.
-          </p>
+          <p class="subtitle">Explore core equations through interactive plots &amp; schematics. Adjust inputs → see the math respond.</p>
         </div>
-        <div class="actions">
-          <a class="btn ghost" href="#howto" aria-label="Jump to How to use section">How to use ↓</a>
+        <div class="actions" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <a class="btn" href="#how" aria-label="How to use">How to use ↓</a>
           <a class="btn primary feedback-link" href="./feedback.html" target="_blank" rel="noopener">Send feedback</a>
         </div>
       </div>
@@ -68,130 +82,227 @@
   </header>
 
   <main class="container">
-    <!-- ME 310 -->
-    <h2 style="margin:18px 0 8px">ME 310 • Fundamentals of Fluid Dynamics</h2>
-    <section class="grid">
-      <!-- 1.21 -->
-      <a class="card link-card" href="./me310/1.21.html"
-        aria-label="Open surface-tension pressure jump page">
-        <div class="thumb contain">
-          <img src="assets/thumbs/1.21.png" alt="">
+    <div class="pane">
+      <!-- Tabs -->
+      <nav class="course-tabs" role="tablist" aria-label="Courses">
+        <button class="tab is-active" data-tab="me310" role="tab" aria-selected="true">
+          <span class="tab-label">Fundamentals of Fluid Mechanics</span>
+        </button>
+        <button class="tab" data-tab="me200" role="tab" aria-selected="false">
+          <span class="tab-label">Thermodynamics</span>
+        </button>
+        <button class="tab" data-tab="me320" role="tab" aria-selected="false">
+          <span class="tab-label">Heat Transfer</span>
+        </button>
+        <span class="ink" aria-hidden="true"></span>
+      </nav>
+
+      <!-- ============ COURSE: Fluids (ME 310) ============ -->
+      <section id="course-me310" data-course="me310">
+        <div class="course-layout">
+
+          <!-- Outline (left) -->
+          <aside class="toc" aria-label="Topics">
+            <h3>Topics</h3>
+            <a href="#t-fluid-prop" class="active">Fluid Properties</a>
+            <a href="#t-statics">Fluid Statics</a>
+            <a href="#t-bernoulli">Elementary Fluid Dynamics (Bernoulli)</a>
+            <a href="#t-vfp">Viscous Flow in Pipes</a>
+            <a href="#t-compressible">Compressible Flow</a>
+            <a href="#t-charts">Charts &amp; General Tools</a>
+          </aside>
+
+          <!-- Content (right) -->
+          <div>
+
+            <!-- Fluid Properties -->
+            <div id="t-fluid-prop" class="topic">
+              <h2>Fluid Properties</h2>
+              <div class="cards">
+                <a class="sim-card" href="./me310/1.21.html">
+                  <div class="thumb"><img src="assets/thumbs/1.21.png" alt=""></div>
+                  <h3>Pressure Difference Between the Inside and the Outside of a Liquid Droplet</h3>
+                </a>
+
+                <a class="sim-card" href="./me310/1.22.html">
+                  <div class="thumb"><img src="assets/thumbs/1.22.png" alt=""></div>
+                  <h3>Capillary Rise in a Tube</h3>
+                </a>
+              </div>
+            </div>
+
+            <!-- Fluid Statics -->
+            <div id="t-statics" class="topic">
+              <h2>Fluid Statics</h2>
+              <div class="cards">
+                <a class="sim-card" href="./me310/2.7.html">
+                  <div class="thumb"><img src="assets/thumbs/2.7.png" alt=""></div>
+                  <h3>Hydrostatic Force on a Plane Triangular Surface</h3>
+                </a>
+
+                <a class="sim-card" href="./me310/2.28.html">
+                  <div class="thumb"><img src="assets/thumbs/2.28.png" alt=""></div>
+                  <h3>Slope of Constant-Pressure Lines (Isobars)</h3>
+                </a>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Rigid-Body Rotation: Constant-Pressure Surfaces</div>
+                  <h3>Constant-Pressure Surfaces in Rigid-Body Rotation</h3>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Rigid-Body Rotation: Hydrostatic Pressure</div>
+                  <h3>Hydrostatic Pressure in Rigid-Body Rotation</h3>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bernoulli -->
+            <div id="t-bernoulli" class="topic">
+              <h2>Elementary Fluid Dynamics (Bernoulli Equation)</h2>
+              <div class="cards">
+                <a class="sim-card" href="./me310/3.16.html">
+                  <div class="thumb"><img src="assets/thumbs/3.16.png" alt=""></div>
+                  <h3>Velocity Measurement by the Pitot-Static Tube</h3>
+                </a>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Venturi meter</div>
+                  <h3>Velocity Measurement by the Venturi Meter</h3>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Variable-Area Pipe</div>
+                  <h3>Flow in a Variable-Area Pipe</h3>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Siphon • Cavitation • EL/HGL</div>
+                  <h3>Siphon &amp; Cavitation; Energy &amp; Grade Lines</h3>
+                </div>
+              </div>
+            </div>
+
+            <!-- Viscous Flow in Pipes -->
+            <div id="t-vfp" class="topic">
+              <h2>Viscous Flow in Pipes</h2>
+              <div class="cards">
+                <div class="sim-card">
+                  <div class="thumb ph">Laminar internal flows</div>
+                  <h3>Parallel Plates &amp; Circular Tubes (Laminar)</h3>
+                </div>
+                <div class="sim-card">
+                  <div class="thumb ph">Head loss</div>
+                  <h3>Entrance Length &amp; Major/Minor Losses</h3>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compressible Flow -->
+            <div id="t-compressible" class="topic">
+              <h2>Compressible Flow</h2>
+              <div class="cards">
+                <a class="sim-card" href="./me310/isentropic.html">
+                  <div class="thumb"><img src="assets/thumbs/isentropic.png" alt=""></div>
+                  <h3>Isentropic Relations</h3>
+                </a>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Sound speed • Mach</div>
+                  <h3>Sound Speed &amp; Mach (Ideal Gas)</h3>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">A/A* • Nozzle performance</div>
+                  <h3>Converging / C-D Nozzles</h3>
+                </div>
+              </div>
+            </div>
+
+            <!-- Charts & Tools -->
+            <div id="t-charts" class="topic">
+              <h2>Charts &amp; General Tools</h2>
+              <div class="cards">
+                <a class="sim-card" href="./me310/moody.html">
+                  <div class="thumb"><img src="assets/thumbs/moody.png" alt=""></div>
+                  <h3>Moody Chart (General)</h3>
+                </a>
+              </div>
+            </div>
+
+            <!-- Info tiles -->
+            <section id="how" class="grid-3">
+              <div class="info-card">
+                <h3>How to use</h3>
+                <p class="muted">Pick a course tab, use the left outline to jump to a topic, then click a card to open a simulation. Change one control at a time and watch the plots &amp; equations update together.</p>
+              </div>
+              <div class="info-card">
+                <h3>Feedback &amp; Ideas</h3>
+                <p class="muted">Have an idea to add or something to fix? I’d love to hear it.</p>
+                <p><a class="btn primary" href="./feedback.html" target="_blank" rel="noopener">Give feedback</a></p>
+              </div>
+              <div class="info-card">
+                <h3>About this project</h3>
+                <p class="muted">
+                  Built by <b>Aarav Shah</b> (UIUC ME ’26) under the guidance of <b>Prof. Tang</b>. Ongoing effort to create interactive teaching tools for fluids &amp; thermal sciences.
+                  Tech: JavaScript/D3, HTML, CSS. Questions or ideas? <a href="mailto:aaravrshah2@gmail.com">Email me</a>.
+                </p>
+              </div>
+            </section>
+
+          </div>
         </div>
-        <h3>Pressure Difference Between the Inside and the Outside of a Liquid Droplet</h3>
-        <p></p>
-      </a>
+      </section>
 
-      <!-- 1.22 -->
-      <a class="card link-card" href="./me310/1.22.html"
-        aria-label="Open capillary rise page">
-        <div class="thumb contain">
-          <img src="assets/thumbs/1.22.png" alt="Capillary rise preview">
+      <!-- ============ COURSE: Thermodynamics (placeholder) ============ -->
+      <section id="course-me200" data-course="me200" hidden>
+        <div class="course-layout">
+          <aside class="toc"><h3>Topics</h3><a class="active" href="#me200-intro">Overview</a></aside>
+          <div>
+            <div id="me200-intro" class="topic">
+              <h2>Overview</h2>
+              <div class="cards">
+                <div class="sim-card">
+                  <div class="thumb ph">First batch of thermodynamics sims</div>
+                  <h3>Thermodynamics Simulations</h3>
+                </div>
+              </div>
+            </div>
+            <section class="grid-3" style="margin-top:18px">
+              <div class="info-card">
+                <h3>Coming soon</h3>
+                <p class="muted">Cycle analysis, property relations, and more.</p>
+              </div>
+            </section>
+          </div>
         </div>
-        <h3>Capillary Rise in a Tube</h3>
-        <p></p>
-      </a>
+      </section>
 
-
-
-      <!-- 2.28 — Slope of Constant-Pressure Lines (Isobars) -->
-      <a class="card link-card" href="./me310/2.28.html"
-        aria-label="Open slope of constant-pressure lines (isobars)">
-        <div class="thumb contain">
-          <img src="assets/thumbs/2.28.png" alt="Isobars slope preview" loading="lazy">
+      <!-- ============ COURSE: Heat Transfer (placeholder) ============ -->
+      <section id="course-me320" data-course="me320" hidden>
+        <div class="course-layout">
+          <aside class="toc"><h3>Topics</h3><a class="active" href="#me320-intro">Overview</a></aside>
+          <div>
+            <div id="me320-intro" class="topic">
+              <h2>Overview</h2>
+              <div class="cards">
+                <div class="sim-card">
+                  <div class="thumb ph">Conduction • Convection • Radiation</div>
+                  <h3>Heat Transfer Simulations</h3>
+                </div>
+              </div>
+            </div>
+            <section class="grid-3" style="margin-top:18px">
+              <div class="info-card">
+                <h3>Coming soon</h3>
+                <p class="muted">Steady 1-D conduction, convection correlations, radiation exchange…</p>
+              </div>
+            </section>
+          </div>
         </div>
-        <h3>Slope of Constant-Pressure Lines (Isobars)</h3>
-        <p></p>
-      </a>
+      </section>
 
-
-      <!-- 2.7 — Hydrostatic Force on a Plane Triangular Surface -->
-      <a class="card link-card" href="./me310/2.7.html"
-        aria-label="Open Hydrostatic Force on a Plane Triangular Surface (Ex. 2.7)">
-        <div class="thumb">
-          <img src="assets/thumbs/2.7.png" alt="Hydrostatic force on a triangular panel preview" loading="lazy">
-        </div>
-        <h3>Hydrostatic Force on a Plane Triangular Surface</h3>
-        <p></p>
-      </a>
-
-
-      <!-- 3.16 — Pitot-static -->
-      <a class="card link-card" href="./me310/3.16.html"
-        aria-label="Velocity Measurement by the Pitot-Static Tube">
-        <div class="thumb contain">
-          <img src="assets/thumbs/3.16.png" alt="Pitot-static tube schematic" loading="lazy">
-        </div>
-        <h3>Velocity Measurement by the Pitot-Static Tube</h3>
-        <p></p>
-      </a>
-
-
-      <!-- Moody -->
-      <a class="card link-card" href="./me310/moody.html" aria-label="Open Moody Chart">
-        <div class="thumb">
-          <img src="assets/thumbs/moody.png" alt="Moody chart preview" loading="lazy">
-        </div>
-        <h3>Moody Chart (General)</h3>
-        <p>Friction factor vs Re with ε/D families (Haaland &amp; Colebrook).</p>
-      </a>
-
-      <!-- Isentropic -->
-      <a class="card link-card" href="./me310/isentropic.html" aria-label="Open Isentropic Relations">
-        <div class="thumb">
-          <img src="assets/thumbs/isentropic.png" alt="Isentropic relations preview" loading="lazy">
-        </div>
-        <h3>Isentropic Relations</h3>
-        <p>Static→stagnation ratios vs Mach for chosen γ.</p>
-      </a>
-
-      <!-- (Bernoulli head explorer intentionally omitted/hidden) -->
-    </section>
-
-    <!-- ME 320 -->
-    <h2 style="margin:22px 0 8px">ME 320 • Heat Transfer</h2>
-    <section class="grid">
-      <div class="card">
-        <h3>Coming soon</h3>
-        <p>Steady 1-D conduction, convection correlations, radiation exchange…</p>
-      </div>
-    </section>
-
-    <!-- ME 400 -->
-    <h2 style="margin:22px 0 8px">ME 400 • Energy Conversion Systems</h2>
-    <section class="grid">
-      <div class="card">
-        <h3>Coming soon</h3>
-        <p>Cycles, efficiencies, component maps…</p>
-      </div>
-    </section>
-
-    <!-- Guidance + feedback + about -->
-    <section id="howto" class="grid" style="margin-top:18px">
-      <div class="card">
-        <h3>How to use</h3>
-        <p class="note">
-          Click a card to open a simulation. Change one control at a time, then watch the plot and equations update together.
-        </p>
-        <a class="btn ghost" href="#top">Back to top ↑</a>
-      </div>
-
-      <div class="card">
-        <h3>Feedback &amp; Ideas</h3>
-        <p class="note">
-          Have an idea to make this better or a new simulation to add? I’d love to hear it.
-        </p>
-        <a class="btn primary" href="./feedback.html" target="_blank" rel="noopener">Give feedback</a>
-      </div>
-
-      <div class="card">
-        <h3>About this project</h3>
-        <p class="note">
-          Built by <b>Aarav Shah</b> (UIUC ME ’26) under the guidance of <b>Prof. Tang</b>.
-          Ongoing effort to create interactive teaching tools for fluids &amp; thermal sciences.
-          Tech: Java, JavaScript/D3, HTML, CSS. Questions or ideas? <a href="mailto:aaravrshah2@gmail.com">Email me</a>.
-        </p>
-      </div>
-    </section>
+    </div>
   </main>
 
   <footer class="site-footer">
@@ -201,10 +312,10 @@
   </footer>
 
   <script>
-    // year stamp
+    // Year
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // Auto-stamp feedback link with page context
+    // Feedback context
     const FEEDBACK = { course: 'Global', sim: 'Home' };
     document.addEventListener('DOMContentLoaded', () => {
       const url = new URL('./feedback.html', location.href);
@@ -215,6 +326,83 @@
         try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
       });
     });
+
+    // Tabs
+    (function(){
+      const bar = document.querySelector('.course-tabs');
+      const tabs = [...bar.querySelectorAll('.tab')];
+      const ink  = bar.querySelector('.ink');
+      const sections = {
+        me310: document.getElementById('course-me310'),
+        me200: document.getElementById('course-me200'),
+        me320: document.getElementById('course-me320'),
+      };
+
+      function moveInkTo(el){
+        const rBar = bar.getBoundingClientRect();
+        const rBtn = el.getBoundingClientRect();
+        const left = rBtn.left - rBar.left + 6;
+        ink.style.width = (rBtn.width - 12) + 'px';
+        ink.style.transform = `translateX(${left}px)`;
+      }
+
+      function showCourse(key){
+        Object.keys(sections).forEach(k=>{
+          sections[k].hidden = (k!==key);
+        });
+        const on = tabs.find(t=>t.dataset.tab===key) || tabs[0];
+        tabs.forEach(t=>{
+          const active = (t===on);
+          t.classList.toggle('is-active', active);
+          t.setAttribute('aria-selected', active?'true':'false');
+        });
+        moveInkTo(on);
+        // reset active link in outline for the newly shown course
+        const firstLink = sections[key].querySelector('.toc a');
+        if(firstLink){ sections[key].querySelectorAll('.toc a').forEach(a=>a.classList.remove('active')); firstLink.classList.add('active'); }
+      }
+
+      tabs.forEach(t=>t.addEventListener('click', ()=>showCourse(t.dataset.tab)));
+      window.addEventListener('resize', ()=>moveInkTo(bar.querySelector('.tab.is-active')||tabs[0]));
+      requestAnimationFrame(()=>moveInkTo(bar.querySelector('.tab.is-active')||tabs[0]));
+      window.showCourse = showCourse; // for potential external calls
+    })();
+
+    // Outline behavior: smooth scroll + active highlight
+    (function(){
+      const courses = document.querySelectorAll('[data-course]');
+      courses.forEach(course=>{
+        const toc = course.querySelector('.toc');
+        if(!toc) return;
+        toc.querySelectorAll('a').forEach(a=>{
+          a.addEventListener('click', e=>{
+            e.preventDefault();
+            const id = a.getAttribute('href').slice(1);
+            const target = document.getElementById(id);
+            if(target){
+              target.scrollIntoView({behavior:'smooth', block:'start'});
+            }
+          });
+        });
+
+        // Highlight as you scroll
+        const links = [...toc.querySelectorAll('a')];
+        const ids = links.map(a=>a.getAttribute('href').slice(1));
+        const observer = new IntersectionObserver((entries)=>{
+          entries.forEach(ent=>{
+            if(ent.isIntersecting){
+              const id = ent.target.id;
+              links.forEach(l=>l.classList.toggle('active', l.getAttribute('href')==='#'+id));
+            }
+          });
+        }, { rootMargin: '-40% 0px -50% 0px', threshold: 0 });
+
+        ids.forEach(id=>{
+          const el = document.getElementById(id);
+          if(el) observer.observe(el);
+        });
+      });
+    })();
   </script>
 </body>
 </html>

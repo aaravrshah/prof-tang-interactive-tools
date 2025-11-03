@@ -2,13 +2,16 @@
   /* colors */
   --ink:#1f2937; --ink2:#374151;
   --bg:#f6f7fb; --card:#fff; --line:#e5e7eb;
-  --accent:#0ea5e9; --accent2:#a855f7;
+  --accent:#0ea5e9;
   --ok:#10b981; --warn:#f59e0b; --danger:#ef4444;
 
-  /* spacing + radii */
+  /* radii & shadows */
   --r-sm:10px; --r-md:12px; --r-lg:14px;
   --shadow-sm:0 6px 16px rgba(0,0,0,.04);
   --shadow-md:0 10px 22px rgba(0,0,0,.08);
+
+  /* thumbs / cards */
+  --thumb-ratio: 16/9;     /* fixed media box ratio */
 }
 
 *{box-sizing:border-box}
@@ -20,51 +23,120 @@ html,body{
 }
 html{scroll-behavior:smooth}
 
-/* layout containers */
+/* layout container */
 .container{max-width:1100px;margin:0 auto;padding:0 16px}
 
-/* ---------- header & footer (shared) ---------- */
+/* ---------- header & footer ---------- */
 .site-header{
   background:linear-gradient(135deg,var(--ink),var(--ink2));
   color:#fff; padding:28px 0;
 }
-/* same compact banner height across tools */
 .site-header .container{padding-top:20px;padding-bottom:20px}
 .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
-
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;
      border:1px solid #ffffff55;background:rgba(255,255,255,.12);color:#fff;text-decoration:none;cursor:pointer}
 .btn.primary{background:var(--accent);border-color:transparent}
 .btn.primary:hover{filter:brightness(1.06)}
-
-.site-header h1{margin:0 0 6px}
-.site-header .subtitle{opacity:.9;margin:.3rem 0 0}
+.subtitle{opacity:.9;margin:.3rem 0 0}
 
 .site-footer{
   border-top:1px solid var(--line); background:#fff;
   padding:16px 0; margin-top:28px;
 }
 
-/* ---------- cards & grids ---------- */
-.grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+/* ---------- generic cards & grids (original) ---------- */
 .card{
   background:var(--card); border:1px solid var(--line);
-  border-radius:var(--r-lg); padding:16px; box-shadow:var(--shadow-sm);
+  border-radius:var(--r-lg); padding:14px; box-shadow:var(--shadow-sm);
 }
-.link-card{display:block; text-decoration:none; color:inherit; transition:transform .06s, box-shadow .2s}
+.grid{
+  display:grid; gap:16px;
+  /* two-up on wide screens, collapses to one column on narrow */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 820px){
+  .grid{ grid-template-columns: 1fr; }
+}
+
+/* “link-card” hover lift used on the old index */
+.link-card{display:block;text-decoration:none;color:inherit;transition:transform .06s, box-shadow .2s}
 .link-card:hover{transform:translateY(-1px); box-shadow:var(--shadow-md)}
-.card h3{margin:6px 0 4px}
-.card p{margin:0; color:#4b5563}
+.card h3{margin:6px 0 6px}
+.card p{margin:0;color:#4b5563}
 
-/* thumbs (index) */
-.thumb{display:block;width:100%;aspect-ratio:16/9;background:#fff;border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;margin-bottom:10px}
-.thumb svg{display:block;width:100%;height:auto}
+/* ---------- thumbs (restored original behavior) ---------- */
+/* A fixed aspect-ratio box that NEVER resizes the card height to fit the image.
+   The image fits INSIDE the box. */
+.thumb{
+  display:block;
+  width:100%;
+  aspect-ratio: var(--thumb-ratio);
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  overflow:hidden;
+  margin-bottom:10px;
+}
+.thumb img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit: contain;   /* keep full art visible; no stretching, no card growth */
+  object-position:center;
+}
+.thumb.contain img{ object-fit:contain }   /* alias kept for old pages */
 
-/* two-column helper */
-.split{display:grid; gap:14px}
-@media (min-width:920px){ .split{grid-template-columns:1.05fr .95fr} }
+/* ---------- left outline (lightweight; non-invasive) ---------- */
+.outline{
+  background:#fff; border:1px solid var(--line); border-radius:12px;
+  padding:12px; box-shadow:var(--shadow-sm);
+}
+.outline h4{margin:0 0 8px}
+.outline ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.outline a{
+  display:block; padding:10px 12px; border-radius:10px; text-decoration:none; color:#0f172a;
+  border:1px solid transparent;
+}
+.outline a:hover{background:#f8fafc;border-color:#e5e7eb}
+.outline a.active{background:#eff6ff;color:#0369a1;border-color:#bae6fd}
 
-/* ---------- controls ---------- */
+/* ---------- ribbon course tabs (kept) ---------- */
+.tabs-panel{position:sticky;top:0;z-index:40}
+.course-tabs{
+  --tab-h:58px; --ink-h:4px;
+  position:relative; display:flex; gap:0;
+  border-radius:14px; background:#fff; border:1px solid var(--line);
+  box-shadow:0 6px 20px rgba(0,0,0,.06); padding:6px;
+}
+.course-tabs .tab{
+  position:relative; flex:1 1 0; height:var(--tab-h);
+  display:grid; place-items:center; border:none; background:transparent;
+  font-size:16px; font-weight:700; color:#334155; border-radius:10px; cursor:pointer;
+  transition:color .15s, background-color .15s, transform .08s;
+}
+.course-tabs .tab:hover{background:#f8fafc}
+.course-tabs .tab:active{transform:translateY(1px)}
+.course-tabs .tab.is-active{color:var(--accent); background:#eff6ff}
+.course-tabs .ink{
+  position:absolute; left:6px; bottom:6px; height:var(--ink-h);
+  width:0; background:var(--accent); border-radius:999px;
+  box-shadow:0 4px 14px rgba(14,165,233,.35);
+  transform:translateX(0);
+  transition:transform .24s cubic-bezier(.22,.61,.36,1), width .24s cubic-bezier(.22,.61,.36,1);
+  pointer-events:none;
+}
+
+/* ---------- “How / Feedback / About” tiles ---------- */
+.info-row{display:grid; gap:16px; grid-template-columns:repeat(3,1fr)}
+@media (max-width:900px){ .info-row{grid-template-columns:1fr} }
+.info-card{
+  background:#fff; border:1px solid var(--line); border-radius:12px; padding:16px;
+  box-shadow:var(--shadow-sm)
+}
+.info-card h3{margin:0 0 8px}
+.muted{color:#4b5563}
+
+/* ---------- sim-page shared bits (from original) ---------- */
 .controls{
   display:grid; gap:10px;
   grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
@@ -80,50 +152,32 @@ html{scroll-behavior:smooth}
 .controls input[type="text"],
 .controls input[type="range"],
 .controls select{
-  width:100%; padding:6px 8px;
-  border:1px solid var(--line); border-radius:8px;
-  background:#fff; color:inherit;
+  width:100%; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:#fff; color:inherit;
 }
 
-/* ---------- viz boxes ---------- */
 .viz, #plot, #moody-plot, #nozzle, #bars, #schematic{
   background:#fff; border:1px solid var(--line);
   border-radius:var(--r-md); padding:8px;
 }
 svg{width:100%;height:auto;display:block}
-
-/* ---------- notes & atoms ---------- */
 .legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:14px}
 .legend .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #0002}
 .note{font-size:13px;color:#4b5563}
-.kbd{font-family:ui-monospace,Menlo,Consolas,monospace;background:#f3f4f6;border:1px solid var(--line);border-radius:6px;padding:2px 6px}
-.badge{display:inline-block;padding:3px 8px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:#fff}
 
-/* ---------- equation callouts ---------- */
 .eqwrap{
   padding:12px; border:1px dashed var(--line);
   border-radius:var(--r-md); background:#fcfcff; overflow-x:auto; margin-bottom:10px;
 }
-/* page heading used inside eqwrap (exactly like Moody) */
-.title-xl{font-size:18px;margin-bottom:10px}
-.note.title-xl{font-size:18px;line-height:1.15}
-
-/* make MathJax inside eqwrap a touch larger (consistent) */
 .eqwrap .mjx-container{font-size:1.14em !important}
-.eqbig{font-size:clamp(.90rem,.6vw + .58rem,1.05rem); line-height:1.22}
-
-/* ---------- KPIs (shared small size) ---------- */
 .kpi{display:grid;gap:10px;margin-top:10px;grid-template-columns:repeat(2,minmax(120px,1fr))}
 .kpi .lab{font-size:12px;color:#555}
-.kpi .val{font-size:16px;font-weight:600}  /* <= small everywhere */
+.kpi .val{font-size:16px;font-weight:600}
 
-/* ---------- symbols lists ---------- */
 .symgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px;margin-top:8px}
 .symgrid ul{margin:0 0 0 20px;padding:0}
 .symcol{columns:2;column-gap:24px;margin-top:6px}
 @media (max-width:640px){ .symcol{columns:1} }
 
-/* back-to-home */
 .back-row{display:flex; align-items:center; margin:12px 0 14px}
 .back-home{
   display:inline-flex; align-items:center; gap:6px;
@@ -133,113 +187,6 @@ svg{width:100%;height:auto;display:block}
 .back-home:hover{background:#f0f9ff}
 .back-home .chev{font-size:16px; line-height:1}
 
-/* misc */
-.pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:12px}
-.pill-ok{background:#ecfdf5;border-color:#d1fae5;color:#065f46}
-.pill-warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
-.pill-bad{background:#fef2f2;border-color:#fee2e2;color:#7f1d1d}
-#bars{min-height:260px}
-
-/* ----- Worked-solution blocks ----- */
-.eqblock{padding:10px 12px;border:1px dashed var(--line);border-radius:var(--r-md);background:#fcfcff;margin:8px 0}
-.eqblock .sym{font-size:1.05rem}
-.eqblock .sub{color:#374151;margin-top:6px}
-.eqblock .res{margin-top:6px;font-weight:700}
-.eqnote{font-size:13px;color:#6b7280;margin-top:6px}
-
-/* ----- Step sections ----- */
-.step{background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:14px;box-shadow:var(--shadow-sm);margin-top:12px}
-.step h3{margin:0 0 6px;font-size:18px}
-
-/* ----- Schematic & charts polish ----- */
-.viz svg{font-family:inherit}
-.axis text{font-size:14px;fill:#111}
-.axis-title{font-size:16px;fill:#111}
-.grid line{stroke:#0001}
-.probe-dot{stroke:#111;stroke-width:1.2}
-.curve{stroke-width:2;fill:none}
-
-/* --- Plot legibility (global) --- */
+/* keep plot text readable */
 svg .axis text{ font-size:16px }
 svg .axis-title{ font-size:18px }
-svg text{
-  paint-order: stroke;
-  stroke: #fff;
-  stroke-width: 3px;
-  stroke-linejoin: round;
-}
-
-/* keep card size the same */
-.thumb{
-  width:100%;
-  aspect-ratio:var(--thumb-ratio, 16/9);
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:10px;
-  overflow:hidden;
-  margin-bottom:10px;
-}
-
-/* default: fill the box, cropping edges if needed */
-.thumb img{
-  display:block;
-  width:100%;
-  height:100%;
-  object-fit:cover;          /* change to contain if you want no cropping */
-  object-position:center;    /* tweak e.g. 'left center' if text is near a side */
-}
-
-/* use this class when you want the entire image visible (letterboxed) */
-.thumb.contain img{
-  object-fit:contain;
-  background:#fff;           /* shows the letterbox area */
-  padding:6px;               /* optional safe padding */
-}
-/* makes the image fit vertically without cropping */
-.thumb.contain img{
-  object-fit: contain;
-  object-position: center;
-  padding: 6px;              /* adds a little breathing room */
-  background:#fff;           /* avoids gray bands on letterbox */
-}
-/* put near your other .schem rules */
-.schem img{
-  display:block;
-  width:100%;
-  height:100%;
-  object-fit:contain;   /* fit vertically without cropping */
-  object-position:center;
-  background:#fff;      /* optional: white behind transparent PNG */
-  border-radius:10px;   /* matches your card rounding */
-}
-/* ==== Plots: minimum vertical space (you already liked 350px) ==== */
-:root{
-  --plot-min-h: 350px;          /* tweak here if you want taller/shorter plots */
-  --schem-scale: 0.94;          /* < 1.0 shrinks the two schematics a bit */
-  --schem-left-pad: 14px;       /* left padding to push the triangle image right */
-}
-
-/* Make every plot SVG respect the min height */
-.plots .viz svg{ width:100%; display:block; min-height:var(--plot-min-h) }
-
-/* ==== Schematic sizing helpers (non-destructive to layout) ==== */
-/* Wrap each schematic image in .schem-wrap; shrink width slightly and align right
-   so the left-side cards feel larger without touching the grid columns. */
-.schem-wrap{
-  display:block;
-}
-.schem-wrap .schem-img{
-  width: calc(100% * var(--schem-scale));
-  height: auto;
-  display:block;
-  margin-left: auto;            /* shrink from the left edge */
-}
-
-/* Push the triangle schematic to the right so the a/3 label never gets clipped */
-.schem-wrap.schem-tri{
-  padding-left: var(--schem-left-pad);   /* tune this if you need more space */
-  box-sizing: content-box;               /* so padding doesn't shrink the image */
-}
-
-/* Keep plot legends readable when they stack */
-.plotly .legend { max-width: 40%; }
