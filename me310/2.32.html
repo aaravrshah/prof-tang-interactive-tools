@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Eq. 2.32: Constant-Pressure Surfaces in a Liquid Undergoing Rigid-Body Rotation</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script>
+    // Feedback context
+    const FEEDBACK = { course: 'Fundamentals of Fluid Mechanics', sim: '2.32' };
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = new URL('../feedback.html', location.href);
+      url.searchParams.set('course', FEEDBACK.course);
+      url.searchParams.set('sim', FEEDBACK.sim);
+      document.querySelectorAll('.feedback-link').forEach(a => a.href = url.toString());
+      try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+    });
+  </script>
+  <script async id="MathJax-script"
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    /* page-local polish only; relies on your original styles.css for structure */
+    .plot{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .plot svg{width:100%;height:auto;display:block}
+    .kpi-row{display:grid;gap:10px;grid-template-columns:repeat(3,minmax(140px,1fr))}
+    .kpi-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}
+    .kpi-card .lab{font-size:12px;color:#555}
+    .kpi-card .val{font-size:16px;font-weight:700}
+    .schem-ph{
+      background:repeating-linear-gradient(-45deg,#f3f4f6 0 12px,#fafafa 12px 24px);
+      border:1px dashed var(--line); border-radius:10px;
+      height:320px; display:flex; align-items:center; justify-content:center;
+      color:#475569; font-weight:700;
+    }
+    .subgrid-2{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(260px,1fr))}
+    @media (max-width:920px){ .subgrid-2{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-row">
+        <div>
+          <h1 style="margin:0">Eq. 2.32: Constant-Pressure Surfaces in a Liquid Undergoing Rigid-Body Rotation</h1>
+        </div>
+        <div class="actions" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Back -->
+    <div class="back-row">
+      <a class="back-home" href="../index.html"><span class="chev">←</span> Home</a>
+    </div>
+
+    <!-- Top: Schematic + Controls/Outputs -->
+    <section class="split">
+      <!-- Left: schematic placeholder -->
+      <div class="card">
+        <h3 style="margin:0 0 8px">Case shown by the schematic</h3>
+        <div class="schem-ph">Schematic placeholder — to be added</div>
+        <p class="note" style="margin-top:10px">
+          Liquid in a container with circular section operating rigid-body rotation.
+        </p>
+      </div>
+
+      <!-- Right: controls + computed KPIs -->
+      <div class="card">
+        <h3 style="margin:0 0 8px">Inputs</h3>
+        <div class="controls">
+          <div class="ctl">
+            <label for="omega">Angular speed, ω (rad/s)</label>
+            <input id="omega" type="number" step="0.1" value="10">
+          </div>
+          <div class="ctl">
+            <label for="R">Container radius, R (m)</label>
+            <input id="R" type="number" step="0.01" value="0.25">
+          </div>
+          <div class="ctl">
+            <label for="H">Liquid depth at ω = 0, H (m)</label>
+            <input id="H" type="number" step="0.01" value="0.20">
+          </div>
+          <div class="ctl">
+            <label for="g">Gravity, g (m/s²)</label>
+            <input id="g" type="number" step="0.01" value="9.81">
+          </div>
+          <div class="ctl">
+            <label for="N">Resolution (points)</label>
+            <input id="N" type="number" step="50" value="801">
+          </div>
+        </div>
+
+        <div class="kpi-row" style="margin-top:10px">
+          <div class="kpi-card">
+            <div class="lab"><span class="mj">\(h_0 = H - \dfrac{\omega^2 R^2}{4g}\)</span> (m)</div>
+            <div class="val" id="k_h0">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="lab">Center height \(z(0)\) (m)</div>
+            <div class="val" id="k_z0">—</div>
+          </div>
+          <div class="kpi-card">
+            <div class="lab">Rise center → rim \(\Delta h=\dfrac{\omega^2 R^2}{2g}\) (m)</div>
+            <div class="val" id="k_dh">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Governing relations -->
+    <section class="eqwrap" style="margin-top:12px">
+      <div class="title-xl">Governing relations</div>
+      <div class="eqbig">
+        Surfaces of constant pressure: &nbsp;
+        \( z \;=\; \dfrac{\omega^2 r^2}{2g} \;+\; \text{constant} \)
+        <br/><br/>
+        With volume constraint (no spilling), the free-surface elevation is
+        \[
+          z(r) \;=\; \frac{\omega^2 r^2}{2g} \;+\; H \;-\; \frac{\omega^2 R^2}{4g}
+        \]
+        where \(h_0 = H - \dfrac{\omega^2 R^2}{4g}\) is the center height and
+        \( \Delta h = z(R)-z(0) = \dfrac{\omega^2 R^2}{2g}\).
+      </div>
+    </section>
+
+    <!-- Plots -->
+    <section class="card">
+      <h3 style="margin:0 0 8px">Free-surface comparisons</h3>
+      <p class="note" style="margin-top:2px">Left: vary ω (keep R, H fixed). Middle: vary R (keep ω, H fixed). Right: vary H (keep ω, R fixed).</p>
+
+      <div class="subgrid-2" style="grid-template-columns:repeat(3,1fr)">
+        <div class="plot">
+          <svg id="plot-omega" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet" aria-label="Vary omega"></svg>
+        </div>
+        <div class="plot">
+          <svg id="plot-R" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet" aria-label="Vary radius"></svg>
+        </div>
+        <div class="plot">
+          <svg id="plot-H" viewBox="0 0 600 360" preserveAspectRatio="xMidYMid meet" aria-label="Vary H"></svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- Symbols -->
+    <section class="card">
+      <h3 style="margin:0 0 8px">Symbols</h3>
+      <div class="symgrid">
+        <ul>
+          <li>\( \omega \): angular speed (rad/s)</li>
+          <li>\( g \): gravity (m/s²)</li>
+          <li>\( R \): container radius (m)</li>
+        </ul>
+        <ul>
+          <li>\( H \): liquid depth at \(\omega=0\) (m)</li>
+          <li>\( r \): radial position (m)</li>
+          <li>\( z(r) \): free-surface elevation (m)</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; <span id="year"></span> UIUC • Prof. Tang • Interactive Tools</p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ------- helpers -------
+    const $ = sel => document.querySelector(sel);
+    const inputs = ['omega','R','H','g','N'].map(id => $('#'+id));
+    inputs.forEach(el => el.addEventListener('input', updateAll));
+
+    function computeSurface(omega,R,H,g,N){
+      const h0 = H - (omega*omega*R*R)/(4*g);
+      const z0 = h0;
+      const dh = (omega*omega*R*R)/(2*g);
+      const r = [];
+      const z = [];
+      for(let i=0;i<N;i++){
+        const rr = R*(i/(N-1));
+        r.push(rr);
+        z.push((omega*omega*rr*rr)/(2*g) + h0);
+      }
+      return {r,z,h0,z0,dh};
+    }
+
+    function fmt(x){ return (Math.round(x*10000)/10000).toFixed(4); }
+
+    function updateKPIs({h0,z0,dh}){
+      $('#k_h0').textContent = fmt(h0);
+      $('#k_z0').textContent = fmt(z0);
+      $('#k_dh').textContent = fmt(dh);
+    }
+
+    // Simple SVG plotter (no external libs)
+    function plotCompare(svgId, series, Rmax, zMin, zMax, labels){
+      const svg = $('#'+svgId);
+      svg.innerHTML = ''; // clear
+      const W = 600, H = 360, m = {l:50,r:15,t:20,b:40};
+      const w = W - m.l - m.r, h = H - m.t - m.b;
+
+      // compute global z bounds if not provided
+      let zlo = zMin, zhi = zMax;
+      if(zlo==null || zhi==null){
+        zlo = +Infinity; zhi = -Infinity;
+        series.forEach(s => s.z.forEach(v => { if(v<zlo) zlo=v; if(v>zhi) zhi=v; }));
+      }
+      const pad = 0.05*(zhi - zlo || 1);
+      zlo -= pad; zhi += pad;
+
+      // scales
+      const x = r => m.l + (r/Rmax)*w;
+      const y = z => m.t + h - ( (z - zlo) / (zhi - zlo) )*h;
+
+      // axes
+      const ax = document.createElementNS('http://www.w3.org/2000/svg','g');
+      ax.setAttribute('stroke','#0003'); ax.setAttribute('fill','none');
+      // x axis
+      const xAxis = document.createElementNS('http://www.w3.org/2000/svg','line');
+      xAxis.setAttribute('x1',m.l); xAxis.setAttribute('y1',m.t+h);
+      xAxis.setAttribute('x2',m.l+w); xAxis.setAttribute('y2',m.t+h);
+      ax.appendChild(xAxis);
+      // y axis
+      const yAxis = document.createElementNS('http://www.w3.org/2000/svg','line');
+      yAxis.setAttribute('x1',m.l); yAxis.setAttribute('y1',m.t);
+      yAxis.setAttribute('x2',m.l); yAxis.setAttribute('y2',m.t+h);
+      ax.appendChild(yAxis);
+      svg.appendChild(ax);
+
+      // axis labels
+      function label(txt, x0,y0,anchor='middle'){
+        const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+        t.setAttribute('x',x0); t.setAttribute('y',y0);
+        t.setAttribute('text-anchor',anchor);
+        t.textContent = txt;
+        svg.appendChild(t);
+      }
+      label('r (m)', m.l + w/2, m.t+h+28);
+      label('z (m)', m.l - 30, m.t + 10, 'middle');
+
+      // draw lines
+      const colors = ['#2563eb','#10b981','#f59e0b'];
+      series.forEach((s,idx)=>{
+        const path = document.createElementNS('http://www.w3.org/2000/svg','path');
+        let d = '';
+        for(let i=0;i<s.r.length;i++){
+          const X = x(s.r[i]), Y = y(s.z[i]);
+          d += (i===0 ? 'M':'L') + X + ' ' + Y + ' ';
+        }
+        path.setAttribute('d',d.trim());
+        path.setAttribute('fill','none');
+        path.setAttribute('stroke',colors[idx%colors.length]);
+        path.setAttribute('stroke-width','2.2');
+        svg.appendChild(path);
+      });
+
+      // legend
+      const lg = document.createElementNS('http://www.w3.org/2000/svg','g');
+      labels.forEach((txt,i)=>{
+        const y0 = m.t + 16 + i*18;
+        const sw = document.createElementNS('http://www.w3.org/2000/svg','rect');
+        sw.setAttribute('x', m.l + 8);
+        sw.setAttribute('y', y0-10);
+        sw.setAttribute('width', 18); sw.setAttribute('height', 4);
+        sw.setAttribute('fill', ['#2563eb','#10b981','#f59e0b'][i%3]);
+        lg.appendChild(sw);
+        const tt = document.createElementNS('http://www.w3.org/2000/svg','text');
+        tt.setAttribute('x', m.l + 32); tt.setAttribute('y', y0);
+        tt.textContent = txt;
+        lg.appendChild(tt);
+      });
+      svg.appendChild(lg);
+    }
+
+    function updateAll(){
+      const omega = +$('#omega').value;
+      const R     = +$('#R').value;
+      const H     = +$('#H').value;
+      const g     = +$('#g').value;
+      const N     = Math.max(51, Math.floor(+$('#N').value));
+
+      const base  = computeSurface(omega,R,H,g,N);
+      updateKPIs(base);
+
+      // --- Plot 1: vary omega (ω, ω/2, ω/3)
+      const s1 = [
+        base,
+        computeSurface(omega/2, R, H, g, N),
+        computeSurface(omega/3, R, H, g, N)
+      ];
+      plotCompare('plot-omega', s1, R, null, null,
+        [`ω = ${fmt(omega)}`, `ω = ${fmt(omega/2)}`, `ω = ${fmt(omega/3)}`]);
+
+      // --- Plot 2: vary R (R, R/2, R/3) with same ω,H
+      const R2 = R/2, R3 = R/3;
+      const s2 = [
+        base,
+        computeSurface(omega, R2, H, g, N),
+        computeSurface(omega, R3, H, g, N)
+      ];
+      plotCompare('plot-R', s2, R, null, null,
+        [`R = ${fmt(R)}`, `R = ${fmt(R2)}`, `R = ${fmt(R3)}`]);
+
+      // --- Plot 3: vary H (H, 1.2H, 1.5H) with same ω,R
+      const H2 = 1.2*H, H3 = 1.5*H;
+      const s3 = [
+        base,
+        computeSurface(omega, R, H2, g, N),
+        computeSurface(omega, R, H3, g, N)
+      ];
+      plotCompare('plot-H', s3, R, null, null,
+        [`H = ${fmt(H)}`, `H = ${fmt(H2)}`, `H = ${fmt(H3)}`]);
+    }
+
+    // init
+    updateAll();
+  </script>
+</body>
+</html>

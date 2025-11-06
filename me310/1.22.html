@@ -18,6 +18,7 @@
          background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
     .btn.primary{background:var(--accent);border-color:transparent}
 
+    /* layout */
     .top-grid{display:grid;gap:12px}
     @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
 
@@ -33,7 +34,6 @@
       min-height:240px;border:1px solid var(--line);border-radius:12px;background:#fafcff;
       display:flex;align-items:center;justify-content:center;color:#64748b;overflow:hidden
     }
-    /* make the PNG scale nicely in the box */
     .schem img{display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;padding:6px}
 
     .controls{display:grid;gap:12px}
@@ -74,6 +74,7 @@
     </nav>
 
     <section class="top-grid">
+      <!-- LEFT: Equation + schematic + plot (plot sits under schematic) -->
       <div class="ctl">
         <div class="eq-schem">
           <div class="eqwrap">
@@ -93,29 +94,29 @@
             </div>
           </div>
 
-          <!-- REPLACED: schematic PNG -->
           <div class="schem" aria-label="Capillary schematic">
-            <!-- swap the src below to your hi-res schematic if needed -->
             <img src="../assets/thumbs/1.22.png" alt="Capillary tube schematic: meniscus, contact angle θ, rise h">
           </div>
         </div>
 
+        <!-- Plot sits below the schematic in this left column -->
         <div class="viz" style="margin-top:12px">
           <svg id="plot" viewBox="0 0 760 320" aria-label="h vs D plot"></svg>
         </div>
       </div>
 
+      <!-- RIGHT: Controls -->
       <div class="ctl">
         <div class="controls">
           <div>
-            <label>Fluid preset (σ, ρ at 20 °C)</label>
-            <select id="fluid">
+            <label>Liquid–glass pair (locks θ, σ, ρ)</label>
+            <select id="pair">
               <option value="custom">Custom…</option>
-              <option value="water" selected>Water — σ = 0.0728 N/m, ρ = 998 kg/m³</option>
-              <option value="ethanol">Ethanol — σ = 0.0223 N/m, ρ = 789 kg/m³</option>
-              <option value="mercury">Mercury — σ = 0.4850 N/m, ρ = 13534 kg/m³</option>
+              <option value="water_glass" selected>Water on glass — θ = 25°</option>
+              <option value="ethanol_glass">Ethanol on glass — θ = 5°</option>
+              <option value="mercury_glass">Mercury on glass — θ = 140°</option>
             </select>
-            <div class="hint">Choose a preset or pick <b>Custom…</b> to edit σ and ρ.</div>
+            <div class="hint">Pick a preset to lock θ, σ, ρ. Choose <b>Custom…</b> to edit them.</div>
           </div>
 
           <div class="rowflex">
@@ -126,6 +127,10 @@
             <div>
               <label>Density, ρ (kg/m³)</label>
               <input id="rho" class="num-sm" type="number" min="1" step="1" value="998" />
+            </div>
+            <div>
+              <label>Contact angle, θ (°)</label>
+              <input id="theta" class="num-sm" type="number" min="0" max="180" step="1" value="25" />
             </div>
           </div>
 
@@ -140,36 +145,27 @@
                   <option value="um">μm</option>
                 </select>
               </div>
-              <input id="D_s" type="range" min="0.1" max="10" step="0.01" value="1.00" style="width:260px;margin-top:8px">
-              <div class="hint">Plot range: 0.10–10.00 mm. Use the slider or drag the red dot.</div>
-            </div>
-
-            <div>
-              <label>Contact angle, θ (°)</label>
-              <input id="theta" class="num-sm" type="number" min="0" max="180" step="1" value="0" />
+              <input id="D_s" type="range" min="0.1" max="4" step="0.01" value="1.00" style="width:260px;margin-top:8px">
+              <div class="hint">Plot range: 0.10–4.00 mm. Use the slider or drag the red dot.</div>
             </div>
           </div>
 
           <div>
             <label>Current values</label>
             <div class="kpi">
-              <div><div class="lab">h (m)</div><div id="kpi_h_m" class="val">—</div></div>
               <div><div class="lab">h (mm)</div><div id="kpi_h_mm" class="val">—</div></div>
               <div><div class="lab">Sign</div><div id="kpi_sign" class="val">—</div></div>
             </div>
           </div>
 
-          <p class="note" style="margin:0">
-            \(g = 9.81\ \mathrm{m/s^2}\). Explore diameters from <b>0.1–10 mm</b> and contact angles from <b>0–150°</b> to see how \(h\) responds. Positive \(h\) (wetting) occurs when \(\cos\theta>0\); negative \(h\) (depression) when \(\cos\theta<0\).
-          </p>
         </div>
       </div>
     </section>
 
     <section class="card" style="margin-top:12px">
       <div class="note">
-        This tool uses \( h = \tfrac{4\sigma\cos\theta}{\rho g D} \) for circular tubes with \( D = 2r \).
-        Try realistic ranges (e.g., water at 20 °C, \(D\) between 0.1–10 mm) and vary \(\theta\) to see the sign and magnitude of the rise.
+        This tool uses \( h = \tfrac{4\sigma\cos\theta}{\rho g D} \). The pair selector locks typical values of
+        \(\theta, \sigma, \rho\) for a clean glass surface; choose <b>Custom…</b> to set your own.
       </div>
     </section>
   </main>
@@ -183,43 +179,50 @@
   <script>
     /* ---------- helpers & constants ---------- */
     const $ = id => document.getElementById(id);
-    const toMeters = (val, unit) => {
+    const gval = 9.81, cosd = d => Math.cos(d*Math.PI/180);
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+    // X range tightened to 0.10–4.00 mm
+    const D_MIN_MM = 0.10, D_MAX_MM = 4.00;
+    const X_MIN = D_MIN_MM, X_MAX = D_MAX_MM;
+    const Y_MAX = 400; // headroom for small D (mm)
+
+    const PAIRS = {
+      custom:        { sigma:null,   rho:null,   theta:null },
+      water_glass:   { sigma:0.0728, rho:998,    theta:25 },
+      ethanol_glass: { sigma:0.0223, rho:789,    theta:5 },
+      mercury_glass: { sigma:0.4850, rho:13534,  theta:140 }
+    };
+
+    function toMeters(val, unit){
       const v = parseFloat(val);
       if (!Number.isFinite(v) || v <= 0) return NaN;
       if (unit === 'm')  return v;
       if (unit === 'mm') return v * 1e-3;
       if (unit === 'um') return v * 1e-6;
       return v;
-    };
-    const PRESETS = {
-      water:   { sigma: 0.0728, rho: 998 },
-      ethanol: { sigma: 0.0223, rho: 789 },
-      mercury: { sigma: 0.4850, rho: 13534 }
-    };
-    const gval = 9.81, cosd = d => Math.cos(d*Math.PI/180);
-    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
-
-    const D_MIN_MM = 0.1, D_MAX_MM = 10.0;
-    const X_MIN = D_MIN_MM, X_MAX = D_MAX_MM;
-    const Y_MAX = 200; // |h| in mm
+    }
 
     function setDNumberBounds(){
       const u = $('Dunit').value;
       let min,max,step;
       if (u==='mm'){ min=D_MIN_MM; max=D_MAX_MM; step=0.01; }
       else if (u==='m'){  min=D_MIN_MM*1e-3; max=D_MAX_MM*1e-3; step=0.0001; }
-      else { /* um */   min=D_MIN_MM*1000; max=D_MAX_MM*1000; step=1; }
+      else { /* μm */   min=D_MIN_MM*1000; max=D_MAX_MM*1000; step=1; }
       $('D').min=min; $('D').max=max; $('D').step=step;
     }
 
-    function computeH(sigma, rho, D_m, theta_deg){
-      return (4 * sigma * cosd(theta_deg)) / (rho * gval * D_m);
-    }
-    function updateKPIs(h_m){
-      $('kpi_h_m').textContent  = Number.isFinite(h_m) ? h_m.toExponential(3) : '—';
-      $('kpi_h_mm').textContent = Number.isFinite(h_m) ? (h_m*1000).toFixed(3) : '—';
-      $('kpi_sign').textContent = Number.isFinite(h_m)
-        ? (h_m > 0 ? 'Rise' : (h_m < 0 ? 'Depression' : 'Zero')) : '—';
+    function lockFieldsByPair(){
+      const sel = $('pair').value;
+      const isCustom = (sel === 'custom');
+      ['sigma','rho','theta'].forEach(id => $(id).disabled = !isCustom);
+
+      if (!isCustom){
+        const p = PAIRS[sel];
+        $('sigma').value = p.sigma;
+        $('rho').value   = p.rho;
+        $('theta').value = p.theta;
+      }
     }
 
     function drawPlotFrame(){
@@ -257,7 +260,7 @@
       const h_now_mm = (4*sigma*Math.cos(thetaDeg*Math.PI/180))/(rho*gval*Dm_clamped)*1000;
 
       const dragpt = svg.append('circle').attr('class','dragpt')
-        .attr('r',6).attr('cx', x(D_now_mm)).attr('cy', y(h_now_mm));
+        .attr('r',6).attr('cx', x(D_now_mm)).attr('cy', y(Math.max(-Y_MAX, Math.min(Y_MAX, h_now_mm))));
 
       const hit = svg.append('rect').attr('class','hit')
         .attr('x', x(X_MIN)).attr('y', y(Y_MAX))
@@ -285,39 +288,27 @@
       hit.call(drag);
     }
 
-    function setPresetMode(){
-      const isCustom = $('fluid').value === 'custom';
-      $('sigma').disabled = !isCustom;
-      $('rho').disabled   = !isCustom;
-      compute();
-    }
-
-    function setDNumberBounds(){
-      const u = $('Dunit').value;
-      let min,max,step;
-      if (u==='mm'){ min=0.1; max=10.0; step=0.01; }
-      else if (u==='m'){  min=0.0001; max=0.01; step=0.0001; }
-      else { min=100; max=10000; step=1; }
-      $('D').min=min; $('D').max=max; $('D').step=step;
+    function updateKPIs(h_m){
+      $('kpi_h_mm').textContent = Number.isFinite(h_m) ? (h_m*1000).toFixed(3) : '—';
+      $('kpi_sign').textContent = Number.isFinite(h_m)
+        ? (h_m > 0 ? 'Rise' : (h_m < 0 ? 'Depression' : 'Zero')) : '—';
     }
 
     function compute(){
-      const preset = $('fluid').value;
-      if (preset in PRESETS){
-        $('sigma').value = PRESETS[preset].sigma.toString();
-        $('rho').value   = PRESETS[preset].rho.toString();
-      }
+      // lock/unlock & set values for pair
+      lockFieldsByPair();
 
       const sigma = Math.max(0, parseFloat($('sigma').value));
       const rho   = Math.max(1, parseFloat($('rho').value));
-      const unit  = $('Dunit').value;
+      const th    = parseFloat($('theta').value);
 
+      const unit  = $('Dunit').value;
       setDNumberBounds();
 
       let Dm = toMeters($('D').value, unit);
       let Dmm = Dm*1000;
       if (!Number.isFinite(Dmm)) Dmm = 1.0;
-      const DmmC = Math.min(10.0, Math.max(0.1, Dmm));
+      const DmmC = clamp(Dmm, D_MIN_MM, D_MAX_MM);
 
       if (Dmm !== DmmC){
         if (unit==='mm') $('D').value = DmmC.toFixed(2);
@@ -327,21 +318,17 @@
       $('D_s').value = DmmC.toFixed(2);
 
       const DmC = DmmC*1e-3;
-
-      const th = parseFloat($('theta').value);
-      const h  = (4 * sigma * Math.cos(th*Math.PI/180)) / (rho * 9.81 * DmC);
-      $('kpi_h_m').textContent  = Number.isFinite(h) ? h.toExponential(3) : '—';
-      $('kpi_h_mm').textContent = Number.isFinite(h) ? (h*1000).toFixed(3) : '—';
-      $('kpi_sign').textContent = Number.isFinite(h) ? (h>0?'Rise':(h<0?'Depression':'Zero')) : '—';
+      const h  = (4 * sigma * Math.cos(th*Math.PI/180)) / (rho * gval * DmC);
+      updateKPIs(h);
 
       const scales = drawPlotFrame();
       drawCurveAndDragger(scales, sigma, rho, th, DmC);
     }
 
     function init(){
-      $('fluid').addEventListener('change', setPresetMode);
+      $('pair').addEventListener('change', compute);
 
-      ['sigma','rho','D','theta'].forEach(id => $(id).addEventListener('input', compute));
+      ['sigma','rho','theta','D'].forEach(id => $(id).addEventListener('input', compute));
       $('Dunit').addEventListener('change', ()=>{ setDNumberBounds(); compute(); });
 
       $('D_s').addEventListener('input', e=>{
@@ -354,7 +341,7 @@
       });
 
       setDNumberBounds();
-      setPresetMode(); // calls compute()
+      compute();
       window.addEventListener('resize', compute);
     }
     window.addEventListener('DOMContentLoaded', init);
