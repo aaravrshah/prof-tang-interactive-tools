@@ -1,402 +1,517 @@
+<!-- /me310/2.32.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>2.32 • Hydrostatic Force on a Triangular Gate</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Constant-Pressure Surfaces in a Liquid Undergoing Rigid-Body Rotation</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- MathJax -->
   <script>
-    // MathJax (v3) config — render TeX on demand only
-    window.MathJax = {
-      tex: {inlineMath: [["$","$"], ["\\(","\\)"]]},
-      svg: {fontCache: 'global'},
-      options: { renderActions: { addMenu: [] } }
-    };
+    window.MathJax = { chtml:{scale:0.9}, options:{renderActions:{addMenu:[]}} };
   </script>
-  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
   <style>
-    :root{
-      --bg:#0b1220; --card:#0f172a; --muted:#94a3b8; --text:#e2e8f0; --accent:#60a5fa;
-      --shadow:0 10px 30px rgba(0,0,0,.35);
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
+         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .btn.primary:hover{filter:brightness(1.06)}
+
+    .top-grid{display:grid;gap:14px}
+    @media (min-width:1040px){
+      .top-grid{grid-template-columns:1.4fr 1fr}
     }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,Segoe UI,Roboto,Inter,Arial}
-    header{padding:22px 20px 10px;position:sticky;top:0;background:linear-gradient(180deg, rgba(11,18,32,.96), rgba(11,18,32,.85) 60%, rgba(11,18,32,0));backdrop-filter:saturate(130%) blur(6px);z-index:2;border-bottom:1px solid rgba(255,255,255,.07)}
-    h1{font-size:22px;margin:0 0 2px;letter-spacing:.2px}
-    .sub{color:var(--muted);font-size:13px}
-    .wrap{max-width:1200px;margin:0 auto;padding:16px}
-    .grid{display:grid;grid-template-columns:360px 1fr;gap:16px}
-    @media (max-width:980px){.grid{grid-template-columns:1fr}}
-    .card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:16px;box-shadow:var(--shadow)}
-    .card h2{font-size:16px;margin:0 0 8px}
-    .card .body{padding:14px 14px 12px}
-    .row{display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:center;margin:10px 0}
-    .row label{font-size:13px;color:var(--muted)}
-    input[type="number"], select{width:100%;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:#0b1328;color:var(--text)}
-    input[type="range"]{width:100%}
-    .pill{display:inline-flex;gap:8px;align-items:center;background:#0b1328;border:1px solid rgba(255,255,255,.08);padding:6px 10px;border-radius:999px;color:var(--muted);font-size:12px}
-    .flex{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
-    .eq{padding:10px 12px;border-radius:12px;background:#0b1328;border:1px solid rgba(255,255,255,.08);margin:6px 0}
-    .schematic{display:flex;align-items:center;justify-content:center;padding:8px}
-    .schematic svg{max-width:340px;width:100%;height:auto;display:block}
-    .plotCard{padding:6px 10px 14px}
-    .hint{color:var(--muted);font-size:12px}
-    .divider{height:1px;background:rgba(255,255,255,.06);margin:8px 0}
-    .badge{font-size:11px;background:rgba(96,165,250,.15);color:#bfdbfe;border:1px solid rgba(96,165,250,.35);padding:2px 8px;border-radius:999px}
+
+    .side-col{display:flex;flex-direction:column;gap:12px}
+
+    .eqwrap{margin-bottom:10px}
+    .eqwrap p{margin:4px 0}
+    .note{font-size:14px;color:#4b5563}
+
+    .inputs .controls{display:grid;gap:10px}
+    .inputs .ctl{display:flex;flex-direction:column;gap:4px}
+    .inputs label{font-size:13px;color:#4b5563}
+    .inputs input[type="number"]{
+      width:180px;max-width:100%;padding:6px 8px;
+      border:1px solid var(--line);border-radius:8px;
+    }
+
+    .schematic-card p{margin:0;font-size:14px;color:#4b5563}
+
+    .plots-grid{
+      display:grid;gap:14px;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      margin-top:14px;
+    }
+
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    #plot-omega,#plot-radius,#plot-depth{width:100%;height:auto;display:block}
+
+    .legend-block{margin-top:10px}
+    .legend-row{margin-bottom:6px}
+    .legend-item{display:inline-flex;align-items:center;gap:6px;margin-right:12px;font-size:13px;color:#334155}
+    .legend-item .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #0002}
+
+    .legend-block .dim-note{font-size:13px;color:#6b7280;margin:0;line-height:1.4}
+
+    .back-row{display:flex;align-items:center;margin:12px 0 14px}
+    .back-home{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border:1px solid var(--line);border-radius:999px;
+      background:#fff;color:#0ea5e9;text-decoration:none;font-size:14px;
+    }
+    .back-home:hover{background:#f0f9ff}
+    .back-home .chev{font-size:16px;line-height:1}
   </style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <h1>2.32 • Hydrostatic Force on a Triangular Gate</h1>
-      <div class="sub">Interactive calculator + schematic + $(x_R-x_C)$ & $(y_R-y_C)$ plot (LaTeX renders on release).</div>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-row">
+        <div>
+          <h1 style="margin:0">Constant-Pressure Surfaces in a Liquid Undergoing Rigid-Body Rotation</h1>
+          <p class="subtitle">Visualize how the free surface shape depends on angular speed, tank radius, and liquid depth.</p>
+        </div>
+        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+      </div>
     </div>
   </header>
 
-  <div class="wrap">
-    <div class="grid">
-      <!-- LEFT: Inputs & Readouts -->
-      <section class="card">
-        <div class="body">
-          <h2>Inputs</h2>
-          <div class="row">
-            <label>Triangle height $a$ (m)</label>
-            <input id="a" type="number" step="0.001" value="1.000" min="0.01"/>
-          </div>
-          <div class="row">
-            <label>Base width $b$ (m)</label>
-            <input id="b" type="number" step="0.001" value="1.500" min="0.01"/>
-          </div>
-          <div class="row">
-            <label>Plate angle $\theta$ (deg)</label>
-            <input id="theta" type="number" step="0.1" value="45" min="0" max="180"/>
-          </div>
-          <div class="row">
-            <label>Reference edge</label>
-            <select id="refEdge">
-              <option value="top" selected>Top edge depth known</option>
-              <option value="base">Base edge depth known</option>
-            </select>
-          </div>
-          <div class="row">
-            <label><span id="refLabel">Top edge depth</span> $h_{\text{ref}}$ (m)</label>
-            <input id="href" type="number" step="0.001" value="0.800" min="0"/>
-          </div>
-          <div class="row">
-            <label>Width into page $w$ (m)</label>
-            <input id="w" type="number" step="0.001" value="1.000" min="0.001"/>
-          </div>
-          <div class="row">
-            <label>Fluid density $\rho$ (kg/m$^3$)</label>
-            <input id="rho" type="number" step="1" value="1000" min="1"/>
-          </div>
-          <div class="row">
-            <label>Gravity $g$ (m/s$^2$)</label>
-            <input id="g" type="number" step="0.001" value="9.81" min="0"/>
-          </div>
+  <main class="container">
+    <nav class="back-row">
+      <a href="../index.html" class="back-home" aria-label="Back to home">
+        <span class="chev">←</span> Home
+      </a>
+    </nav>
 
-          <div class="divider"></div>
-          <div class="two">
-            <div>
-              <label class="hint">Depth sweep max (m)</label>
-              <input id="xmax" type="number" class="mono" step="0.1" value="4.0" min="0.5"/>
-            </div>
-            <div>
-              <label class="hint">Live update style</label>
-              <select id="updateMode">
-                <option value="onRelease" selected>Numbers live, LaTeX on release</option>
-                <option value="instant">Everything live (may flicker)</option>
-              </select>
-            </div>
-          </div>
+    <!-- Top section: derivation + schematic + base inputs -->
+    <section class="top-grid">
+      <!-- Derivation / equations -->
+      <div class="card">
+        <h2 style="margin:4px 0 8px">Liquid in Rigid-Body Rotation</h2>
 
-          <div style="margin-top:12px" class="flex">
-            <span class="pill">Area $A = \tfrac12 ab$</span>
-            <span class="pill">Centroid from base $= a/3$</span>
-            <span class="pill">$F_R = \rho g A h_C$</span>
-            <span class="pill">$h_P = h_C + \dfrac{I_G\sin^2\!\theta}{A\,h_C}$</span>
-          </div>
+        <div class="eqwrap">
+          <p class="note">
+            Consider a liquid in a container with circular cross section operating in rigid-body rotation
+            with angular speed \( \omega \) about the vertical \( z \)-axis.
+          </p>
+          <p class="note">
+            <b>Equation for surfaces of constant pressure</b><br>
+            (The free surface is a representative constant-pressure surface of the liquid in rigid-body rotation.)
+          </p>
+          \[
+            z(r) = \frac{\omega^2 r^2}{2g} + \text{constant}.
+          \]
+          <p class="note">
+            The constant in the above equation depends on the setup of the \( z \)-coordinate and is also
+            a function of geometry and angular velocity. For a given setup of the \( z \)-coordinate, geometry,
+            and angular velocity, different values of this constant correspond to different constant-pressure
+            surfaces.
+          </p>
         </div>
-      </section>
 
-      <!-- RIGHT: Schematic + Results + Plot -->
-      <section class="card" id="vizCard">
-        <div class="schematic" id="schematic"></div>
-        <div class="plotCard">
-          <div id="results" class="eq mono"></div>
-          <div id="numeric" class="hint" style="margin:6px 0 10px"></div>
-          <div id="plot"></div>
+        <div class="eqwrap">
+          <p style="margin:0 0 4px"><b>Constant volume (no spilling)</b></p>
+          <p class="note">
+            Let the container have radius \( R \) and liquid depth \( H \) when \( \omega = 0 \)
+            (so \( H \) is the liquid depth at rest).
+            The volume at rest is
+          </p>
+          \[
+            V = \pi R^2 H.
+          \]
+          <p class="note">
+            When rotating at \( \omega \), with the free surface written as
+            \[
+              h(r) = \frac{\omega^2 r^2}{2g} + h_0,
+            \]
+            the volume of liquid is
+          </p>
+          \[
+            \begin{aligned}
+              V &= \int_0^R 2\pi r\,h(r)\,dr
+                 = \int_0^R 2\pi r\left(\frac{\omega^2 r^2}{2g} + h_0\right)dr \\
+                &= 2\pi \left[\frac{\omega^2}{2g}\int_0^R r^3\,dr
+                             + h_0\int_0^R r\,dr\right] \\
+                &= \frac{\pi \omega^2 R^4}{4g} + \pi R^2 h_0.
+            \end{aligned}
+          \]
+          <p class="note">
+            Equating the two expressions for \( V \) gives
+          </p>
+          \[
+            \pi R^2 H
+              = \frac{\pi \omega^2 R^4}{4g} + \pi R^2 h_0
+              \quad\Rightarrow\quad
+              h_0 = H - \frac{\omega^2 R^2}{4g}.
+          \]
         </div>
-      </section>
-    </div>
-  </div>
 
-<script>
-  // ---------- Utilities ----------
-  const $ = sel => document.querySelector(sel);
-  const fmt = d3.format(".4~f");
-  const deg2rad = d => d*Math.PI/180;
+        <div class="eqwrap">
+          <p style="margin:0 0 4px"><b>Free-surface equation</b></p>
+          <p class="note">
+            Substituting \( h_0 \) back into \( h(r) \) gives the free-surface profile
+            for a cylindrical container (no spilling):
+          </p>
+          \[
+            z(r) = h(r)
+                  = \frac{\omega^2 r^2}{2g}
+                    + H - \frac{\omega^2 R^2}{4g}.
+          \]
+          <p class="note">
+            Here \( H \) is the liquid depth when the tank is at rest.
+            Different choices of \( \omega \), \( R \), and \( H \) lead to different constant-pressure surfaces.
+          </p>
+        </div>
+      </div>
 
-  function inertiaTriangleAboutCentroidParallelBase(b,a){
-    // I_G about centroid for axis parallel to base (through centroid)
-    return (b*Math.pow(a,3))/36; // m^4
-  }
+      <!-- Right column: schematic above inputs -->
+      <div class="side-col">
 
-  function compute(href, a, b, w, thetaDeg, rho, g, refEdge){
-    const theta = deg2rad(thetaDeg);
-    const A_face = 0.5*a*b;         // m^2 (triangle face)
-    const A = A_face * w;           // m^3 projected area into page
+        <div class="card schematic-card">
+          <h2 style="margin:4px 0 8px">Schematic (placeholder)</h2>
+          <p>
+            Vertical cylindrical container of radius \( R \) rotating at angular speed \( \omega \).
+            The bottom is at \( z = 0 \); the initial liquid depth at rest is \( H \).
+          </p>
+          <p style="margin-top:6px">
+            During rotation, the free surface \( z(r) \) becomes parabolic. The depth at the center is
+            \( h_0 = H - \dfrac{\omega^2 R^2}{4g} \), and the elevation at the wall
+            is \( z(R) = H + \dfrac{\omega^2 R^2}{4g} \).
+          </p>
+          <p style="margin-top:6px">
+            (Replace this card with a diagram matching the lecture notes.)
+          </p>
+        </div>
 
-    // along-plane distances from top edge to centroid (ybar), and vertical depth to centroid (hC)
-    let ybar, hC; // ybar along the plane from top edge; hC vertical depth to centroid
+        <div class="card inputs">
+          <h2 style="margin:4px 0 10px">Base Case Inputs</h2>
+          <div class="controls">
+            <div class="ctl">
+              <label for="omegaInput">Angular speed \( \omega_{\text{input}} \) (rad/s)</label>
+              <input id="omegaInput" type="number" min="0" max="40" step="0.5" value="10">
+            </div>
+            <div class="ctl">
+              <label for="RInput">Cylinder radius \( R_{\text{input}} \) (m)</label>
+              <input id="RInput" type="number" min="0.02" max="0.40" step="0.01" value="0.10">
+            </div>
+            <div class="ctl">
+              <label for="HInput">Liquid depth at \( \omega = 0 \), \( H_{\text{input}} \) (m)</label>
+              <input id="HInput" type="number" min="0.05" max="0.50" step="0.01" value="0.20">
+            </div>
+          </div>
+          <p class="note" style="margin-top:10px">
+            These base values are used to generate three families of free surfaces:
+            one varying \( \omega \), one varying \( R \), and one varying \( H \).
+          </p>
+        </div>
 
-    if(refEdge === 'top'){
-      // top edge vertical depth known = href
-      ybar = a/3; // centroid is a/3 from the top edge *if base is at top*; BUT for the usual triangle with base at bottom, centroid from TOP is 2a/3
-      // adopt the common classroom convention: base at top (per your notes that used y_c = href/sinθ - a/3)
-      // To also support the alternate convention swap line below to (2*a/3)
-      ybar = a/3;
-      hC = href + ybar*Math.sin(theta);
-    } else {
-      // base edge vertical depth known = href
-      const yFromBaseToCentroid = a/3; // centroid from base
-      // distance from top edge to centroid = a - a/3 = 2a/3
-      ybar = 2*a/3;
-      // base depth to top edge along plane is 'a'; vertical step from base edge up to centroid is -yFromBaseToCentroid*sinθ
-      hC = href - yFromBaseToCentroid*Math.sin(theta);
+      </div>
+    </section>
+
+    <!-- Three plots -->
+    <section class="plots-grid">
+      <!-- Plot 1: vary omega -->
+      <div class="card">
+        <h3 style="margin:4px 0 6px">Effect of Angular Speed \( \omega \)</h3>
+        <div class="viz">
+          <svg id="plot-omega" viewBox="0 0 360 260" aria-label="Free surfaces for different angular speeds"></svg>
+        </div>
+        <div id="legend-omega" class="legend-block"></div>
+      </div>
+
+      <!-- Plot 2: vary R -->
+      <div class="card">
+        <h3 style="margin:4px 0 6px">Effect of Cylinder Radius \( R \)</h3>
+        <div class="viz">
+          <svg id="plot-radius" viewBox="0 0 360 260" aria-label="Free surfaces for different radii"></svg>
+        </div>
+        <div id="legend-radius" class="legend-block"></div>
+      </div>
+
+      <!-- Plot 3: vary H -->
+      <div class="card">
+        <h3 style="margin:4px 0 6px">Effect of Initial Depth \( H \)</h3>
+        <div class="viz">
+          <svg id="plot-depth" viewBox="0 0 360 260" aria-label="Free surfaces for different depths"></svg>
+        </div>
+        <div id="legend-depth" class="legend-block"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const g = 9.81;
+
+    function clamp(val, min, max){
+      return Math.max(min, Math.min(max, val));
     }
 
-    const IG = inertiaTriangleAboutCentroidParallelBase(b,a) * w; // multiply by width into page (parallel axis in 3D prism → I per unit width × w)
+    function makeSurface(omega, R, H, steps){
+      const n = steps || 80;
+      const h0 = H - (omega*omega*R*R)/(4*g);
+      const pts = [];
+      for(let i=0;i<=n;i++){
+        const r = R * i/n;
+        const z = (omega*omega*r*r)/(2*g) + h0;
+        pts.push({r,z});
+      }
+      return {omega,R,H,h0,pts};
+    }
 
-    // Hydrostatic resultant (magnitude) and center of pressure depth
-    const FR = rho*g*A_face*hC; // N (pressure resultant on the triangular face of width w cancels; A_face is area, pressure integrated times width w → using standard formula)
-    const hP = hC + (IG*Math.pow(Math.sin(theta),2)) / (A_face*hC); // vertical depth to center of pressure
+    const colors = ['#2563eb','#f97316','#10b981'];
 
-    // in-plane offset from centroid to CP along the plane direction (positive downward along the plane)
-    const yDiff = (IG*Math.pow(Math.sin(theta),2)) / (A_face*ybar); // (y_R - y_C)
+    function buildSurfaces(mode, omega0, R0, H0){
+      const surfaces = [];
+      if(mode === 'omega'){
+        const omegas = [omega0, 0.5*omega0, omega0/3];
+        const labels = ['ω₁ = ω_input','ω₂ = ½ ω_input','ω₃ = ⅓ ω_input'];
+        omegas.forEach((om,i)=>{
+          surfaces.push({
+            key:'w'+i,
+            label:labels[i],
+            color:colors[i],
+            surface:makeSurface(om,R0,H0)
+          });
+        });
+      }else if(mode === 'radius'){
+        const Rs = [R0, 0.5*R0, R0/3];
+        const labels = ['R₁ = R_input','R₂ = ½ R_input','R₃ = ⅓ R_input'];
+        Rs.forEach((R,i)=>{
+          surfaces.push({
+            key:'r'+i,
+            label:labels[i],
+            color:colors[i],
+            surface:makeSurface(omega0,R,H0)
+          });
+        });
+      }else{ // depth
+        const Hs = [H0, 1.2*H0, 1.5*H0];
+        const labels = ['H₁ = H_input','H₂ = 1.2 H_input','H₃ = 1.5 H_input'];
+        Hs.forEach((H,i)=>{
+          surfaces.push({
+            key:'h'+i,
+            label:labels[i],
+            color:colors[i],
+            surface:makeSurface(omega0,R0,H)
+          });
+        });
+      }
+      return surfaces;
+    }
 
-    // x-offset (for a symmetric triangle about midplane → 0). If user rotates triangle in-plane this would change; keep 0 here.
-    const xDiff = 0;
+    function initPlot(id, mode){
+      const svg = d3.select('#'+id);
+      const W = 360, Hh = 260;
+      const margin = {top:16,right:10,bottom:46,left:64};
+      const iw = W - margin.left - margin.right;
+      const ih = Hh - margin.top - margin.bottom;
 
-    return {A_face, IG, FR, hC, hP, yDiff, xDiff, ybar};
-  }
+      svg.attr('viewBox',`0 0 ${W} ${Hh}`);
 
-  // ---------- Schematic ----------
-  const schW = 360, schH = 220;
-  const svg = d3.select('#schematic').append('svg')
-    .attr('viewBox', `0 0 ${schW} ${schH}`)
-    .attr('role','img')
-    .attr('aria-label','Triangle schematic with a and a/3 labels on the left side');
+      const gMain = svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
+      const axesG = gMain.append('g').attr('class','axes');
+      const curvesG = gMain.append('g').attr('class','curves');
 
-  const gSch = svg.append('g').attr('transform','translate(20,10)');
+      const xAxisG = axesG.append('g')
+        .attr('class','axis axis--x')
+        .attr('transform',`translate(0,${ih})`);
+      const yAxisG = axesG.append('g')
+        .attr('class','axis axis--y');
 
-  function drawSchematic(){
-    gSch.selectAll('*').remove();
-    const a = +$('#a').value;
-    const b = +$('#b').value;
-    const theta = +$('#theta').value;
+      axesG.append('text')
+        .attr('class','axis-title')
+        .attr('x', iw/2)
+        .attr('y', ih + 38) /* slightly lower for spacing */
+        .attr('text-anchor','middle')
+        .text('r (m)');
 
-    // scale to fit
-    const maxA = 2*Math.max(a,b);
-    const sx = d3.scaleLinear().domain([0, Math.max(1, maxA)]).range([0, 260]);
-    const sy = d3.scaleLinear().domain([0, Math.max(1, maxA)]).range([0, 160]);
+      axesG.append('text')
+        .attr('class','axis-title')
+        .attr('transform',`translate(-50,${ih/2}) rotate(-90)`)
+        .attr('text-anchor','middle')
+        .text('z (m)');
 
-    // triangle with base at top (per note to move a and a/3 to left side)
-    const top = {x: 60, y: 10};
-    const baseL = {x: top.x - sx(b)/2, y: top.y + sy(a)};
-    const baseR = {x: top.x + sx(b)/2, y: top.y + sy(a)};
+      const xScale = d3.scaleLinear().range([0,iw]);
+      const yScale = d3.scaleLinear().range([ih,0]);
 
-    const tri = [ [top.x, top.y], [baseL.x, baseL.y], [baseR.x, baseR.y] ];
+      const line = d3.line()
+        .x(d=>xScale(d.r))
+        .y(d=>yScale(d.z));
 
-    gSch.append('polygon')
-      .attr('points', tri.map(p=>p.join(',')).join(' '))
-      .attr('fill', 'none')
-      .attr('stroke', '#93c5fd')
-      .attr('stroke-width', 2);
+      return {id,mode,svg,gMain,axesG,curvesG,xAxisG,yAxisG,xScale,yScale,line,iw,ih,yDomain:null};
+    }
 
-    // Depth arrow (vertical)
-    gSch.append('line')
-      .attr('x1', top.x - 30).attr('y1', top.y)
-      .attr('x2', top.x - 30).attr('y2', baseL.y)
-      .attr('stroke', '#64748b').attr('stroke-width', 1.6)
-      .attr('marker-end', 'url(#arrow)');
+    const plots = {
+      omega:  initPlot('plot-omega','omega'),
+      radius: initPlot('plot-radius','radius'),
+      depth:  initPlot('plot-depth','depth')
+    };
 
-    // a label on left
-    gSch.append('path')
-      .attr('d', `M ${top.x-10},${top.y} L ${top.x-10},${baseL.y}`)
-      .attr('stroke', '#94a3b8').attr('stroke-dasharray','4 3');
+    function updateLegend(mode, surfaces){
+      const lid =
+        mode==='omega'  ? 'legend-omega'  :
+        mode==='radius' ? 'legend-radius' :
+                          'legend-depth';
+      const container = document.getElementById(lid);
 
-    gSch.append('text')
-      .attr('x', top.x-18).attr('y', (top.y+baseL.y)/2 - 6)
-      .attr('text-anchor','end').attr('font-size', 12).attr('fill', '#cbd5e1')
-      .text('a');
+      let shortLatex;
+      let expl;
 
-    // a/3 tick on left
-    const yA3 = top.y + (baseL.y-top.y)/3;
-    gSch.append('path').attr('d', `M ${top.x-18},${yA3} h -16`)
-      .attr('stroke','#94a3b8');
-    gSch.append('text')
-      .attr('x', top.x-38).attr('y', yA3-4)
-      .attr('text-anchor','end').attr('font-size', 12).attr('fill', '#cbd5e1')
-      .text('a/3');
+      if(mode === 'omega'){
+        shortLatex = ['\\omega_1','\\omega_2','\\omega_3'];
+        expl = 'R = R_{\\text{input}},\\; H = H_{\\text{input}}. '
+             + 'Three free surfaces with '
+             + '\\(\\omega_1 = \\omega_{\\text{input}},\\; '
+             + '\\omega_2 = \\tfrac{1}{2}\\,\\omega_{\\text{input}},\\; '
+             + '\\omega_3 = \\tfrac{1}{3}\\,\\omega_{\\text{input}}\\). '
+             + 'All curves use the same radius and initial depth; only the angular speed \\(\\omega\\) changes.';
+      }else if(mode === 'radius'){
+        shortLatex = ['R_1','R_2','R_3'];
+        expl = '\\omega = \\omega_{\\text{input}},\\; H = H_{\\text{input}}. '
+             + 'Three free surfaces with '
+             + '\\(R_1 = R_{\\text{input}},\\; '
+             + 'R_2 = \\tfrac{1}{2} R_{\\text{input}},\\; '
+             + 'R_3 = \\tfrac{1}{3} R_{\\text{input}}\\). '
+             + 'All curves use the same angular speed and initial depth; only the cylinder radius \\(R\\) changes.';
+      }else{
+        shortLatex = ['H_1','H_2','H_3'];
+        expl = '\\omega = \\omega_{\\text{input}},\\; R = R_{\\text{input}}. '
+             + 'Three free surfaces with '
+             + '\\(H_1 = H_{\\text{input}},\\; '
+             + 'H_2 = 1.2\\,H_{\\text{input}},\\; '
+             + 'H_3 = 1.5\\,H_{\\text{input}}\\). '
+             + 'All curves use the same angular speed and radius; only the initial liquid depth \\(H\\) changes.';
+      }
 
-    // theta arc (small)
-    gSch.append('path')
-      .attr('d', d3.arc()({
-        innerRadius: 0, outerRadius: 16, startAngle: -Math.PI/2, endAngle: -Math.PI/2 + deg2rad(theta)
-      }))
-      .attr('transform', `translate(${top.x+90},${top.y+10})`)
-      .attr('fill', 'rgba(96,165,250,.35)');
-    gSch.append('text')
-      .attr('x', top.x+90+20).attr('y', top.y+10-6)
-      .attr('font-size', 12).attr('fill', '#cbd5e1')
-      .text('θ');
+      const itemsHTML = surfaces.map((s,i)=>
+        `<span class="legend-item"><span class="sw" style="background:${s.color}"></span><span>\\(${shortLatex[i]}\\)</span></span>`
+      ).join('');
 
-    // marker for depth reference edge label
-    gSch.append('text')
-      .attr('x', top.x-32).attr('y', top.y-6)
-      .attr('font-size', 11).attr('fill','#94a3b8')
-      .text($('#refEdge').value === 'top' ? 'top edge' : 'base edge');
-  }
+      container.innerHTML =
+        `<div class="legend-row">${itemsHTML}</div>` +
+        `<p class="dim-note">${expl}</p>`;
 
-  // Arrowhead marker
-  const defs = svg.append('defs');
-  defs.append('marker')
-    .attr('id','arrow').attr('markerWidth',6).attr('markerHeight',6)
-    .attr('refX',5).attr('refY',3)
-    .attr('orient','auto')
-    .append('path').attr('d','M0,0 L0,6 L6,3 z').attr('fill','#64748b');
+      // Ask MathJax to typeset the new legend content if available
+      if(window.MathJax && window.MathJax.typesetPromise){
+        MathJax.typesetPromise([container]);
+      }
+    }
 
-  // ---------- Plot ----------
-  const plotW = 720, plotH = 320, m = {t:16,r:22,b:44,l:56};
-  const svgPlot = d3.select('#plot').append('svg')
-    .attr('viewBox',`0 0 ${plotW} ${plotH}`);
-  const gPlot = svgPlot.append('g').attr('transform',`translate(${m.l},${m.t})`);
-  const innerW = plotW - m.l - m.r, innerH = plotH - m.t - m.b;
-  const x = d3.scaleLinear().range([0, innerW]);
-  const y = d3.scaleLinear().range([innerH, 0]);
-  const xAxisG = gPlot.append('g').attr('transform',`translate(0,${innerH})`);
-  const yAxisG = gPlot.append('g');
-  const lineX = d3.line().x(d=>x(d.h)).y(d=>y(d.xd));
-  const lineY = d3.line().x(d=>x(d.h)).y(d=>y(d.yd));
-  const pathX = gPlot.append('path').attr('fill','none').attr('stroke-width',2);
-  const pathY = gPlot.append('path').attr('fill','none').attr('stroke-width',2);
-  const legend = svgPlot.append('g').attr('transform',`translate(${plotW-210},14)`);
+    function updatePlot(plot, omega0, R0, H0){
+      const surfaces = buildSurfaces(plot.mode, omega0, R0, H0);
 
-  function renderPlot(params){
-    const {a,b,w,theta,rho,g,refEdge} = params;
-    const xmax = Math.max(0.5, +$('#xmax').value);
-    x.domain([0, xmax]);
+      // Find min/max z and max r for this set
+      let rMax = 0;
+      let zMin = Infinity, zMax = -Infinity;
+      surfaces.forEach(s=>{
+        const R = s.surface.R;
+        if(R > rMax) rMax = R;
+        s.surface.pts.forEach(p=>{
+          if(p.z < zMin) zMin = p.z;
+          if(p.z > zMax) zMax = p.z;
+        });
+      });
+      if(!isFinite(zMin) || !isFinite(zMax)){
+        zMin = 0; zMax = 1;
+      }
 
-    // generate data sweep of depth of reference edge (href)
-    const N = 120;
-    const hs = d3.range(N).map(i => xmax*i/(N-1));
+      // x domain always adapts to current max R
+      plot.xScale.domain([0, rMax*1.02]);
 
-    const data = hs.map(href => {
-      // Avoid divide-by-zero at exactly 0 depth for CP; nudge depth
-      const hrefSafe = href <= 0 ? 1e-6 : href;
-      const {yDiff, xDiff} = compute(hrefSafe, a,b,w,theta,rho,g,refEdge);
-      return {h: href, xd: xDiff, yd: yDiff};
+      // y domain:
+      //  - On first draw: pick a range based on data + padding.
+      //  - Later: only expand if new curves would go outside the current range.
+      if(!plot.yDomain){
+        const span0 = (zMax - zMin) || 1;
+        const pad0 = 0.05*span0;
+        plot.yDomain = [zMin - pad0, zMax + pad0];
+      }else{
+        let [yMin,yMax] = plot.yDomain;
+        let changed = false;
+        if(zMin < yMin){ yMin = zMin; changed = true; }
+        if(zMax > yMax){ yMax = zMax; changed = true; }
+        if(changed){
+          const span = (yMax - yMin) || 1;
+          const pad = 0.05*span;
+          plot.yDomain = [yMin - pad, yMax + pad];
+        }
+      }
+
+      plot.yScale.domain(plot.yDomain);
+
+      const xAxis = d3.axisBottom(plot.xScale).ticks(5);
+      const yAxis = d3.axisLeft(plot.yScale).ticks(5);
+
+      plot.xAxisG.call(xAxis);
+      plot.yAxisG.call(yAxis);
+
+      const paths = plot.curvesG.selectAll('path.curve')
+        .data(surfaces, d=>d.key);
+
+      paths.enter()
+        .append('path')
+        .attr('class','curve')
+        .attr('fill','none')
+        .attr('stroke-width',2.2)
+        .merge(paths)
+        .attr('stroke',d=>d.color)
+        .attr('d',d=>plot.line(d.surface.pts));
+
+      paths.exit().remove();
+
+      updateLegend(plot.mode, surfaces);
+    }
+
+    function updateAll(){
+      let omega0 = +document.getElementById('omegaInput').value || 0;
+      let R0     = +document.getElementById('RInput').value   || 0.1;
+      let H0     = +document.getElementById('HInput').value   || 0.2;
+
+      omega0 = clamp(omega0, 0, 40);
+      R0     = clamp(R0, 0.02, 0.40);
+      H0     = clamp(H0, 0.05, 0.50);
+
+      document.getElementById('omegaInput').value = omega0.toFixed(2);
+      document.getElementById('RInput').value     = R0.toFixed(3);
+      document.getElementById('HInput').value     = H0.toFixed(3);
+
+      updatePlot(plots.omega,  omega0, R0, H0);
+      updatePlot(plots.radius, omega0, R0, H0);
+      updatePlot(plots.depth,  omega0, R0, H0);
+    }
+
+    ['omegaInput','RInput','HInput'].forEach(id=>{
+      document.getElementById(id).addEventListener('input', updateAll);
     });
 
-    const yAbsMax = d3.max(data, d => Math.max(Math.abs(d.xd), Math.abs(d.yd))) || 1;
-    y.domain([ -yAbsMax*1.1, yAbsMax*1.1 ]);
-
-    xAxisG.call(d3.axisBottom(x));
-    yAxisG.call(d3.axisLeft(y));
-
-    pathX.datum(data).attr('d', lineX).attr('stroke', '#f59e0b'); // amber-ish
-    pathY.datum(data).attr('d', lineY).attr('stroke', '#60a5fa'); // blue-ish
-
-    // Labels with TeX
-    // Clear old
-    legend.selectAll('*').remove();
-    const row = legend.append('g');
-    row.append('rect').attr('x',0).attr('y',0).attr('rx',10).attr('ry',10)
-      .attr('width',200).attr('height',46).attr('fill','rgba(255,255,255,.05)').attr('stroke','rgba(255,255,255,.1)');
-    row.append('line').attr('x1',12).attr('y1',16).attr('x2',36).attr('y2',16).attr('stroke','#f59e0b').attr('stroke-width',3);
-    row.append('foreignObject').attr('x',44).attr('y',6).attr('width',150).attr('height',22)
-      .html(`<div xmlns="http://www.w3.org/1999/xhtml" class="mono">$ (x_R - x_C) $</div>`);
-    row.append('line').attr('x1',12).attr('y1',34).attr('x2',36).attr('y2',34).attr('stroke','#60a5fa').attr('stroke-width',3);
-    row.append('foreignObject').attr('x',44).attr('y',24).attr('width',150).attr('height',22)
-      .html(`<div xmlns="http://www.w3.org/1999/xhtml" class="mono">$ (y_R - y_C) $</div>`);
-
-    // axis titles
-    svgPlot.selectAll('.xlabel').data([0]).join('foreignObject')
-      .attr('class','xlabel').attr('x', m.l + innerW/2 - 80).attr('y', plotH - 28)
-      .attr('width',160).attr('height',24)
-      .html(`<div xmlns="http://www.w3.org/1999/xhtml" class="mono" style="text-align:center">$h_{\\text{ref}}$ (m)</div>`);
-
-    svgPlot.selectAll('.ylabel').data([0]).join('foreignObject')
-      .attr('class','ylabel').attr('x', 4).attr('y', m.t + innerH/2 - 14)
-      .attr('width',120).attr('height',28)
-      .html(`<div xmlns="http://www.w3.org/1999/xhtml" class="mono" style="transform:rotate(-90deg);transform-origin:left top">$\\Delta$ position (m)</div>`);
-
-    if(window.MathJax){ MathJax.typesetPromise([svgPlot.node()]); }
-  }
-
-  // ---------- Results / LaTeX block ----------
-  let typesetTimer = null;
-  function updateAll(e){
-    const a = +$('#a').value;
-    const b = +$('#b').value;
-    const theta = +$('#theta').value;
-    const w = +$('#w').value;
-    const rho = +$('#rho').value;
-    const g = +$('#g').value;
-    const href = +$('#href').value;
-    const refEdge = $('#refEdge').value;
-
-    const res = compute(href, a,b,w,theta,rho,g,refEdge);
-
-    // Numeric line (always live)
-    $('#numeric').textContent = `A= ${fmt(res.A_face)} m², IG= ${fmt(res.IG)} m⁴, hC= ${fmt(res.hC)} m, hP= ${fmt(res.hP)} m, FR= ${fmt(res.FR)} N, (xR-xC)= ${fmt(res.xDiff)} m, (yR-yC)= ${fmt(res.yDiff)} m`;
-
-    // LaTeX block (optionally only on release)
-    const eqHTML = `
-      <div>$A = \tfrac{1}{2}\,ab = ${fmt(res.A_face)}\;\text{m}^2$</div>
-      <div>$I_G = \dfrac{b a^3}{36} \cdot w = ${fmt(res.IG)}\;\text{m}^4$</div>
-      <div>$h_C = h_{\text{ref}} + y_\bar{\ }\,\sin\theta = ${fmt(res.hC)}\;\text{m}$ \;\; (y_\bar{\ } = ${fmt(res.ybar)}\,\text{m})</div>
-      <div>$F_R = \rho g A h_C = ${fmt(res.FR)}\;\text{N}$</div>
-      <div>$h_P = h_C + \dfrac{I_G\,\sin^2\!\theta}{A\,h_C} = ${fmt(res.hP)}\;\text{m}$</div>
-      <div>$y_R - y_C = \dfrac{I_G\,\sin^2\!\theta}{A\,y_\bar{\ }} = ${fmt(res.yDiff)}\;\text{m},\quad x_R - x_C = 0$</div>
-    `;
-
-    const mode = $('#updateMode').value;
-    if(mode === 'instant' || (e && (e.type==='change' || e.type==='pointerup'))){
-      $('#results').innerHTML = eqHTML;
-      if(window.MathJax){
-        clearTimeout(typesetTimer);
-        typesetTimer = setTimeout(()=> MathJax.typesetPromise([$('#vizCard')]), 10);
+    window.addEventListener('DOMContentLoaded', ()=>{
+      updateAll();
+      // Initial typeset for the static equations
+      if(window.MathJax && MathJax.typesetPromise){
+        MathJax.typesetPromise();
       }
-    } else {
-      // numbers update only; LaTeX waits until release
-    }
+    });
+  </script>
 
-    drawSchematic();
-    renderPlot({a,b,w,theta,rho,g,refEdge});
-  }
-
-  // ---------- Wiring ----------
-  const inputs = ['#a','#b','#theta','#w','#rho','#g','#href','#refEdge','#xmax','#updateMode'];
-  inputs.forEach(sel => {
-    const el = $(sel);
-    el.addEventListener('input', updateAll);
-    el.addEventListener('change', updateAll);
-    el.addEventListener('pointerup', updateAll);
-  });
-
-  $('#refEdge').addEventListener('change', e => {
-    const top = e.target.value === 'top';
-    $('#refLabel').textContent = top ? 'Top edge depth' : 'Base edge depth';
-    updateAll();
-  });
-
-  // Initial render
-  drawSchematic();
-  updateAll({type:'change'});
-</script>
+  <!-- Feedback context -->
+  <script>
+    const FEEDBACK = { course: 'ME 310', sim: 'Eq 2.32 Constant-Pressure Surfaces in Rigid-Body Rotation' };
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = new URL('../feedback.html', location.href);
+      if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
+      if (FEEDBACK.sim)    url.searchParams.set('sim',    FEEDBACK.sim);
+      document.querySelectorAll('a.feedback-link').forEach(a => {
+        a.href = url.toString();
+        try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+      });
+    });
+  </script>
 </body>
 </html>
