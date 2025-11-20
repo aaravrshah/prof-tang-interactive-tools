@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eq. 1.22: capillary rise in a tube</title>
+  <title>Capillary Rise in a Tube</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
 
@@ -18,9 +18,8 @@
          background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
     .btn.primary{background:var(--accent);border-color:transparent}
 
-    /* layout */
     .top-grid{display:grid;gap:12px}
-    @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
+    @media (min-width:1024px){ .top-grid{grid-template-columns:1.2fr 0.9fr} }
 
     .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
     .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
@@ -28,7 +27,7 @@
     .title-xl{font-size:18px;line-height:1.25;color:#111}
 
     .eq-schem{display:grid;gap:12px}
-    @media (min-width:900px){ .eq-schem{grid-template-columns:1.2fr .8fr} }
+    @media (min-width:900px){ .eq-schem{grid-template-columns:1.15fr .85fr} }
 
     .schem{
       min-height:240px;border:1px solid var(--line);border-radius:12px;background:#fafcff;
@@ -74,7 +73,6 @@
     </nav>
 
     <section class="top-grid">
-      <!-- LEFT: Equation + schematic + plot (plot sits under schematic) -->
       <div class="ctl">
         <div class="eq-schem">
           <div class="eqwrap">
@@ -99,24 +97,24 @@
           </div>
         </div>
 
-        <!-- Plot sits below the schematic in this left column -->
         <div class="viz" style="margin-top:12px">
           <svg id="plot" viewBox="0 0 760 320" aria-label="h vs D plot"></svg>
         </div>
       </div>
 
-      <!-- RIGHT: Controls -->
       <div class="ctl">
         <div class="controls">
+          <h3 style="margin:0 0 6px">Inputs</h3>
+
           <div>
-            <label>Liquid–glass pair (locks θ, σ, ρ)</label>
+            <label>Preset</label>
             <select id="pair">
               <option value="custom">Custom…</option>
-              <option value="water_glass" selected>Water on glass — θ = 25°</option>
-              <option value="ethanol_glass">Ethanol on glass — θ = 5°</option>
-              <option value="mercury_glass">Mercury on glass — θ = 140°</option>
+              <option value="water_glass">Water on glass</option>
+              <option value="ethanol_glass">Ethanol on glass</option>
+              <option value="mercury_glass">Mercury on glass</option>
             </select>
-            <div class="hint">Pick a preset to lock θ, σ, ρ. Choose <b>Custom…</b> to edit them.</div>
+            <div class="hint">Pick a preset to lock \( \theta,\sigma,\rho \). Choose <b>Custom…</b> to edit them.</div>
           </div>
 
           <div class="rowflex">
@@ -128,6 +126,9 @@
               <label>Density, ρ (kg/m³)</label>
               <input id="rho" class="num-sm" type="number" min="1" step="1" value="998" />
             </div>
+          </div>
+
+          <div class="rowflex">
             <div>
               <label>Contact angle, θ (°)</label>
               <input id="theta" class="num-sm" type="number" min="0" max="180" step="1" value="25" />
@@ -138,34 +139,37 @@
             <div style="flex:1 1 auto">
               <label>Tube inner diameter, D</label>
               <div class="inline">
-                <input id="D" class="num-sm" type="number" step="0.001" value="1.00" />
+                <input id="D" class="num-sm" type="number" step="0.01" value="1.00" />
                 <select id="Dunit" aria-label="diameter unit">
                   <option value="m">m</option>
                   <option value="mm" selected>mm</option>
                   <option value="um">μm</option>
                 </select>
               </div>
-              <input id="D_s" type="range" min="0.1" max="4" step="0.01" value="1.00" style="width:260px;margin-top:8px">
-              <div class="hint">Plot range: 0.10–4.00 mm. Use the slider or drag the red dot.</div>
+              <input id="D_s" type="range" min="0.2" max="2.0" step="0.01" value="1.00" style="width:260px;margin-top:8px">
+              <div class="hint">Plot range: <b>0.20–2.00 mm</b>. Use the slider or drag the red dot.</div>
             </div>
           </div>
 
           <div>
             <label>Current values</label>
             <div class="kpi">
+              <div><div class="lab">h (m)</div><div id="kpi_h_m" class="val">—</div></div>
               <div><div class="lab">h (mm)</div><div id="kpi_h_mm" class="val">—</div></div>
-              <div><div class="lab">Sign</div><div id="kpi_sign" class="val">—</div></div>
             </div>
           </div>
 
+          <p class="note" style="margin:0">
+            \(g = 9.81\ \mathrm{m/s^2}\). With smaller \(D\), \(h\) grows like \(1/D\).
+          </p>
         </div>
       </div>
     </section>
 
     <section class="card" style="margin-top:12px">
       <div class="note">
-        This tool uses \( h = \tfrac{4\sigma\cos\theta}{\rho g D} \). The pair selector locks typical values of
-        \(\theta, \sigma, \rho\) for a clean glass surface; choose <b>Custom…</b> to set your own.
+        This tool uses \( h = \tfrac{4\sigma\cos\theta}{\rho g D} \) for circular tubes with \( D = 2r \).
+        Choose a preset (or Custom…) and explore diameters from <b>0.20–2.00 mm</b>.
       </div>
     </section>
   </main>
@@ -177,24 +181,24 @@
   </footer>
 
   <script>
-    /* ---------- helpers & constants ---------- */
+    /* ---------- constants & helpers ---------- */
     const $ = id => document.getElementById(id);
     const gval = 9.81, cosd = d => Math.cos(d*Math.PI/180);
     const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
-    // X range tightened to 0.10–4.00 mm
-    const D_MIN_MM = 0.10, D_MAX_MM = 4.00;
+    // NEW x-axis range (mm)
+    const D_MIN_MM = 0.20, D_MAX_MM = 2.00;
     const X_MIN = D_MIN_MM, X_MAX = D_MAX_MM;
-    const Y_MAX = 400; // headroom for small D (mm)
+    const Y_MAX = 200; // |h| in mm (adequate for 0.2–2 mm)
 
     const PAIRS = {
-      custom:        { sigma:null,   rho:null,   theta:null },
-      water_glass:   { sigma:0.0728, rho:998,    theta:25 },
-      ethanol_glass: { sigma:0.0223, rho:789,    theta:5 },
-      mercury_glass: { sigma:0.4850, rho:13534,  theta:140 }
+      custom:        { label: 'Custom…',        theta: null, sigma: null,    rho: null   },
+      water_glass:   { label: 'Water on glass', theta: 25,   sigma: 0.0728,  rho: 998    },
+      ethanol_glass: { label: 'Ethanol on glass',theta: 5,   sigma: 0.0223,  rho: 789    },
+      mercury_glass: { label: 'Mercury on glass',theta:140,  sigma: 0.4850,  rho: 13534  }
     };
 
-    function toMeters(val, unit){
+    function toMeters(val, unit) {
       const v = parseFloat(val);
       if (!Number.isFinite(v) || v <= 0) return NaN;
       if (unit === 'm')  return v;
@@ -203,26 +207,38 @@
       return v;
     }
 
+    function setPairMode(){
+      const key = $('pair').value;
+      const p = PAIRS[key] || PAIRS.custom;
+      const isCustom = key === 'custom';
+
+      if (!isCustom){
+        $('sigma').value = p.sigma;
+        $('rho').value   = p.rho;
+        $('theta').value = p.theta;
+      }
+      $('sigma').disabled = !isCustom;
+      $('rho').disabled   = !isCustom;
+      $('theta').disabled = !isCustom;
+
+      compute();
+    }
+
     function setDNumberBounds(){
       const u = $('Dunit').value;
       let min,max,step;
       if (u==='mm'){ min=D_MIN_MM; max=D_MAX_MM; step=0.01; }
       else if (u==='m'){  min=D_MIN_MM*1e-3; max=D_MAX_MM*1e-3; step=0.0001; }
-      else { /* μm */   min=D_MIN_MM*1000; max=D_MAX_MM*1000; step=1; }
+      else { /* um */   min=D_MIN_MM*1000; max=D_MAX_MM*1000; step=1; }
       $('D').min=min; $('D').max=max; $('D').step=step;
     }
 
-    function lockFieldsByPair(){
-      const sel = $('pair').value;
-      const isCustom = (sel === 'custom');
-      ['sigma','rho','theta'].forEach(id => $(id).disabled = !isCustom);
-
-      if (!isCustom){
-        const p = PAIRS[sel];
-        $('sigma').value = p.sigma;
-        $('rho').value   = p.rho;
-        $('theta').value = p.theta;
-      }
+    function computeH(sigma, rho, D_m, theta_deg){
+      return (4 * sigma * cosd(theta_deg)) / (rho * gval * D_m);
+    }
+    function updateKPIs(h_m){
+      $('kpi_h_m').textContent  = Number.isFinite(h_m) ? h_m.toExponential(3) : '—';
+      $('kpi_h_mm').textContent = Number.isFinite(h_m) ? (h_m*1000).toFixed(3) : '—';
     }
 
     function drawPlotFrame(){
@@ -251,7 +267,7 @@
     function drawCurveAndDragger(scales, sigma, rho, thetaDeg, Dm_clamped){
       const {svg, x, y} = scales;
 
-      const Dmm = d3.range(X_MIN, X_MAX + 0.0001, 0.02);
+      const Dmm = d3.range(X_MIN, X_MAX + 0.0001, 0.01);
       const Hmm = Dmm.map(Dv => (4*sigma*Math.cos(thetaDeg*Math.PI/180))/(rho*gval*(Dv*1e-3))*1000);
       svg.append('path').attr('class','curve')
         .attr('d', d3.line().curve(d3.curveMonotoneX)(Dmm.map((d,i)=>[x(d), y(Hmm[i])])));
@@ -260,7 +276,7 @@
       const h_now_mm = (4*sigma*Math.cos(thetaDeg*Math.PI/180))/(rho*gval*Dm_clamped)*1000;
 
       const dragpt = svg.append('circle').attr('class','dragpt')
-        .attr('r',6).attr('cx', x(D_now_mm)).attr('cy', y(Math.max(-Y_MAX, Math.min(Y_MAX, h_now_mm))));
+        .attr('r',6).attr('cx', x(D_now_mm)).attr('cy', y(h_now_mm));
 
       const hit = svg.append('rect').attr('class','hit')
         .attr('x', x(X_MIN)).attr('y', y(Y_MAX))
@@ -288,27 +304,23 @@
       hit.call(drag);
     }
 
-    function updateKPIs(h_m){
-      $('kpi_h_mm').textContent = Number.isFinite(h_m) ? (h_m*1000).toFixed(3) : '—';
-      $('kpi_sign').textContent = Number.isFinite(h_m)
-        ? (h_m > 0 ? 'Rise' : (h_m < 0 ? 'Depression' : 'Zero')) : '—';
+    function setDNumberBounds(){
+      const u = $('Dunit').value;
+      let min,max,step;
+      if (u==='mm'){ min=0.20; max=2.00; step=0.01; }
+      else if (u==='m'){  min=0.0002; max=0.0020; step=0.0001; }
+      else { /* um */   min=200; max=2000; step=1; }
+      $('D').min=min; $('D').max=max; $('D').step=step;
     }
 
     function compute(){
-      // lock/unlock & set values for pair
-      lockFieldsByPair();
-
-      const sigma = Math.max(0, parseFloat($('sigma').value));
-      const rho   = Math.max(1, parseFloat($('rho').value));
-      const th    = parseFloat($('theta').value);
-
-      const unit  = $('Dunit').value;
       setDNumberBounds();
 
+      const unit  = $('Dunit').value;
       let Dm = toMeters($('D').value, unit);
       let Dmm = Dm*1000;
       if (!Number.isFinite(Dmm)) Dmm = 1.0;
-      const DmmC = clamp(Dmm, D_MIN_MM, D_MAX_MM);
+      const DmmC = Math.min(2.00, Math.max(0.20, Dmm));
 
       if (Dmm !== DmmC){
         if (unit==='mm') $('D').value = DmmC.toFixed(2);
@@ -317,8 +329,12 @@
       }
       $('D_s').value = DmmC.toFixed(2);
 
+      const sigma = Math.max(0, parseFloat($('sigma').value));
+      const rho   = Math.max(1, parseFloat($('rho').value));
+      const th    = parseFloat($('theta').value);
+
       const DmC = DmmC*1e-3;
-      const h  = (4 * sigma * Math.cos(th*Math.PI/180)) / (rho * gval * DmC);
+      const h   = (4 * sigma * Math.cos(th*Math.PI/180)) / (rho * 9.81 * DmC);
       updateKPIs(h);
 
       const scales = drawPlotFrame();
@@ -326,8 +342,7 @@
     }
 
     function init(){
-      $('pair').addEventListener('change', compute);
-
+      $('pair').addEventListener('change', setPairMode);
       ['sigma','rho','theta','D'].forEach(id => $(id).addEventListener('input', compute));
       $('Dunit').addEventListener('change', ()=>{ setDNumberBounds(); compute(); });
 
@@ -340,8 +355,9 @@
         compute();
       });
 
-      setDNumberBounds();
-      compute();
+      // default to Water on glass (not Custom…)
+      $('pair').value = 'water_glass';
+      setPairMode(); // will call compute()
       window.addEventListener('resize', compute);
     }
     window.addEventListener('DOMContentLoaded', init);
