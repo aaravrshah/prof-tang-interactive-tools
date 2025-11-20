@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Eq. 1.21: pressure difference between the inside and the outside of a liquid droplet</title>
+  <title>pressure difference between the inside and the outside of a liquid droplet</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
   <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
@@ -55,7 +55,7 @@
   <header class="site-header">
     <div class="container">
       <div class="header-row">
-        <h1 style="margin:0">Eq. 1.21: pressure difference between the inside and the outside of a liquid droplet</h1>
+        <h1 style="margin:0">Pressure Difference Between Inside and Outside of a Liquid Droplet</h1>
         <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
       </div>
     </div>
@@ -105,12 +105,14 @@
           <div>
             <label>Fluid preset (σ at 20 °C)</label>
             <select id="fluid">
-              <option value="water" selected>Water — σ = 0.0728 N/m</option>
-              <option value="ethanol">Ethanol — σ = 0.0223 N/m</option>
-              <option value="mercury">Mercury — σ = 0.4850 N/m</option>
+              <option value="water" selected>Water</option>
+              <option value="ethanol">Ethanol</option>
+              <option value="mercury">Mercury</option>
               <option value="custom">Custom…</option>
             </select>
-            <div class="note" style="font-size:12px;color:#6b7280;margin-top:4px">Choose a preset or pick <b>Custom…</b> to edit σ.</div>
+            <div class="note" style="font-size:12px;color:#6b7280;margin-top:4px">
+              Choose a preset or pick <b>Custom…</b> to edit σ.
+            </div>
           </div>
 
           <div class="rowflex">
@@ -121,7 +123,7 @@
             <div>
               <label>Radius, R</label>
               <div class="inline">
-                <input id="R" class="num-sm" type="number" step="0.000001" min="1e-7" value="0.0005" />
+                <input id="R" class="num-sm" type="number" step="0.000001" min="1e-7" value="0.00002" />
                 <select id="Runit" aria-label="radius unit">
                   <option value="m">m</option>
                   <option value="mm">mm</option>
@@ -129,8 +131,8 @@
                 </select>
               </div>
               <!-- linear, tighter range -->
-              <input id="R_s" type="range" min="1" max="200" step="1" value="500" style="width:260px;margin-top:8px">
-              <div class="note" style="font-size:12px;color:#6b7280;margin-top:4px">Plot range: 1–200 μm. Use the slider or drag the red dot.</div>
+              <input id="R_s" type="range" min="5" max="100" step="1" value="20" style="width:260px;margin-top:8px">
+              <div class="note" style="font-size:12px;color:#6b7280;margin-top:4px">Plot range: 5–100 μm. Use the slider or drag the red dot.</div>
             </div>
           </div>
 
@@ -176,14 +178,15 @@
       return v;
     };
 
+    // Presets (σ at ~20 °C)
     const SIGMA = { water:0.0728, ethanol:0.0223, mercury:0.4850 };
 
-    // Tighter, linear domain for visibility
-    const R_MIN_UM = 1, R_MAX_UM = 200;
+    // New radius limits (μm)
+    const R_MIN_UM = 5, R_MAX_UM = 100;
 
+    // Choose a tidy y-maximum (kPa) based on σ at the left edge (R = 5 μm)
     function yMaxKPaForSigma(sigma){
-      // top value at R = 1 μm, rounded up to a tidy step
-      const top = (2*sigma/(R_MIN_UM*1e-6))/1000;
+      const top = (2*sigma/(R_MIN_UM*1e-6))/1000; // kPa at Rmin
       const step = Math.pow(10, Math.floor(Math.log10(top)));
       return Math.ceil(top/step)*step;
     }
@@ -259,7 +262,7 @@
 
     function setRNumberBounds(){
       const u = $('Runit').value;
-      const Rum = clamp(parseFloat($('R_s').value)||50, R_MIN_UM, R_MAX_UM);
+      const Rum = clamp(parseFloat($('R_s').value)||20, R_MIN_UM, R_MAX_UM);
       $('R').min = (u==='um') ? R_MIN_UM : (u==='mm'? R_MIN_UM*1e-3 : R_MIN_UM*1e-6);
       $('R').max = (u==='um') ? R_MAX_UM : (u==='mm'? R_MAX_UM*1e-3 : R_MAX_UM*1e-6);
       $('R').step= (u==='um') ? 1 : (u==='mm'? 0.001 : 0.000001);
@@ -275,13 +278,14 @@
       setRNumberBounds();
 
       let Rum = unitToMeters($('R').value, $('Runit').value) * 1e6;
-      if (!Number.isFinite(Rum)) Rum = 50;
+      if (!Number.isFinite(Rum)) Rum = 20;
       Rum = clamp(Math.round(Rum), R_MIN_UM, R_MAX_UM);
       $('R_s').value = Rum;
 
       const dP = 2*sigma/(Rum*1e-6);
       updateKPIs(dP);
 
+      // Y-range is locked to σ (changes only when preset/σ changes)
       const yMax = yMaxKPaForSigma(sigma);
       const scales = drawPlotFrame(yMax);
       drawCurveAndDragger(scales, sigma, Rum, yMax);
@@ -291,7 +295,7 @@
       $('fluid').addEventListener('change', setPresetMode);
       ['sigma','R','Runit'].forEach(id => $(id).addEventListener('input', compute));
       $('R_s').addEventListener('input', e=>{
-        const Rum = clamp(parseFloat(e.target.value)||50, R_MIN_UM, R_MAX_UM);
+        const Rum = clamp(parseFloat(e.target.value)||20, R_MIN_UM, R_MAX_UM);
         const u = $('Runit').value;
         $('R').value = (u==='um') ? Rum.toFixed(0) : (u==='mm' ? (Rum*1e-3).toFixed(3) : (Rum*1e-6).toFixed(6));
         compute();
