@@ -47,9 +47,10 @@
     .home .thumb{width:100%;aspect-ratio:16/10;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:center;background:#fff}
     .home .thumb img{width:100%;height:100%;object-fit:contain;padding:10px}
     .home .sim-card h3{
-      margin:10px 12px 12px;font-size:16px;line-height:1.25;
+      margin:10px 12px 6px;font-size:16px;line-height:1.25;
       display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.25em * 2);
     }
+    .home .sim-card p.muted{margin:0 12px 10px;font-size:13px}
 
     /* “Coming soon” placeholder */
     .home .thumb.ph{background:repeating-linear-gradient(-45deg,#f3f4f6 0 10px,#f8fafc 10px 20px);color:#475569;font-weight:700}
@@ -106,10 +107,13 @@
             <h3>Topics</h3>
             <a href="#t-fluid-prop" class="active">Fluid Properties</a>
             <a href="#t-statics">Fluid Statics</a>
-            <a href="#t-bernoulli">Elementary Fluid Dynamics (Bernoulli)</a>
+            <a href="#t-bernoulli">Elementary Fluid Dynamics (Bernoulli Equation)</a>
+            <a href="#t-fcva">Finite Control Volume Analysis</a>
+            <a href="#t-diff">Differential Analysis</a>
             <a href="#t-vfp">Viscous Flow in Pipes</a>
+            <a href="#t-immersed">Flow over Immersed Bodies</a>
+            <a href="#t-open">Open-Channel Flow</a>
             <a href="#t-compressible">Compressible Flow</a>
-            <a href="#t-charts">Charts &amp; General Tools</a>
           </aside>
 
           <!-- Content (right) -->
@@ -137,22 +141,23 @@
               <div class="cards">
                 <a class="sim-card" href="./me310/2.7.html">
                   <div class="thumb"><img src="assets/thumbs/2.7.png" alt=""></div>
-                  <h3>Hydrostatic Force on a Plane Triangular Surface</h3>
+                  <h3>Hydrostatic Force on a Plane Surface</h3>
                 </a>
 
                 <a class="sim-card" href="./me310/2.28.html">
                   <div class="thumb"><img src="assets/thumbs/2.28.png" alt=""></div>
-                  <h3>Slope of Constant-Pressure Lines (Isobars)</h3>
+                  <h3>Slope of Constant-Pressure Lines (Isobars) for Rigid-Body Linear Motion</h3>
+                </a>
+
+                <a class="sim-card" href="./me310/2.32.html">
+                  <div class="thumb ph">Rigid-body rotation: constant-pressure surfaces</div>
+                  <h3>Constant-Pressure Surfaces in a Liquid Undergoing Rigid-Body Rotation</h3>
                 </a>
 
                 <div class="sim-card">
-                  <div class="thumb ph">Rigid-Body Rotation: Constant-Pressure Surfaces</div>
-                  <h3>Constant-Pressure Surfaces in Rigid-Body Rotation</h3>
-                </div>
-
-                <div class="sim-card">
-                  <div class="thumb ph">Rigid-Body Rotation: Hydrostatic Pressure</div>
-                  <h3>Hydrostatic Pressure in Rigid-Body Rotation</h3>
+                  <div class="thumb ph">Rigid-body rotation: hydrostatic pressure</div>
+                  <h3>Hydrostatic Pressure in a Liquid Undergoing Rigid-Body Rotation</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
               </div>
             </div>
@@ -169,16 +174,73 @@
                 <div class="sim-card">
                   <div class="thumb ph">Venturi meter</div>
                   <h3>Velocity Measurement by the Venturi Meter</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
 
                 <div class="sim-card">
-                  <div class="thumb ph">Variable-Area Pipe</div>
+                  <div class="thumb ph">Variable-area pipe</div>
                   <h3>Flow in a Variable-Area Pipe</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
 
                 <div class="sim-card">
-                  <div class="thumb ph">Siphon • Cavitation • EL/HGL</div>
-                  <h3>Siphon &amp; Cavitation; Energy &amp; Grade Lines</h3>
+                  <div class="thumb ph">Siphon • cavitation • EL/HGL</div>
+                  <h3>Siphon and Cavitation, Energy Line and Hydraulic Grade Line</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Finite Control Volume Analysis -->
+            <div id="t-fcva" class="topic">
+              <h2>Finite Control Volume Analysis</h2>
+              <div class="cards">
+                <div class="sim-card">
+                  <div class="thumb ph">Linear momentum: change in flow direction</div>
+                  <h3>Linear Momentum – Change in Flow Direction</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Linear momentum: moving control volume</div>
+                  <h3>Linear Momentum – Moving Control Volume</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Conservation of mass: relative velocity</div>
+                  <h3>Conservation of Mass – Relative Velocity</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Moment-of-momentum: torque</div>
+                  <h3>Moment-of-Momentum – Torque</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Differential Analysis -->
+            <div id="t-diff" class="topic">
+              <h2>Differential Analysis</h2>
+              <div class="cards">
+                <div class="sim-card">
+                  <div class="thumb ph">Uniform flow</div>
+                  <h3>Uniform Flow</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Source and sink</div>
+                  <h3>Source and Sink</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Source in a uniform stream</div>
+                  <h3>Source in a Uniform Stream – Half-Body</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
               </div>
             </div>
@@ -188,12 +250,86 @@
               <h2>Viscous Flow in Pipes</h2>
               <div class="cards">
                 <div class="sim-card">
-                  <div class="thumb ph">Laminar internal flows</div>
-                  <h3>Parallel Plates &amp; Circular Tubes (Laminar)</h3>
+                  <div class="thumb ph">Parallel plates</div>
+                  <h3>Steady, Laminar, Viscous, Incompressible Flow Between Fixed Parallel Plates</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
+
                 <div class="sim-card">
-                  <div class="thumb ph">Head loss</div>
-                  <h3>Entrance Length &amp; Major/Minor Losses</h3>
+                  <div class="thumb ph">Circular tubes</div>
+                  <h3>Steady, Laminar, Viscous, Incompressible Flow in Circular Tubes</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Entrance length</div>
+                  <h3>Entrance Length</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Inclined circular tubes</div>
+                  <h3>Steady, Laminar, Viscous, Incompressible Flow in Inclined Circular Tubes</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <a class="sim-card" href="./me310/moody.html">
+                  <div class="thumb"><img src="assets/thumbs/moody.png" alt=""></div>
+                  <h3>Darcy Friction Factor (Moody Chart)</h3>
+                </a>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Major and minor losses</div>
+                  <h3>Example of Major and Minor Losses</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Flow over Immersed Bodies -->
+            <div id="t-immersed" class="topic">
+              <h2>Flow over Immersed Bodies</h2>
+              <div class="cards">
+                <div class="sim-card">
+                  <div class="thumb ph">Blasius boundary layer</div>
+                  <h3>Blasius Boundary Layer Thickness and Wall Shear Stress of Steady, Laminar, Viscous, Incompressible Flow over Flat Plates</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Terminal velocity</div>
+                  <h3>Terminal Velocity of Small Spherical Particles</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Open-Channel Flow -->
+            <div id="t-open" class="topic">
+              <h2>Open-Channel Flow</h2>
+              <div class="cards">
+                <div class="sim-card">
+                  <div class="thumb ph">Wave speed</div>
+                  <h3>Wave Speed</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Ramp with a bump</div>
+                  <h3>Water Flows Up a Ramp with a Bump</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Manning equation</div>
+                  <h3>Manning Equation</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Hydraulic jump</div>
+                  <h3>Hydraulic Jump</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
               </div>
             </div>
@@ -202,31 +338,40 @@
             <div id="t-compressible" class="topic">
               <h2>Compressible Flow</h2>
               <div class="cards">
+                <div class="sim-card">
+                  <div class="thumb ph">Sound speed</div>
+                  <h3>Sound Speed of the Isentropic Flow of an Ideal Gas with Constant cp and cv</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
+                <div class="sim-card">
+                  <div class="thumb ph">Mach number</div>
+                  <h3>Mach Number of the Isentropic Flow of an Ideal Gas with Constant cp and cv</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
+
                 <a class="sim-card" href="./me310/isentropic.html">
                   <div class="thumb"><img src="assets/thumbs/isentropic.png" alt=""></div>
-                  <h3>Isentropic Relations</h3>
+                  <h3>Ratio of Static Properties / Stagnation Properties of the Isentropic Flow of an Ideal Gas with Constant cp and cv</h3>
                 </a>
 
                 <div class="sim-card">
-                  <div class="thumb ph">Sound speed • Mach</div>
-                  <h3>Sound Speed &amp; Mach (Ideal Gas)</h3>
+                  <div class="thumb ph">Area ratio</div>
+                  <h3>A/A*, Where Ma = 1 at A*</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
 
                 <div class="sim-card">
-                  <div class="thumb ph">A/A* • Nozzle performance</div>
-                  <h3>Converging / C-D Nozzles</h3>
+                  <div class="thumb ph">Converging nozzle</div>
+                  <h3>Performance of a Converging Nozzle at Various Pressure Ratios</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
-              </div>
-            </div>
 
-            <!-- Charts & Tools -->
-            <div id="t-charts" class="topic">
-              <h2>Charts &amp; General Tools</h2>
-              <div class="cards">
-                <a class="sim-card" href="./me310/moody.html">
-                  <div class="thumb"><img src="assets/thumbs/moody.png" alt=""></div>
-                  <h3>Moody Chart (General)</h3>
-                </a>
+                <div class="sim-card">
+                  <div class="thumb ph">Converging-diverging nozzle</div>
+                  <h3>Performance of a Converging-Diverging Nozzle at Various Pressure Ratios</h3>
+                  <p class="muted">Coming soon</p>
+                </div>
               </div>
             </div>
 
@@ -265,6 +410,7 @@
                 <div class="sim-card">
                   <div class="thumb ph">First batch of thermodynamics sims</div>
                   <h3>Thermodynamics Simulations</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
               </div>
             </div>
@@ -289,6 +435,7 @@
                 <div class="sim-card">
                   <div class="thumb ph">Conduction • Convection • Radiation</div>
                   <h3>Heat Transfer Simulations</h3>
+                  <p class="muted">Coming soon</p>
                 </div>
               </div>
             </div>
