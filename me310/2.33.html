@@ -1,0 +1,557 @@
+<!-- /me310/2.33.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hydrostatic Pressure in a Liquid Undergoing Rigid-Body Rotation</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = { chtml:{scale:0.9}, options:{renderActions:{addMenu:[]}} };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;
+         background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .btn.primary:hover{filter:brightness(1.06)}
+
+    .top-grid{display:grid;gap:14px}
+    @media (min-width:1040px){
+      .top-grid{grid-template-columns:1.4fr 1fr}
+    }
+
+    .side-col{display:flex;flex-direction:column;gap:12px}
+
+    .eqwrap{margin-bottom:10px}
+    .eqwrap p{margin:4px 0}
+    .note{font-size:14px;color:#4b5563}
+
+    .inputs .controls{display:grid;gap:10px}
+    .inputs .ctl{display:flex;flex-direction:column;gap:4px}
+    .inputs label{font-size:13px;color:#4b5563}
+    .inputs input[type="number"]{
+      width:190px;max-width:100%;padding:6px 8px;
+      border:1px solid var(--line);border-radius:8px;
+    }
+
+    .schematic-card p{margin:0;font-size:14px;color:#4b5563}
+
+    .plots-grid{
+      display:grid;gap:14px;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+      margin-top:14px;
+    }
+
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    #plot-iso,#plot-center,#plot-bottom{width:100%;height:auto;display:block}
+
+    .legend-block{margin-top:10px}
+    .legend-row{margin-bottom:6px}
+    .legend-item{display:inline-flex;align-items:center;gap:6px;margin-right:12px;font-size:13px;color:#334155}
+    .legend-item .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #0002}
+
+    .legend-block .dim-note{font-size:13px;color:#6b7280;margin:0;line-height:1.4}
+
+    .back-row{display:flex;align-items:center;margin:12px 0 14px}
+    .back-home{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border:1px solid var(--line);border-radius:999px;
+      background:#fff;color:#0ea5e9;text-decoration:none;font-size:14px;
+    }
+    .back-home:hover{background:#f0f9ff}
+    .back-home .chev{font-size:16px;line-height:1}
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <div class="header-row">
+        <div>
+          <h1 style="margin:0">Hydrostatic Pressure in a Liquid Undergoing Rigid-Body Rotation</h1>
+          <p class="subtitle">
+            Explore how the pressure field \(p(r,z)\) varies in a rotating cylindrical container.
+          </p>
+        </div>
+        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="back-row">
+      <a href="../index.html" class="back-home" aria-label="Back to home">
+        <span class="chev">←</span> Home
+      </a>
+    </nav>
+
+    <!-- Top section: derivation + schematic + base inputs -->
+    <section class="top-grid">
+      <!-- Derivation / equations -->
+      <div class="card">
+        <h2 style="margin:4px 0 8px">Hydrostatic Pressure in Rigid-Body Rotation</h2>
+
+        <div class="eqwrap">
+          <p class="note">
+            Liquid in a container open to atmosphere with circular cross section, operating in rigid-body rotation
+            with angular speed \( \omega \) about the vertical \( z \)-axis.
+          </p>
+          <p class="note">
+            The hydrostatic pressure in this liquid is
+          </p>
+          \[
+            p(r,z) = \rho \frac{\omega^2 r^2}{2} - \rho g z + \text{constant}.
+          \]
+          <p class="note">
+            The constant in the above equation depends on the setup of the \( z \)-coordinate and is
+            also a function of geometry and angular velocity.
+          </p>
+        </div>
+
+        <div class="eqwrap">
+          <p style="margin:0 0 4px"><b>Free surface and reference depth</b></p>
+          <p class="note">
+            In the case shown by the schematic, the equation for the free surface becomes
+          </p>
+          \[
+            z = \frac{\omega^2 r^2}{2g} + h_0
+            \quad\text{(i.e. } h(r) = \frac{\omega^2 r^2}{2g} + h_0\text{)}.
+          \]
+          <p class="note">
+            Assuming no spilling, the depth at the axis is
+          </p>
+          \[
+            h_0 = H - \frac{\omega^2 R^2}{4g},
+          \]
+          <p class="note">
+            where \( H \) is the liquid depth at \( \omega = 0 \) and \( R \) is the cylinder radius.
+          </p>
+        </div>
+
+        <div class="eqwrap">
+          <p style="margin:0 0 4px"><b>Determining the constant</b></p>
+          <p class="note">
+            At \( r = 0 \) and \( z = h_0 \), the free surface is exposed to atmosphere, so
+            \( p = p_{\text{atm}} = 0 \) (gauge pressure). Thus
+          </p>
+          \[
+            p(r,z) = \rho \frac{\omega^2 r^2}{2} - \rho g z + \text{constant}
+            \quad\Rightarrow\quad
+            \text{constant} = \rho g h_0 = \rho g\!\left(H - \frac{\omega^2 R^2}{4g}\right).
+          \]
+          <p class="note">
+            Substituting back, the gauge pressure field is
+          </p>
+          \[
+            \begin{aligned}
+              p(r,z)
+                &= \rho \frac{\omega^2 r^2}{2} - \rho g z + \rho g\!\left(H - \frac{\omega^2 R^2}{4g}\right) \\
+                &= \rho \frac{\omega^2}{4}\left(2r^2 - R^2\right) + \rho g(H - z).
+            \end{aligned}
+          \]
+        </div>
+
+        <div class="eqwrap">
+          <p style="margin:0 0 4px"><b>Alternative form using local liquid depth</b></p>
+          <p class="note">
+            The same expression can be developed using \( p = \rho g \Delta h \), where
+            \( \Delta h \) is the local liquid depth. For a point at \( (r,z) \),
+          </p>
+          \[
+            \Delta h = h(r) - z = \frac{\omega^2 r^2}{2g} + h_0 - z
+          \]
+          and so
+          \[
+            p(r,z) = \rho g \Delta h
+                    = \rho g\!\left(\frac{\omega^2 r^2}{2g} + H - \frac{\omega^2 R^2}{4g} - z\right)
+                    = \rho \frac{\omega^2}{4}\left(2r^2 - R^2\right) + \rho g(H - z).
+          \]
+        </div>
+      </div>
+
+      <!-- Right column: schematic + inputs -->
+      <div class="side-col">
+
+        <div class="card schematic-card">
+          <h2 style="margin:4px 0 8px">Schematic (placeholder)</h2>
+          <p>
+            Vertical cylindrical container of radius \( R \) rotating at angular speed \( \omega \).
+            The bottom is at \( z = 0 \); the initial liquid depth at rest is \( H \).
+          </p>
+          <p style="margin-top:6px">
+            During rotation, the free surface \( z(r) \) is parabolic, with depth at the center
+            \( h_0 = H - \dfrac{\omega^2 R^2}{4g} \).
+            The hydrostatic pressure field is
+          </p>
+          \[
+            p(r,z) = \rho \frac{\omega^2}{4}\left(2r^2 - R^2\right) + \rho g(H - z).
+          \]
+          <p style="margin-top:6px">
+            (Replace this card with a diagram matching the lecture notes.)
+          </p>
+        </div>
+
+        <div class="card inputs">
+          <h2 style="margin:4px 0 10px">Inputs</h2>
+          <div class="controls">
+            <div class="ctl">
+              <label for="omegaInput">Angular speed \( \omega_{\text{input}} \) (rad/s)</label>
+              <input id="omegaInput" type="number" min="0" max="40" step="0.5" value="10">
+            </div>
+            <div class="ctl">
+              <label for="RInput">Cylinder radius \( R_{\text{input}} \) (m)</label>
+              <input id="RInput" type="number" min="0.02" max="0.40" step="0.01" value="0.10">
+            </div>
+            <div class="ctl">
+              <label for="HInput">Liquid depth at \( \omega = 0 \), \( H_{\text{input}} \) (m)</label>
+              <input id="HInput" type="number" min="0.05" max="0.50" step="0.01" value="0.20">
+            </div>
+            <div class="ctl">
+              <label for="zRefInput">
+                Reference height for \( p_1 \), \( z_{\text{ref}} \) (m)
+              </label>
+              <input id="zRefInput" type="number" min="0.00" max="0.50" step="0.01" value="0.10">
+            </div>
+          </div>
+          <p class="note" style="margin-top:10px">
+            Density is fixed at \( \rho = 1000~\text{kg/m}^3 \) (water). The reference height \( z_{\text{ref}} \)
+            is used to define one of the constant-pressure lines.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Three plots -->
+    <section class="plots-grid">
+      <!-- Plot 1: constant-pressure lines -->
+      <div class="card">
+        <h3 style="margin:4px 0 6px">Constant-Pressure Lines in the \( r\text{–}z \) Plane</h3>
+        <div class="viz">
+          <svg id="plot-iso" viewBox="0 0 360 260"
+               aria-label="Constant-pressure lines in r-z plane"></svg>
+        </div>
+        <div id="legend-iso" class="legend-block"></div>
+      </div>
+
+      <!-- Plot 2: p vs z along centerline -->
+      <div class="card">
+        <h3 style="margin:4px 0 6px">Pressure vs Height at \( r = 0 \)</h3>
+        <div class="viz">
+          <svg id="plot-center" viewBox="0 0 360 260"
+               aria-label="Pressure vs z at r = 0"></svg>
+        </div>
+        <div id="legend-center" class="legend-block"></div>
+      </div>
+
+      <!-- Plot 3: p vs r along bottom -->
+      <div class="card">
+        <h3 style="margin:4px 0 6px">Pressure vs Radius at \( z = 0 \)</h3>
+        <div class="viz">
+          <svg id="plot-bottom" viewBox="0 0 360 260"
+               aria-label="Pressure vs r at z = 0"></svg>
+        </div>
+        <div id="legend-bottom" class="legend-block"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const g = 9.81;
+    const rho = 1000; // kg/m^3
+
+    function clamp(val, min, max){
+      return Math.max(min, Math.min(max, val));
+    }
+
+    // Gauge pressure field p(r,z) in Pa
+    function pGauge(omega, R, H, r, z){
+      return rho * ( (omega*omega/4)*(2*r*r - R*R) + g*(H - z) );
+    }
+
+    function freeSurfaceH0(omega, R, H){
+      return H - (omega*omega*R*R)/(4*g);
+    }
+
+    const colors = ['#2563eb','#f97316','#10b981'];
+
+    // ----- Plot helpers -----
+    function initPlot(id, xLabel, yLabel){
+      const svg = d3.select('#'+id);
+      const W = 360, Hh = 260;
+      const margin = {top:16,right:10,bottom:46,left:64};
+      const iw = W - margin.left - margin.right;
+      const ih = Hh - margin.top - margin.bottom;
+
+      svg.attr('viewBox',`0 0 ${W} ${Hh}`);
+
+      const gMain = svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
+      const axesG = gMain.append('g').attr('class','axes');
+      const curvesG = gMain.append('g').attr('class','curves');
+
+      const xAxisG = axesG.append('g')
+        .attr('class','axis axis--x')
+        .attr('transform',`translate(0,${ih})`);
+      const yAxisG = axesG.append('g')
+        .attr('class','axis axis--y');
+
+      axesG.append('text')
+        .attr('class','axis-title')
+        .attr('x', iw/2)
+        .attr('y', ih + 38)
+        .attr('text-anchor','middle')
+        .text(xLabel);
+
+      axesG.append('text')
+        .attr('class','axis-title')
+        .attr('transform',`translate(-50,${ih/2}) rotate(-90)`)
+        .attr('text-anchor','middle')
+        .text(yLabel);
+
+      const xScale = d3.scaleLinear().range([0,iw]);
+      const yScale = d3.scaleLinear().range([ih,0]);
+
+      const line = d3.line()
+        .x(d=>xScale(d.x))
+        .y(d=>yScale(d.y));
+
+      return {svg,gMain,curvesG,xAxisG,yAxisG,xScale,yScale,line,iw,ih};
+    }
+
+    const isoPlot    = initPlot('plot-iso','r (m)','z (m)');
+    const centerPlot = initPlot('plot-center','z (m)','p (kPa)');
+    const bottomPlot = initPlot('plot-bottom','r (m)','p (kPa)');
+
+    function buildIsoCurves(omega,R,H,zRef){
+      const h0 = freeSurfaceH0(omega,R,H);
+
+      const p1 = pGauge(omega,R,H,0,zRef);
+      const p2 = pGauge(omega,R,H,0,h0);        // should be ~0
+      const p3 = pGauge(omega,R,H,0,0.5*h0);
+
+      const pc = [p1,p2,p3];
+      const labels = [
+        '\\(p_1 = p(0,z_{\\text{ref}})\\)',
+        '\\(p_2 = p(0,h_0) = 0\\)',
+        '\\(p_3 = p(0,\\tfrac{1}{2}h_0)\\)'
+      ];
+
+      const curves = pc.map((pConst,idx)=>{
+        const pts = [];
+        const N = 120;
+        for(let i=0;i<=N;i++){
+          const r = R * i/N;
+          // solve for z from p(r,z) = pConst
+          const z = H - pConst/(rho*g) + (omega*omega/(4*g))*(2*r*r - R*R);
+          if(z >= 0 && z <= H){
+            pts.push({x:r,y:z});
+          }
+        }
+        return {key:'c'+idx,color:colors[idx],pts,latex:labels[idx]};
+      });
+
+      return {curves,h0};
+    }
+
+    function updateIso(omega,R,H,zRef){
+      const {curves,h0} = buildIsoCurves(omega,R,H,zRef);
+
+      isoPlot.xScale.domain([0,R]);
+      isoPlot.yScale.domain([0,H]);
+
+      const xAxis = d3.axisBottom(isoPlot.xScale).ticks(5);
+      const yAxis = d3.axisLeft(isoPlot.yScale).ticks(5);
+
+      isoPlot.xAxisG.call(xAxis);
+      isoPlot.yAxisG.call(yAxis);
+
+      const paths = isoPlot.curvesG.selectAll('path.curve')
+        .data(curves, d=>d.key);
+
+      paths.enter()
+        .append('path')
+        .attr('class','curve')
+        .attr('fill','none')
+        .attr('stroke-width',2.2)
+        .merge(paths)
+        .attr('stroke',d=>d.color)
+        .attr('d',d=>isoPlot.line(d.pts));
+
+      paths.exit().remove();
+
+      const legend = document.getElementById('legend-iso');
+      const itemsHTML = curves.map(c =>
+        `<span class="legend-item"><span class="sw" style="background:${c.color}"></span><span>${c.latex}</span></span>`
+      ).join('');
+
+      legend.innerHTML =
+        `<div class="legend-row">${itemsHTML}</div>` +
+        `<p class="dim-note">
+          Three constant-pressure lines in the \( r\text{–}z \) plane.
+          \(p_2\) corresponds to the free surface (gauge pressure zero),
+          while \(p_1\) and \(p_3\) correspond to points along the axis at
+          \(z = z_{\text{ref}}\) and \(z = \tfrac{1}{2}h_0\).
+        </p>`;
+
+      if(window.MathJax && MathJax.typesetPromise){
+        MathJax.typesetPromise([legend]);
+      }
+    }
+
+    function updateCenter(omega,R,H){
+      const h0 = freeSurfaceH0(omega,R,H);
+      const N = 120;
+      const pts = [];
+      let pMin = Infinity, pMax = -Infinity;
+
+      for(let i=0;i<=N;i++){
+        const z = H * i/N;
+        const p = pGauge(omega,R,H,0,z)/1000; // kPa
+        pts.push({x:z,y:p});
+        if(p < pMin) pMin = p;
+        if(p > pMax) pMax = p;
+      }
+
+      const pad = 0.05*(pMax - pMin || 1);
+      centerPlot.xScale.domain([0,H]);
+      centerPlot.yScale.domain([pMin - pad, pMax + pad]);
+
+      const xAxis = d3.axisBottom(centerPlot.xScale).ticks(5);
+      const yAxis = d3.axisLeft(centerPlot.yScale).ticks(5);
+
+      centerPlot.xAxisG.call(xAxis);
+      centerPlot.yAxisG.call(yAxis);
+
+      const path = centerPlot.curvesG.selectAll('path.curve')
+        .data([pts]);
+
+      path.enter()
+        .append('path')
+        .attr('class','curve')
+        .attr('fill','none')
+        .attr('stroke-width',2.2)
+        .merge(path)
+        .attr('stroke',colors[0])
+        .attr('d',centerPlot.line);
+
+      path.exit().remove();
+
+      const legend = document.getElementById('legend-center');
+      legend.innerHTML =
+        `<p class="dim-note">
+          Gauge pressure \(p(r,z)\) along the centerline \(r = 0\), from the bottom
+          \(z = 0\) to the free surface at \(z = h_0\) where \(p = 0\).
+        </p>`;
+
+      if(window.MathJax && MathJax.typesetPromise){
+        MathJax.typesetPromise([legend]);
+      }
+    }
+
+    function updateBottom(omega,R,H){
+      const N = 120;
+      const pts = [];
+      let pMin = Infinity, pMax = -Infinity;
+
+      for(let i=0;i<=N;i++){
+        const r = R * i/N;
+        const p = pGauge(omega,R,H,r,0)/1000; // kPa
+        pts.push({x:r,y:p});
+        if(p < pMin) pMin = p;
+        if(p > pMax) pMax = p;
+      }
+
+      const pad = 0.05*(pMax - pMin || 1);
+      bottomPlot.xScale.domain([0,R]);
+      bottomPlot.yScale.domain([pMin - pad, pMax + pad]);
+
+      const xAxis = d3.axisBottom(bottomPlot.xScale).ticks(5);
+      const yAxis = d3.axisLeft(bottomPlot.yScale).ticks(5);
+
+      bottomPlot.xAxisG.call(xAxis);
+      bottomPlot.yAxisG.call(yAxis);
+
+      const path = bottomPlot.curvesG.selectAll('path.curve')
+        .data([pts]);
+
+      path.enter()
+        .append('path')
+        .attr('class','curve')
+        .attr('fill','none')
+        .attr('stroke-width',2.2)
+        .merge(path)
+        .attr('stroke',colors[1])
+        .attr('d',bottomPlot.line);
+
+      path.exit().remove();
+
+      const legend = document.getElementById('legend-bottom');
+      legend.innerHTML =
+        `<p class="dim-note">
+          Gauge pressure \(p(r,z)\) along the bottom \(z = 0\) of the container,
+          from the rotation axis \(r = 0\) to the wall at \(r = R\).
+        </p>`;
+
+      if(window.MathJax && MathJax.typesetPromise){
+        MathJax.typesetPromise([legend]);
+      }
+    }
+
+    function updateAll(){
+      let omega0 = +document.getElementById('omegaInput').value || 0;
+      let R0     = +document.getElementById('RInput').value   || 0.1;
+      let H0     = +document.getElementById('HInput').value   || 0.2;
+      let zRef   = +document.getElementById('zRefInput').value || 0.1;
+
+      omega0 = clamp(omega0, 0, 40);
+      R0     = clamp(R0, 0.02, 0.40);
+      H0     = clamp(H0, 0.05, 0.50);
+      zRef   = clamp(zRef, 0, H0);
+
+      document.getElementById('omegaInput').value = omega0.toFixed(2);
+      document.getElementById('RInput').value     = R0.toFixed(3);
+      document.getElementById('HInput').value     = H0.toFixed(3);
+      document.getElementById('zRefInput').value  = zRef.toFixed(3);
+
+      updateIso(omega0,R0,H0,zRef);
+      updateCenter(omega0,R0,H0);
+      updateBottom(omega0,R0,H0);
+    }
+
+    ['omegaInput','RInput','HInput','zRefInput'].forEach(id=>{
+      document.getElementById(id).addEventListener('input', updateAll);
+    });
+
+    window.addEventListener('DOMContentLoaded', ()=>{
+      updateAll();
+      if(window.MathJax && MathJax.typesetPromise){
+        MathJax.typesetPromise();
+      }
+    });
+  </script>
+
+  <!-- Feedback context -->
+  <script>
+    const FEEDBACK = {
+      course: 'ME 310',
+      sim: 'Eq 2.33 Hydrostatic Pressure in a Liquid Undergoing Rigid-Body Rotation'
+    };
+    document.addEventListener('DOMContentLoaded', () => {
+      const url = new URL('../feedback.html', location.href);
+      if (FEEDBACK.course) url.searchParams.set('course', FEEDBACK.course);
+      if (FEEDBACK.sim)    url.searchParams.set('sim',    FEEDBACK.sim);
+      document.querySelectorAll('a.feedback-link').forEach(a => {
+        a.href = url.toString();
+        try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+      });
+    });
+  </script>
+</body>
+</html>
