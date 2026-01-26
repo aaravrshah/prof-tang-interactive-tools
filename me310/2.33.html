@@ -31,7 +31,7 @@
     .back-home:hover{background:#f0f9ff}
     .back-home .chev{font-size:16px;line-height:1}
 
-    /* Layout: equations + schematic */
+    /* Top layout: equations + schematic */
     .top-grid{
       display:grid;
       gap:14px;
@@ -40,9 +40,9 @@
     .left-col{display:flex;flex-direction:column;gap:12px}
     .side-col{display:flex;flex-direction:column;gap:12px}
 
-    @media (min-width:1040px){
+    @media (min-width:900px){
       .top-grid{
-        grid-template-columns:minmax(0,2.1fr) minmax(280px,0.9fr);
+        grid-template-columns:minmax(0,2.1fr) minmax(260px,0.9fr);
         align-items:flex-start;
       }
       .side-col{
@@ -52,10 +52,16 @@
       }
     }
 
+    .note{font-size:14px;color:#4b5563}
     .eq-card{max-height:none;overflow:visible}
+    .eq-card h2{margin:4px 0 6px}
+    .eq-subtitle{
+      margin:4px 0 6px;
+      font-size:18px;
+      font-weight:600;
+    }
     .eqwrap{margin-bottom:10px}
     .eqwrap p{margin:4px 0}
-    .note{font-size:14px;color:#4b5563}
 
     .eq-heading-row{
       display:flex;
@@ -72,7 +78,7 @@
     }
     .eq-link:hover{text-decoration:underline}
 
-    .schematic-card p{margin:0;font-size:14px;color:#4b5563}
+    .schematic-card p{margin:0 0 6px;font-size:14px;color:#4b5563}
     .schematic-img{
       display:block;
       max-width:100%;
@@ -81,85 +87,135 @@
       border-radius:6px;
     }
 
-    /* Inputs card */
+    /* Inputs card (full width) */
     .inputs-card{margin-top:18px}
     .inputs-card h2{margin:4px 0 10px}
 
-    .inputs-row{
+    .inputs-row1,
+    .inputs-row2{
       display:flex;
       gap:14px;
       flex-wrap:wrap;
       align-items:flex-start;
     }
-    .input-box{
-      flex:1 1 220px;
-      min-width:200px;
-      padding:8px 10px;
-      border:1px solid var(--line);
+
+    .inputs-row1 .ctl,
+    .inputs-row2 .ctl{
+      background:#fff;
       border-radius:10px;
-      background:#f9fafb;
+      border:1px solid var(--line);
+      padding:8px 10px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      flex:1 1 260px;
     }
-    .input-label{
+
+    .inputs-row1 label,
+    .inputs-row2 label{
       font-size:13px;
       color:#4b5563;
-      margin-bottom:4px;
     }
-    .slider-main{
+
+    .ctl-row{
       display:flex;
-      align-items:center;
       gap:8px;
+      align-items:center;
     }
-    .slider-main input[type="range"]{
+
+    .ctl-row input[type="range"]{
       flex:1;
-      width:100%;
     }
-    .slider-main input[type="number"]{
-      width:72px;
-      padding:4px 6px;
+
+    .ctl-row input[type="number"]{
+      width:90px;
+      max-width:100%;
+      padding:6px 8px;
       border-radius:8px;
       border:1px solid var(--line);
       font-size:13px;
     }
 
-    .coord-inner{
+    .coord-ctl .coord-row{
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:4px;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
     }
-    .coord-axis-label{
+    .coord-ctl .axis-label{
       font-size:12px;
       color:#4b5563;
       margin-bottom:2px;
     }
-    .coord-axis input[type="range"]{width:100%}
-    .coord-axis input[type="number"]{
-      width:100%;
-      padding:4px 6px;
-      border-radius:8px;
-      border:1px solid var(--line);
-      font-size:13px;
-      margin-top:4px;
+    .coord-ctl .sub-ctl{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .coord-ctl .sub-ctl .ctl-row input[type="range"]{
+      flex:1.2;
     }
 
-    /* Plots */
+    .inputs-note{margin-top:10px}
+
+    /* Outputs card */
+    .outputs-card{margin-top:16px}
+    .outputs-card h2{margin:4px 0 10px}
+    .outputs-grid{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      margin-top:4px;
+    }
+    .out-box{
+      flex:1 1 220px;
+      background:#fff;
+      border-radius:10px;
+      border:1px solid var(--line);
+      padding:10px 12px;
+    }
+    .out-label{
+      font-size:13px;
+      color:#6b7280;
+      margin-bottom:4px;
+    }
+    .out-value{
+      font-size:18px;
+      font-weight:600;
+      color:#111827;
+    }
+
+    /* Plots big card */
+    .plots-card{margin-top:18px}
+    .plots-card h2{margin:4px 0 10px}
+
+    /* Inner grid of three plots */
     .plots-grid{
-      display:grid;gap:14px;
+      display:grid;
+      gap:14px;
       grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      margin-top:18px;
+    }
+    .plot-panel{
+      padding:4px 4px 0;
     }
 
     .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
     #plot-iso,#plot-center,#plot-bottom{width:100%;height:auto;display:block}
 
-    .legend-block{margin-top:10px}
-    .legend-row{margin-bottom:6px}
+    .legend-block{margin-top:8px}
+    .legend-row{margin-bottom:4px}
     .legend-item{display:inline-flex;align-items:center;gap:6px;margin-right:12px;font-size:13px;color:#334155}
     .legend-item .sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid #0002}
     .legend-block .dim-note{font-size:13px;color:#6b7280;margin:0;line-height:1.4}
 
     svg .axis text{font-size:14px}
     svg .axis-title{font-size:16px}
+
+    .drag-point{
+      cursor:grab;
+    }
+    .drag-overlay{
+      cursor:pointer;
+    }
   </style>
 </head>
 <body>
@@ -189,9 +245,8 @@
     <section class="top-grid">
       <!-- Left: equations -->
       <div class="left-col">
-        <!-- Hydrostatic eq + recall -->
         <div class="card eq-card">
-          <h2 style="margin:4px 0 8px">Hydrostatic pressure equation</h2>
+          <h2>Hydrostatic pressure equation</h2>
           <div class="eqwrap">
             <p class="note">
               For a liquid of density \( \rho \) in rigid-body rotation with angular velocity \( \omega \),
@@ -208,7 +263,7 @@
 
           <div class="eqwrap">
             <div class="eq-heading-row">
-              <h3 style="margin:0">Recall: Free surface</h3>
+              <h3 class="eq-subtitle">Recall: Free surface</h3>
               <a href="2.32.html" class="eq-link">See derivation (Eq.&nbsp;2.32)</a>
             </div>
             <p class="note">
@@ -216,13 +271,13 @@
               with angular velocity \( \omega \), the free surface profile (no spilling) is
             </p>
             \[
-              z = h = \frac{\omega^2 r^2}{2g} + h_0,
+              z = h(r) = \frac{\omega^2 r^2}{2g} + h_0,
               \quad \text{where} \quad
               h_0 = H - \frac{\omega^2 R^2}{4g}.
             \]
             <p class="note">That is,</p>
             \[
-              z = h = \frac{\omega^2 r^2}{2g}
+              z = h(r) = \frac{\omega^2 r^2}{2g}
                     + H - \frac{\omega^2 R^2}{4g}.
             \]
             <p class="note">
@@ -231,9 +286,8 @@
           </div>
         </div>
 
-        <!-- Determining constant -->
         <div class="card eq-card">
-          <h2 style="margin:4px 0 8px">Determining the constant in the hydrostatic pressure equation</h2>
+          <h3 class="eq-subtitle">Determining the constant in the hydrostatic pressure equation</h3>
           <div class="eqwrap">
             <p class="note">
               At \( r = 0 \) and \( z = h_0 \), the free surface is exposed to atmosphere, so
@@ -242,7 +296,8 @@
             \[
               p(r,z) = \rho \frac{\omega^2 r^2}{2} - \rho g z + \text{constant}
               \quad\Rightarrow\quad
-              \text{constant} = \rho g h_0 = \rho g\!\left(H - \frac{\omega^2 R^2}{4g}\right).
+              \text{constant} = \rho g h_0
+              = \rho g\!\left(H - \frac{\omega^2 R^2}{4g}\right).
             \]
             <p class="note">Substituting back, the gauge pressure field is</p>
             \[
@@ -256,9 +311,8 @@
           </div>
         </div>
 
-        <!-- Alternative form -->
         <div class="card eq-card">
-          <h2 style="margin:4px 0 8px">Alternative form using local liquid depth</h2>
+          <h3 class="eq-subtitle">Alternative form using local liquid depth</h3>
           <div class="eqwrap">
             <p class="note">
               The same expression can also be developed using \( p = \rho g\,\Delta h \), where
@@ -268,7 +322,7 @@
               \Delta h = h - z
                        = \frac{\omega^2 r^2}{2g} + h_0 - z.
             \]
-            <p class="note">For the position at \( (r,z) \),</p>
+            <p class="note">Therefore,</p>
             \[
               \begin{aligned}
                 p(r,z)
@@ -295,142 +349,199 @@
           <img src="../assets/thumbs/2.33.png"
                alt="Schematic of rotating cylindrical container"
                class="schematic-img">
-          <p style="margin-top:6px">
-            During rotation, the free surface \( z = h \) becomes parabolic. The depth at the center is
+          <p>
+            During rotation, the free surface \( z = h(r) \) becomes parabolic. The depth at the center is
             \( h_0 = H - \dfrac{\omega^2 R^2}{4g} \).
           </p>
         </div>
       </div>
     </section>
 
-    <!-- Inputs (full width) -->
+    <!-- Inputs -->
     <section class="card inputs-card">
       <h2>Inputs</h2>
-      <div class="inputs-row">
-        <!-- omega -->
-        <div class="input-box">
-          <div class="input-label">Angular velocity \( \omega \) (rad/s)</div>
-          <div class="slider-main">
-            <input id="omegaSlider" type="range" min="0" max="10" step="0.1" value="7.0">
-            <input id="omegaInput"  type="number" step="0.1">
+
+      <!-- Row 1: omega, R, H -->
+      <div class="inputs-row1">
+        <div class="ctl">
+          <label for="omegaSlider">Angular velocity \( \omega \) (rad/s)</label>
+          <div class="ctl-row">
+            <input id="omegaSlider" type="range" min="0" max="10" step="0.1">
+            <input id="omegaInput" type="number" step="0.1">
           </div>
         </div>
 
-        <!-- R -->
-        <div class="input-box">
-          <div class="input-label">Cylinder radius \( R \) (m)</div>
-          <div class="slider-main">
-            <input id="RSlider" type="range" min="0.10" max="0.50" step="0.01" value="0.40">
-            <input id="RInput"  type="number" step="0.001">
+        <div class="ctl">
+          <label for="RSlider">Cylinder radius \( R \) (m)</label>
+          <div class="ctl-row">
+            <input id="RSlider" type="range" min="0.10" max="0.50" step="0.01">
+            <input id="RInput" type="number" step="0.001">
           </div>
         </div>
 
-        <!-- H -->
-        <div class="input-box">
-          <div class="input-label">
-            Liquid depth at rest (i.e., \( \omega = 0 \)), \( H \) (m)
-          </div>
-          <div class="slider-main">
-            <input id="HSlider" type="range" min="0.70" max="1.30" step="0.01" value="1.00">
-            <input id="HInput"  type="number" step="0.001">
+        <div class="ctl">
+          <label for="HSlider">Liquid depth at rest (i.e., \( \omega = 0 \)), \( H \) (m)</label>
+          <div class="ctl-row">
+            <input id="HSlider" type="range" min="0.70" max="1.30" step="0.01">
+            <input id="HInput" type="number" step="0.001">
           </div>
         </div>
+      </div>
 
-        <!-- coordinate for p -->
-        <div class="input-box">
-          <div class="input-label">Coordinate for \( p : (r,z) \) (m)</div>
-          <div class="coord-inner">
-            <div class="coord-axis">
-              <div class="coord-axis-label">\( r \)</div>
-              <input id="rSlider" type="range" min="0.000" max="0.40" step="0.005" value="0.300">
-              <input id="rInput"  type="number" step="0.001">
+      <!-- Row 2: r,z -->
+      <div class="inputs-row2" style="margin-top:10px">
+        <div class="ctl coord-ctl">
+          <label>Coordinate for \( p : (r,z) \) (m)</label>
+          <div class="coord-row">
+            <div class="sub-ctl">
+              <span class="axis-label">\( r \)</span>
+              <div class="ctl-row">
+                <input id="rSlider" type="range" min="0.00" max="0.50" step="0.005">
+                <input id="rInput" type="number" step="0.001">
+              </div>
             </div>
-            <div class="coord-axis">
-              <div class="coord-axis-label">\( z \)</div>
-              <input id="zSlider" type="range" min="0.000" max="1.000" step="0.01" value="0.750">
-              <input id="zInput"  type="number" step="0.001">
+            <div class="sub-ctl">
+              <span class="axis-label">\( z \)</span>
+              <div class="ctl-row">
+                <input id="zSlider" type="range" min="0.00" max="1.30" step="0.01">
+                <input id="zInput" type="number" step="0.001">
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <p class="note" style="margin-top:10px">
-        Density is fixed at \( \rho = 998.2~\text{kg/m}^3 \) (water). The coordinate \( (r,z) \) defines
-        one of the three constant-pressure lines shown in the \( r\text{–}z \) plane.
-        You can also drag or click the blue point in the first plot to adjust \( r \) and \( z \).
+      <p class="note inputs-note">
+        Density is fixed at \( \rho = 998.2~\text{kg/m}^3 \) (water). The coordinate \( (r,z) \) defines one of the
+        three constant-pressure lines shown in the \( r\text{–}z \) plane. You can also click or drag the blue
+        point in the first plot to adjust \( r \) and \( z \).
       </p>
     </section>
 
-    <!-- Three plots -->
-    <section class="plots-grid">
-      <!-- Plot 1: constant-pressure lines -->
-      <div class="card">
-        <h3 style="margin:4px 0 6px">Constant-Pressure Lines in the \( r\text{–}z \) Plane</h3>
-        <div class="viz">
-          <svg id="plot-iso" viewBox="0 0 360 460"
-               aria-label="Constant-pressure lines in r-z plane"></svg>
+    <!-- Outputs -->
+    <section class="card outputs-card">
+      <h2>Outputs at \( (r,z) \)</h2>
+      <p class="note">
+        At the blue point \( (r,z) \), the gauge pressure is \( p(r,z) \) and the local liquid depth is
+        \( \Delta h = h(r) - z \). These values are reflected in all three plots.
+      </p>
+      <div class="outputs-grid">
+        <div class="out-box">
+          <div class="out-label">Gauge pressure \( p(r,z) \)</div>
+          <div class="out-value"><span id="pOut">0.00</span> kPa</div>
         </div>
-        <div id="legend-iso" class="legend-block"></div>
+        <div class="out-box">
+          <div class="out-label">Local liquid depth \( \Delta h = h(r) - z \)</div>
+          <div class="out-value"><span id="dhOut">0.000</span> m</div>
+        </div>
       </div>
+    </section>
 
-      <!-- Plot 2: p vs z along centerline -->
-      <div class="card">
-        <h3 style="margin:4px 0 6px">Pressure vs Height at \( r = 0 \)</h3>
-        <div class="viz">
-          <svg id="plot-center" viewBox="0 0 360 460"
-               aria-label="Pressure vs z at r = 0"></svg>
+    <!-- All three plots inside one big card -->
+    <section class="card plots-card">
+      <h2>Pressure visualizations</h2>
+      <div class="plots-grid">
+        <!-- Plot 1 -->
+        <div class="plot-panel">
+          <h3 style="margin:4px 0 6px">Constant-Pressure Lines in the \( r\text{–}z \) Plane</h3>
+          <div class="viz">
+            <svg id="plot-iso" viewBox="0 0 360 460"
+                 aria-label="Constant-pressure lines in r-z plane"></svg>
+          </div>
+          <div id="legend-iso" class="legend-block"></div>
         </div>
-        <div id="legend-center" class="legend-block"></div>
-      </div>
 
-      <!-- Plot 3: p vs r along bottom -->
-      <div class="card">
-        <h3 style="margin:4px 0 6px">Pressure vs Radius at \( z = 0 \)</h3>
-        <div class="viz">
-          <svg id="plot-bottom" viewBox="0 0 360 460"
-               aria-label="Pressure vs r at z = 0"></svg>
+        <!-- Plot 2 -->
+        <div class="plot-panel">
+          <h3 style="margin:4px 0 6px">Pressure vs Height at fixed \( r \)</h3>
+          <div class="viz">
+            <svg id="plot-center" viewBox="0 0 360 460"
+                 aria-label="Pressure vs z at chosen r"></svg>
+          </div>
+          <div id="legend-center" class="legend-block"></div>
         </div>
-        <div id="legend-bottom" class="legend-block"></div>
+
+        <!-- Plot 3 -->
+        <div class="plot-panel">
+          <h3 style="margin:4px 0 6px">Pressure vs Radius at fixed \( z \)</h3>
+          <div class="viz">
+            <svg id="plot-bottom" viewBox="0 0 360 460"
+                 aria-label="Pressure vs r at chosen z"></svg>
+          </div>
+          <div id="legend-bottom" class="legend-block"></div>
+        </div>
       </div>
     </section>
   </main>
 
   <script>
-    const g = 9.81;
+    const g   = 9.81;
     const rho = 998.2; // kg/m^3
-
-    const state = {
-      omega: 7.0,
-      R: 0.40,
-      H: 1.00,
-      r: 0.30,
-      z: 0.75
-    };
-
-    const OMIN = 0.0,  OMAX = 10.0;
-    const RMIN = 0.10, RMAX = 0.50;
-    const HMIN = 0.70, HMAX = 1.30;
-
     const colors = ['#2563eb','#f97316','#10b981'];
 
-    function clamp(val, min, max){
-      return Math.max(min, Math.min(max, val));
+    const state = {
+      omega: 8.0,
+      R:     0.4,
+      H:     1.0,
+      r:     0.3,
+      z:     0.8
+    };
+
+    let omegaSlider, omegaInput,
+        RSlider, RInput,
+        HSlider, HInput,
+        rSlider, rInput,
+        zSlider, zInput,
+        pOut, dhOut;
+
+    function clamp(v, min, max){
+      return Math.max(min, Math.min(max, v));
     }
 
-    function freeSurfaceH0(omega, R, H){
+    function freeSurfaceH0(omega,R,H){
       return H - (omega*omega*R*R)/(4*g);
     }
-    function freeSurfaceZ(omega, R, H, r){
-      const h0 = freeSurfaceH0(omega,R,H);
-      return (omega*omega*r*r)/(2*g) + h0;
+
+    function freeSurfaceAtR(omega,R,H,r){
+      return H + (omega*omega/(4*g))*(2*r*r - R*R);
     }
 
-    // Gauge pressure field p(r,z) in Pa
-    function pGauge(omega, R, H, r, z){
+    function pGauge(omega,R,H,r,z){
       return rho * ( (omega*omega/4)*(2*r*r - R*R) + g*(H - z) );
     }
 
-    // ----- Plot helpers -----
+    function enforceStateBounds(){
+      state.omega = clamp(state.omega,0,10);
+      state.R     = clamp(state.R,0.10,0.50);
+      state.H     = clamp(state.H,0.70,1.30);
+      state.r     = clamp(state.r,0,state.R);
+
+      const hR = freeSurfaceAtR(state.omega,state.R,state.H,state.r);
+      const zMax = Math.max(0,hR);
+      state.z = clamp(state.z,0,zMax);
+    }
+
+    function applyStateToInputs(){
+      omegaSlider.value = state.omega;
+      omegaInput.value  = state.omega.toFixed(2);
+
+      RSlider.value = state.R;
+      RInput.value  = state.R.toFixed(3);
+
+      HSlider.value = state.H;
+      HInput.value  = state.H.toFixed(3);
+
+      rSlider.max = state.R.toFixed(3);
+      const zMax = freeSurfaceAtR(state.omega,state.R,state.H,state.r);
+      zSlider.max = Math.max(0,zMax).toFixed(3);
+
+      rSlider.value = state.r;
+      rInput.value  = state.r.toFixed(3);
+
+      zSlider.value = state.z;
+      zInput.value  = state.z.toFixed(3);
+    }
+
     function initPlot(id, xLabel, yLabel){
       const svg = d3.select('#'+id);
       const W = 360, Hh = 460;
@@ -470,98 +581,49 @@
         .x(d=>xScale(d.x))
         .y(d=>yScale(d.y));
 
-      return {svg,gMain,axesG,curvesG,xAxisG,yAxisG,xScale,yScale,line,iw,ih,margin};
+      return {svg,gMain,axesG,curvesG,xAxisG,yAxisG,xScale,yScale,line,iw,ih};
     }
 
     const isoPlot    = initPlot('plot-iso','r (m)','z (m)');
     const centerPlot = initPlot('plot-center','z (m)','p (kPa)');
     const bottomPlot = initPlot('plot-bottom','r (m)','p (kPa)');
 
-    // Add hitbox for click/drag in iso plot
-    const isoHitbox = isoPlot.gMain.append('rect')
-      .attr('x',0).attr('y',0)
-      .attr('width',isoPlot.iw)
-      .attr('height',isoPlot.ih)
-      .style('fill','transparent')
-      .style('pointer-events','all');
-
-    isoPlot.pointSel = isoPlot.curvesG.append('circle')
-      .attr('r',4)
-      .attr('fill',colors[0])
-      .attr('stroke','#fff')
-      .attr('stroke-width',1.4)
-      .style('cursor','pointer');
-
-    function setPointFromCoords(px,py){
-      // Convert pixel coords -> data coords, then clamp to liquid region
-      let r = isoPlot.xScale.invert(px);
-      let z = isoPlot.yScale.invert(py);
-
-      r = clamp(r,0,state.R);
-      const zMax = freeSurfaceZ(state.omega,state.R,state.H,r);
-      z = clamp(z,0,zMax);
-
-      state.r = r;
-      state.z = z;
-      renderAll();
-    }
-
-    const dragBehavior = d3.drag()
-      .on('start drag', (event)=>{
-        const pt = d3.pointer(event, isoPlot.gMain.node());
-        setPointFromCoords(pt[0], pt[1]);
-      });
-
-    isoHitbox.call(dragBehavior);
-    isoPlot.pointSel.call(dragBehavior);
-
-    isoHitbox.on('click',event=>{
-      const pt = d3.pointer(event, isoPlot.gMain.node());
-      setPointFromCoords(pt[0], pt[1]);
-    });
+    let dragPoint = null;
+    let dragOverlay = null;
 
     function updateIso(){
-      const {omega,R,H,r,z} = state;
+      const {omega,R,H,r: rRef,z: zRef} = state;
+
       const h0 = freeSurfaceH0(omega,R,H);
 
-      const p1 = pGauge(omega,R,H,r,z);
-      const p2 = pGauge(omega,R,H,0,h0);          // = 0 (gauge)
+      let p1 = pGauge(omega,R,H,rRef,zRef);
+      if(p1 < 0) p1 = 0;
+      const p2 = 0;
       const p3 = pGauge(omega,R,H,0,0.5*h0);
 
       const pConsts = [p1,p2,p3];
 
       const curves = pConsts.map((pConst,idx)=>{
         const pts = [];
-        const N = 200;
+        const N = 160;
         for(let i=0;i<=N;i++){
-          const rr = R * i/N;
-          const zSurf = freeSurfaceZ(omega,R,H,rr);
-          // From p(r,z) = pConst solve for z in liquid:
-          const zVal = H + (omega*omega/(4*g))*(2*rr*rr - R*R) - pConst/(rho*g);
-          if(zVal >= 0 && zVal <= zSurf + 1e-6){
-            pts.push({x:rr,y:zVal});
-          }
+          const r = R * i/N;
+          let z = H + (omega*omega/(4*g))*(2*r*r - R*R) - pConst/(rho*g);
+          if(z < 0) z = 0;
+          pts.push({x:r,y:z});
         }
         return {key:'c'+idx, pts};
       });
 
-      // Determine vertical extent of liquid actually plotted
       let zMax = 0;
       curves.forEach(c=>{
         c.pts.forEach(p=>{
           if(p.y > zMax) zMax = p.y;
         });
       });
-      if (zMax <= 0) zMax = state.H;
 
-      // Step y-axis limits: 2, 5, or 20 m
-      let yCap;
-      if (zMax <= 2) yCap = 2;
-      else if (zMax <= 5) yCap = 5;
-      else yCap = 20;
-
-      isoPlot.xScale.domain([0,state.R]);
-      isoPlot.yScale.domain([0,yCap]);
+      isoPlot.xScale.domain([0,R]);
+      isoPlot.yScale.domain([0, zMax*1.02]);
 
       const xAxis = d3.axisBottom(isoPlot.xScale).ticks(5);
       const yAxis = d3.axisLeft(isoPlot.yScale).ticks(5);
@@ -583,24 +645,30 @@
 
       paths.exit().remove();
 
-      // Update draggable point position
-      isoPlot.pointSel
-        .attr('cx', isoPlot.xScale(state.r))
-        .attr('cy', isoPlot.yScale(state.z));
+      if(dragPoint){
+        dragPoint
+          .attr('cx', isoPlot.xScale(rRef))
+          .attr('cy', isoPlot.yScale(zRef));
+      }
 
-      // Legend
       const legend = document.getElementById('legend-iso');
+      const labels = [
+        '\\( p_1 = p(r,z) \\)',
+        '\\( p_2 = p(0,h_0) \\; \\text{(free surface)} \\)',
+        '\\( p_3 = p(0, \\tfrac{1}{2} h_0) \\)'
+      ];
+
+      const itemsHTML = labels.map((txt,i)=>
+        `<span class="legend-item"><span class="sw" style="background:${colors[i]}"></span><span>${txt}</span></span>`
+      ).join('');
+
       legend.innerHTML =
-        '<div class="legend-row">' +
-        `<span class="legend-item"><span class="sw" style="background:${colors[0]}"></span><span>\\( p_1 = p(r,z) \\)</span></span>` +
-        `<span class="legend-item"><span class="sw" style="background:${colors[1]}"></span><span>\\( p_2 = p(0,h_0) \\) (free surface)</span></span>` +
-        `<span class="legend-item"><span class="sw" style="background:${colors[2]}"></span><span>\\( p_3 = p(0, \\tfrac{1}{2}h_0) \\)</span></span>` +
-        '</div>' +
+        `<div class="legend-row">${itemsHTML}</div>` +
         `<p class="dim-note">
           Three constant-pressure lines in the \( r\\text{–}z \) plane.
-          \(p_2\) lies on the free surface where \(p(0,h_0) = 0\).
-          \(p_1\) uses the input point \((r,z)\), and \(p_3\) uses the midpoint
-          \((0, \\tfrac{1}{2}h_0)\) on the axis.
+          \(p_2\) lies on the free surface where \( p(0,h_0) = 0 \).
+          \(p_1\) uses the input point \( (r,z) \), and \(p_3\) uses the midpoint
+          \( (0, \\tfrac{1}{2} h_0) \) on the axis.
         </p>`;
 
       if(window.MathJax && window.MathJax.typesetPromise){
@@ -608,24 +676,75 @@
       }
     }
 
+    function initIsoInteraction(){
+      dragPoint = isoPlot.curvesG.append('circle')
+        .attr('class','drag-point')
+        .attr('r',8)
+        .attr('fill',colors[0])
+        .attr('stroke','#ffffff')
+        .attr('stroke-width',2.2);
+
+      dragOverlay = isoPlot.gMain.append('rect')
+        .attr('class','drag-overlay')
+        .attr('x',0)
+        .attr('y',0)
+        .attr('width',isoPlot.iw)
+        .attr('height',isoPlot.ih)
+        .attr('fill','transparent');
+
+      const dragBehavior = d3.drag()
+        .on('drag', function(event){
+          const [mx,my] = d3.pointer(event, isoPlot.gMain.node());
+          const rNew = isoPlot.xScale.invert(mx);
+          const zNew = isoPlot.yScale.invert(my);
+          setPointFromPlot(rNew,zNew);
+        });
+
+      dragPoint.call(dragBehavior);
+      dragOverlay
+        .on('click', function(event){
+          const [mx,my] = d3.pointer(event, isoPlot.gMain.node());
+          const rNew = isoPlot.xScale.invert(mx);
+          const zNew = isoPlot.yScale.invert(my);
+          setPointFromPlot(rNew,zNew);
+        })
+        .call(dragBehavior);
+    }
+
+    function setPointFromPlot(rNew,zNew){
+      state.r = rNew;
+      state.z = zNew;
+      enforceStateBounds();
+      applyStateToInputs();
+      updateAllFromState();
+    }
+
     function updateCenter(){
-      const {omega,R,H} = state;
-      const h0 = freeSurfaceH0(omega,R,H);
-      const N = 120;
+      const {omega,R,H,r: rRef} = state;
+
+      const hR = freeSurfaceAtR(omega,R,H,rRef);
+      const zMax = Math.max(0,hR);
+
+      const N = 160;
       const pts = [];
       let pMax = 0;
 
       for(let i=0;i<=N;i++){
-        const z = h0 * i/N;
-        const pRaw = pGauge(omega,R,H,0,z)/1000; // kPa
-        const p = Math.max(0,pRaw);
+        const z = zMax * i/N;
+        let p = 0;
+        if(z <= hR + 1e-9){
+          p = pGauge(omega,R,H,rRef,z)/1000;
+          if(p < 0) p = 0;
+        }
         pts.push({x:z,y:p});
         if(p > pMax) pMax = p;
       }
 
-      const pad = 0.05*(pMax || 1);
-      centerPlot.xScale.domain([0,h0]);
-      centerPlot.yScale.domain([0,pMax+pad]);
+      const pPad = pMax*1.05;
+      const yMax = (pPad <= 5) ? 5 : 20;
+
+      centerPlot.xScale.domain([0,zMax]);
+      centerPlot.yScale.domain([0,yMax]);
 
       const xAxis = d3.axisBottom(centerPlot.xScale).ticks(5);
       const yAxis = d3.axisLeft(centerPlot.yScale).ticks(5);
@@ -650,8 +769,8 @@
       const legend = document.getElementById('legend-center');
       legend.innerHTML =
         `<p class="dim-note">
-          Gauge pressure \(p(r,z)\) along the centerline \(r = 0\),
-          from the bottom \(z = 0\) up to the free surface at \(z = h_0\),
+          Gauge pressure \(p(r,z)\) along a vertical line at the chosen radius \(r\),
+          from the bottom \(z = 0\) up to the free surface at \(z = h(r)\),
           where \(p = 0\).
         </p>`;
 
@@ -661,23 +780,29 @@
     }
 
     function updateBottom(){
-      const {omega,R,H} = state;
-      const N = 120;
+      const {omega,R,H,z: zRef} = state;
+
+      const N = 160;
       const pts = [];
-      let pMin = Infinity, pMax = -Infinity;
+      let pMax = 0;
 
       for(let i=0;i<=N;i++){
         const r = R * i/N;
-        const p = pGauge(omega,R,H,r,0)/1000; // kPa
+        const hR = freeSurfaceAtR(omega,R,H,r);
+        let p = 0;
+        if(zRef <= hR + 1e-9){
+          p = pGauge(omega,R,H,r,zRef)/1000;
+          if(p < 0) p = 0;
+        }
         pts.push({x:r,y:p});
-        if(p < pMin) pMin = p;
         if(p > pMax) pMax = p;
       }
 
-      const span = (pMax - pMin) || 1;
-      const pad = 0.05*span;
+      const pPad = pMax*1.05;
+      const yMax = (pPad <= 5) ? 5 : 20;
+
       bottomPlot.xScale.domain([0,R]);
-      bottomPlot.yScale.domain([pMin-pad, pMax+pad]);
+      bottomPlot.yScale.domain([0,yMax]);
 
       const xAxis = d3.axisBottom(bottomPlot.xScale).ticks(5);
       const yAxis = d3.axisLeft(bottomPlot.yScale).ticks(5);
@@ -702,8 +827,9 @@
       const legend = document.getElementById('legend-bottom');
       legend.innerHTML =
         `<p class="dim-note">
-          Gauge pressure \(p(r,z)\) along the bottom \(z = 0\) of the container,
+          Gauge pressure \(p(r,z)\) along a horizontal line at the chosen height \(z\),
           from the rotation axis \(r = 0\) to the wall at \(r = R\).
+          Where the line lies above the free surface, \(p = 0\).
         </p>`;
 
       if(window.MathJax && window.MathJax.typesetPromise){
@@ -711,117 +837,88 @@
       }
     }
 
-    function applyBounds(){
-      state.omega = clamp(state.omega, OMIN, OMAX);
-      state.R     = clamp(state.R,     RMIN, RMAX);
-      state.H     = clamp(state.H,     HMIN, HMAX);
+    function updateOutputs(){
+      const {omega,R,H,r,z} = state;
 
-      state.r     = clamp(state.r, 0, state.R);
-      const zMax  = freeSurfaceZ(state.omega,state.R,state.H,state.r);
-      state.z     = clamp(state.z, 0, zMax);
+      const hR = freeSurfaceAtR(omega,R,H,r);
+      const pPa = pGauge(omega,R,H,r,z);
+      const pKPa = Math.max(0,pPa)/1000;
+      const dh = Math.max(0, hR - z);
+
+      pOut.textContent  = pKPa.toFixed(2);
+      dhOut.textContent = dh.toFixed(3);
     }
 
-    function syncInputs(){
-      const omegaSlider = document.getElementById('omegaSlider');
-      const omegaInput  = document.getElementById('omegaInput');
-      const RSlider     = document.getElementById('RSlider');
-      const RInput      = document.getElementById('RInput');
-      const HSlider     = document.getElementById('HSlider');
-      const HInput      = document.getElementById('HInput');
-      const rSlider     = document.getElementById('rSlider');
-      const rInput      = document.getElementById('rInput');
-      const zSlider     = document.getElementById('zSlider');
-      const zInput      = document.getElementById('zInput');
-
-      omegaSlider.value = state.omega;
-      omegaInput.value  = state.omega.toFixed(2);
-
-      RSlider.value = state.R;
-      RInput.value  = state.R.toFixed(3);
-
-      HSlider.value = state.H;
-      HInput.value  = state.H.toFixed(3);
-
-      rSlider.max = state.R.toFixed(3);
-      rSlider.value = state.r;
-      rInput.value  = state.r.toFixed(3);
-
-      const zMax = freeSurfaceZ(state.omega,state.R,state.H,state.r);
-      zSlider.max = zMax.toFixed(3);
-      zSlider.value = state.z;
-      zInput.value  = state.z.toFixed(3);
-    }
-
-    function renderAll(){
-      applyBounds();
-      syncInputs();
+    function updateAllFromState(){
+      enforceStateBounds();
+      applyStateToInputs();
       updateIso();
       updateCenter();
       updateBottom();
+      updateOutputs();
     }
 
-    function setupInputs(){
-      const omegaSlider = document.getElementById('omegaSlider');
-      const omegaInput  = document.getElementById('omegaInput');
-      const RSlider     = document.getElementById('RSlider');
-      const RInput      = document.getElementById('RInput');
-      const HSlider     = document.getElementById('HSlider');
-      const HInput      = document.getElementById('HInput');
-      const rSlider     = document.getElementById('rSlider');
-      const rInput      = document.getElementById('rInput');
-      const zSlider     = document.getElementById('zSlider');
-      const zInput      = document.getElementById('zInput');
+    function handleSliderChange(){
+      state.omega = parseFloat(omegaSlider.value);
+      state.R     = parseFloat(RSlider.value);
+      state.H     = parseFloat(HSlider.value);
+      state.r     = parseFloat(rSlider.value);
+      state.z     = parseFloat(zSlider.value);
+      updateAllFromState();
+    }
 
-      omegaSlider.addEventListener('input', e=>{
-        state.omega = parseFloat(e.target.value) || 0;
-        renderAll();
-      });
-      omegaInput.addEventListener('input', e=>{
-        state.omega = parseFloat(e.target.value) || state.omega;
-        renderAll();
-      });
+    function handleNumberChange(e){
+      const id = e.target.id;
+      let v = parseFloat(e.target.value);
+      if(isNaN(v)) return;
 
-      RSlider.addEventListener('input', e=>{
-        state.R = parseFloat(e.target.value) || state.R;
-        renderAll();
-      });
-      RInput.addEventListener('input', e=>{
-        state.R = parseFloat(e.target.value) || state.R;
-        renderAll();
-      });
-
-      HSlider.addEventListener('input', e=>{
-        state.H = parseFloat(e.target.value) || state.H;
-        renderAll();
-      });
-      HInput.addEventListener('input', e=>{
-        state.H = parseFloat(e.target.value) || state.H;
-        renderAll();
-      });
-
-      rSlider.addEventListener('input', e=>{
-        state.r = parseFloat(e.target.value) || state.r;
-        renderAll();
-      });
-      rInput.addEventListener('input', e=>{
-        state.r = parseFloat(e.target.value) || state.r;
-        renderAll();
-      });
-
-      zSlider.addEventListener('input', e=>{
-        state.z = parseFloat(e.target.value) || state.z;
-        renderAll();
-      });
-      zInput.addEventListener('input', e=>{
-        state.z = parseFloat(e.target.value) || state.z;
-        renderAll();
-      });
+      if(id === 'omegaInput'){
+        state.omega = v;
+        omegaSlider.value = v;
+      }else if(id === 'RInput'){
+        state.R = v;
+        RSlider.value = v;
+      }else if(id === 'HInput'){
+        state.H = v;
+        HSlider.value = v;
+      }else if(id === 'rInput'){
+        state.r = v;
+        rSlider.value = v;
+      }else if(id === 'zInput'){
+        state.z = v;
+        zSlider.value = v;
+      }
+      updateAllFromState();
     }
 
     window.addEventListener('DOMContentLoaded', ()=>{
-      setupInputs();
-      renderAll();
-      if(window.MathJax && MathJax.typesetPromise){
+      omegaSlider = document.getElementById('omegaSlider');
+      omegaInput  = document.getElementById('omegaInput');
+      RSlider     = document.getElementById('RSlider');
+      RInput      = document.getElementById('RInput');
+      HSlider     = document.getElementById('HSlider');
+      HInput      = document.getElementById('HInput');
+      rSlider     = document.getElementById('rSlider');
+      rInput      = document.getElementById('rInput');
+      zSlider     = document.getElementById('zSlider');
+      zInput      = document.getElementById('zInput');
+      pOut        = document.getElementById('pOut');
+      dhOut       = document.getElementById('dhOut');
+
+      enforceStateBounds();
+      applyStateToInputs();
+
+      [omegaSlider,RSlider,HSlider,rSlider,zSlider].forEach(el=>{
+        el.addEventListener('input', handleSliderChange);
+      });
+      [omegaInput,RInput,HInput,rInput,zInput].forEach(el=>{
+        el.addEventListener('input', handleNumberChange);
+      });
+
+      initIsoInteraction();
+      updateAllFromState();
+
+      if(window.MathJax && window.MathJax.typesetPromise){
         MathJax.typesetPromise();
       }
     });
