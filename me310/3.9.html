@@ -1,0 +1,511 @@
+<!-- /me310/3.9.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Ex. 3.9: Flow in a Variable-Area Pipe</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../styles.css" />
+
+  <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <style>
+    /* Header styling consistent with other pages */
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+
+    /* Cards */
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;overflow-x:hidden}
+
+    /* ===== Top layout: Calculations + sticky schematic ===== */
+    .calc-grid{display:grid;gap:12px;align-items:start}
+    @media (min-width:1024px){ .calc-grid{grid-template-columns: 1.5fr 1fr} } /* requested ratio */
+
+    .eqwrap{
+      padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff;
+      overflow-x:hidden
+    }
+    .eqbig{font-size:1.02em;margin-top:2px}
+    .eq-lines{display:grid;row-gap:8px}
+    .eq-lines .mjx-container{display:block}
+    .note.title-xl{font-size:16px;line-height:1.15}
+
+    /* Schematic: smaller + sticky */
+    .schem{
+      border:2px dashed var(--line);
+      border-radius:12px;
+      background:#fafcff;
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;
+      max-width: 420px;
+      min-height: 160px;
+      margin-left:auto;
+      margin-right:auto;
+    }
+    .schem.sticky{
+      position: sticky;
+      top: 12px;
+    }
+    .schem .ph{display:grid;gap:6px;place-items:center;text-align:center;padding:12px;color:#64748b}
+    .schem .ph b{color:#334155}
+    .schem .ph code{font-size:12px;color:#64748b}
+
+    /* ===== Bottom layout: Inputs left + Plot right (MATCH TOP WIDTHS) ===== */
+    .io-grid{
+      display:grid;
+      gap:12px;
+      align-items:stretch;      /* make both columns same row height */
+      margin-top:12px;
+    }
+    @media (min-width:1024px){
+      .io-grid{ grid-template-columns: 1.5fr 1fr; } /* requested ratio */
+    }
+
+    /* Inputs formatting fix: use a real 2-col form grid */
+    .io-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .io-title-row h3{margin:0 0 6px}
+
+    .controls{display:grid;gap:12px}
+    .form-grid{display:grid;gap:12px}
+    @media (min-width:740px){ .form-grid{grid-template-columns:1fr 1fr} }
+
+    .field{min-width:0}
+    .field label{display:block;margin:0 0 6px;line-height:1.2}
+    .field input[type="number"]{width:100%}
+    .hint{font-size:12px;color:#6b7280;margin-top:4px}
+    input:disabled{background:#f3f4f6!important;color:#6b7280!important;cursor:not-allowed;opacity:1}
+    .badge-lite{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:#fff}
+
+    .hblock{grid-column:1 / -1}
+    .hrow{display:grid;gap:10px;align-items:center}
+    @media (min-width:740px){ .hrow{grid-template-columns:260px 1fr} }
+    .hrow input[type="range"]{width:100%}
+
+    .kpi{display:grid;gap:10px;margin-top:6px;grid-template-columns:repeat(2,minmax(160px,1fr))}
+    .kpi .lab{font-size:12px;color:#555}
+    .kpi .val{font-size:16px;font-weight:600}
+
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .axis text{font-size:14px;fill:#111}
+    .axis-title{font-size:15px;fill:#111}
+    svg text{paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+    .curve{stroke:#111;fill:none;stroke-width:2}
+    .dragpt{fill:var(--danger);stroke:#111;stroke-width:1.2}
+    .hit{fill:transparent;cursor:ew-resize}
+    .zeroline{stroke:#000;stroke-opacity:.18;stroke-dasharray:6 6}
+
+    /* Make the plot cell stretch vertically to match Inputs/Outputs card height */
+    .io-grid .plot-cell{
+      display:flex;
+      flex-direction:column;
+      height:100%;
+      min-height:0;
+    }
+    .io-grid .plot-cell .viz{
+      flex:1 1 auto;
+      display:flex;
+      min-height:340px; /* a bit taller visually */
+    }
+    .io-grid .plot-cell svg{
+      width:100%;
+      height:100%;
+      display:block;
+    }
+
+    /* y-title spacing preference */
+    :root{ --Y_TITLE_PAD: 15px; }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-row">
+        <h1 style="margin:0">Ex. 3.9: Flow in a Variable-Area Pipe</h1>
+        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="back-row">
+      <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
+    </nav>
+
+    <!-- ===== TOP: Calculations + Sticky schematic ===== -->
+    <section class="calc-grid">
+      <div class="ctl">
+        <div class="eqwrap">
+          <div class="note title-xl" style="margin-bottom:10px">
+            <b>Reducer + inverted U-tube manometer (oil, SG &lt; 1)</b>
+          </div>
+
+          <div class="eqbig eq-lines">
+            <div><b>Known.</b> Water flows through a pipe reducer. Static pressures at (1) and (2) are measured by an inverted U-tube manometer containing oil (SG &lt; 1).</div>
+
+            <div><b>Find.</b> Determine the volumetric flow rate \(Q\) for a manometer reading \(h\).</div>
+
+            <div><b>Manometer relation.</b></div>
+            \[
+              p_1 - \gamma(z_2-z_1) - \gamma(h+\ell) + (\mathrm{SG})\,\gamma\,h + \gamma \ell = p_2
+            \]
+            \[
+              \Rightarrow\; p_1 - p_2 = \gamma(z_2-z_1) + \gamma h(1-\mathrm{SG}) \qquad (1)
+            \]
+
+            <div><b>Bernoulli along a streamline from 1 to 2.</b></div>
+            \[
+              p_1 + \gamma z_1 + \frac12 \rho V_1^2
+              = p_2 + \gamma z_2 + \frac12 \rho V_2^2
+            \]
+            \[
+              \Rightarrow\; p_1 - p_2 = \gamma(z_2-z_1) + \frac12\rho V_2^2\left[1-\left(\frac{V_1}{V_2}\right)^2\right]
+            \]
+
+            <div><b>Conservation of mass (continuity).</b></div>
+            \[
+              \dot m_1=\dot m_2 \Rightarrow \rho Q_1=\rho Q_2 \Rightarrow Q_1=Q_2 \Rightarrow V_1A_1=V_2A_2
+            \]
+            \[
+              V_1\frac{\pi}{4}D_1^2 = V_2\frac{\pi}{4}D_2^2
+              \Rightarrow \frac{V_1}{V_2}=\left(\frac{D_2}{D_1}\right)^2
+              \Rightarrow \left(\frac{V_1}{V_2}\right)^2=\left(\frac{D_2}{D_1}\right)^4
+            \]
+
+            <div><b>Thus</b></div>
+            \[
+              p_1 - p_2 = \gamma(z_2-z_1)+\frac12\rho V_2^2\left[1-\left(\frac{D_2}{D_1}\right)^4\right] \qquad (2)
+            \]
+
+            <div><b>Compare (1) and (2).</b> (the \(\gamma(z_2-z_1)\) terms cancel)</div>
+            \[
+              \gamma h(1-\mathrm{SG})=
+              \frac12\rho V_2^2\left[1-\left(\frac{D_2}{D_1}\right)^4\right]
+            \]
+
+            <div><b>Use \(V_2=\dfrac{Q}{A_2}\).</b></div>
+            \[
+              V_2=\frac{Q}{A_2}=\frac{Q}{\frac{\pi}{4}D_2^2}=\frac{4Q}{\pi D_2^2}
+            \]
+
+            <div><b>Final result.</b></div>
+            \[
+              Q=\left(
+                \frac{\pi^2 D_2^4\, g\, h(1-\mathrm{SG})}
+                {8\left[1-\left(\frac{D_2}{D_1}\right)^4\right]}
+              \right)^{1/2}
+            \]
+
+            <div class="note">
+              <b>Comment.</b> The term \(z_2-z_1\) is not involved in the relationship between \(Q\) and \(h\).
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="ctl" style="padding:10px">
+        <div class="schem sticky" aria-label="Reducer + inverted U-tube schematic placeholder">
+          <div class="ph">
+            <b>Schematic placeholder</b>
+            <div>Reducer with taps \(p_1\), \(p_2\), inverted U-tube manometer (oil, SG &lt; 1), reading \(h\).</div>
+            <code>Optional: ../assets/thumbs/3.9.png</code>
+          </div>
+        </div>
+
+        <div class="note" style="margin-top:10px">
+          Scroll: this schematic stays with you until you reach the inputs section below.
+        </div>
+      </aside>
+    </section>
+
+    <!-- ===== BOTTOM: Inputs (wide) + Plot (tall to match) ===== -->
+    <section class="io-grid" id="inputs">
+      <div class="ctl">
+        <div class="controls">
+          <div class="io-title-row">
+            <h3>Inputs &amp; Outputs</h3>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label>Upstream diameter, \(D_1\) (mm) — [50, 100]</label>
+              <input id="D1" type="number" step="1" min="50" max="100" value="75" />
+            </div>
+
+            <div class="field">
+              <label>Downstream diameter, \(D_2\) (mm) — [20, 40]</label>
+              <input id="D2" type="number" step="1" min="20" max="40" value="35" />
+            </div>
+
+            <div class="field">
+              <label>Oil specific gravity, SG — [0.75, 0.90]</label>
+              <input id="SG" type="number" step="0.01" min="0.75" max="0.90" value="0.80" />
+            </div>
+
+            <div class="field">
+              <label>Gravity, \(g\) (m/s\(^2\))</label>
+              <input id="g" type="number" step="0.01" value="9.81" disabled />
+              <div class="hint">Fixed.</div>
+            </div>
+
+            <div class="field hblock">
+              <label>Manometer reading, \(h\) (mm) — [0, 100] <span class="badge-lite">drag point</span></label>
+              <div class="hrow">
+                <input id="h" type="number" step="1" min="0" max="100" value="40" />
+                <input id="hRange" type="range" min="0" max="100" step="1" value="40" />
+              </div>
+              <div class="hint">Plot ranges fixed: \(h \in [0,100]\) mm, \(Q \in [0,1200]\) mL/s.</div>
+            </div>
+          </div>
+
+          <div class="kpi">
+            <div>
+              <div class="lab">Flow rate, \(Q\)</div>
+              <div id="Q_ml" class="val">—</div>
+            </div>
+            <div>
+              <div class="lab">Flow rate, \(Q\)</div>
+              <div id="Q_L" class="val">—</div>
+            </div>
+            <div>
+              <div class="lab">Downstream speed, \(V_2\)</div>
+              <div id="V2" class="val">—</div>
+            </div>
+            <div>
+              <div class="lab">Upstream speed, \(V_1\)</div>
+              <div id="V1" class="val">—</div>
+            </div>
+          </div>
+
+          <div class="note" style="margin-top:8px">
+            Valid for \(D_2&lt;D_1\) and \(\mathrm{SG}&lt;1\). If \(h=0\), then \(Q=0\).
+          </div>
+        </div>
+      </div>
+
+      <div class="ctl plot-cell">
+        <div class="viz">
+          <!-- Taller internal plot while keeping the cell behavior the same -->
+          <svg id="plot" viewBox="0 0 760 460" aria-label="Q vs h"></svg>
+        </div>
+        <div class="note" style="margin-top:10px">
+          Drag the red point left/right to change \(h\) (also updates the number input).
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:12px">
+      <div class="note">
+        This page follows your derivation: manometer \(\rightarrow\) \(p_1-p_2\) in terms of \(h\),
+        Bernoulli + continuity \(\rightarrow\) \(p_1-p_2\) in terms of velocities, then equate and solve for \(Q(h)\).
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="../index.html" class="back-home"><span class="chev">←</span> Home</a>
+    </div>
+  </footer>
+
+  <script>
+    // ========= utilities =========
+    const $ = id => document.getElementById(id);
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+    const fmt = (x, d=3) => (Number.isFinite(x) ? x.toFixed(d) : "—");
+
+    // ========= state =========
+    const state = {
+      D1mm: 75,
+      D2mm: 35,
+      SG: 0.80,
+      g: 9.81,
+      hmm: 40
+    };
+
+    function area_m2(Dmm){
+      const D = Dmm / 1000;
+      return Math.PI * D * D / 4;
+    }
+
+    // Q in m^3/s from the final formula
+    function Q_m3s({D1mm, D2mm, SG, g, hmm}){
+      const D1 = D1mm / 1000;
+      const D2 = D2mm / 1000;
+      const h  = hmm  / 1000;
+
+      const beta = D2 / D1;
+      const denom = 1 - Math.pow(beta, 4);
+      const oneMinusSG = 1 - SG;
+
+      if(!(D1>0 && D2>0 && D2 < D1 && denom>0 && oneMinusSG>0 && h>=0)) return NaN;
+
+      const k = (Math.PI*Math.PI*Math.pow(D2,4) * g * h * oneMinusSG) / (8 * denom);
+      return Math.sqrt(k);
+    }
+
+    function readInputs(){
+      state.D1mm = clamp(+$("D1").value || 0, 50, 100);
+      state.D2mm = clamp(+$("D2").value || 0, 20, 40);
+      state.SG   = clamp(+$("SG").value || 0.8, 0.75, 0.90);
+      state.hmm  = clamp(+$("h").value  || 0, 0, 100);
+
+      $("D1").value = state.D1mm;
+      $("D2").value = state.D2mm;
+      $("SG").value = state.SG.toFixed(2);
+      $("h").value  = state.hmm;
+      $("hRange").value = state.hmm;
+    }
+
+    function updateOutputs(){
+      const Q = Q_m3s(state);
+      const Q_ml = Q * 1e6; // mL/s
+      const Q_L  = Q * 1e3; // L/s
+
+      $("Q_ml").textContent = Number.isFinite(Q_ml) ? `${fmt(Q_ml,0)} mL/s` : "—";
+      $("Q_L").textContent  = Number.isFinite(Q_L)  ? `${fmt(Q_L,4)} L/s`  : "—";
+
+      const A1 = area_m2(state.D1mm);
+      const A2 = area_m2(state.D2mm);
+      const V1 = (Number.isFinite(Q) && A1>0) ? Q / A1 : NaN;
+      const V2 = (Number.isFinite(Q) && A2>0) ? Q / A2 : NaN;
+
+      $("V1").textContent = Number.isFinite(V1) ? `${fmt(V1,4)} m/s` : "—";
+      $("V2").textContent = Number.isFinite(V2) ? `${fmt(V2,4)} m/s` : "—";
+    }
+
+    // ========= plot =========
+    const svg = d3.select("#plot");
+
+    // Must match the viewBox for crisp layout math
+    const W = 760, H = 460;
+    const M = {l: 78, r: 18, t: 20, b: 68};
+    const PW = W - M.l - M.r;
+    const PH = H - M.t - M.b;
+
+    // Fixed plot ranges per your red notes
+    const HX = [0, 100];     // h in mm
+    const QY = [0, 1200];    // Q in mL/s
+
+    const x = d3.scaleLinear().domain(HX).range([0, PW]);
+    const y = d3.scaleLinear().domain(QY).range([PH, 0]);
+
+    const gPlot = svg.append("g").attr("transform", `translate(${M.l},${M.t})`);
+
+    gPlot.append("rect").attr("x",0).attr("y",0).attr("width",PW).attr("height",PH).attr("fill","#fff");
+
+    gPlot.append("g").attr("class","axis").attr("transform",`translate(0,${PH})`).call(d3.axisBottom(x).ticks(6));
+    gPlot.append("g").attr("class","axis").call(d3.axisLeft(y).ticks(6));
+
+    gPlot.append("text")
+      .attr("class","axis-title")
+      .attr("x", PW/2).attr("y", PH + 52)
+      .attr("text-anchor","middle")
+      .text("Manometer reading, h (mm)");
+
+    // y-title spacing preference: 15
+    const Y_TITLE_PAD = 15;
+    gPlot.append("text")
+      .attr("class","axis-title")
+      .attr("transform","rotate(-90)")
+      .attr("x", -PH/2)
+      .attr("y", -(Y_TITLE_PAD + 52))
+      .attr("text-anchor","middle")
+      .text("Volumetric flow rate, Q (mL/s)");
+
+    gPlot.append("line")
+      .attr("class","zeroline")
+      .attr("x1",0).attr("x2",PW)
+      .attr("y1",y(0)).attr("y2",y(0));
+
+    const curvePath = gPlot.append("path").attr("class","curve");
+    const pt = gPlot.append("circle").attr("class","dragpt").attr("r",6);
+
+    const line = d3.line()
+      .defined(d => Number.isFinite(d.Qml))
+      .x(d => x(d.hmm))
+      .y(d => y(clamp(d.Qml, QY[0], QY[1])));
+
+    const hit = gPlot.append("rect")
+      .attr("class","hit")
+      .attr("x",0).attr("y",0).attr("width",PW).attr("height",PH);
+
+    hit.call(
+      d3.drag().on("drag", (event) => {
+        const hmm = clamp(Math.round(x.invert(event.x)), HX[0], HX[1]);
+        state.hmm = hmm;
+        $("h").value = hmm;
+        $("hRange").value = hmm;
+        render();
+      })
+    );
+
+    function updateCurve(){
+      const pts = [];
+      for(let hmm = HX[0]; hmm <= HX[1]; hmm += 1){
+        const Q = Q_m3s({...state, hmm});
+        const Qml = Q * 1e6;
+        pts.push({hmm, Qml});
+      }
+      curvePath.attr("d", line(pts));
+    }
+
+    function updatePoint(){
+      const Q = Q_m3s(state);
+      const Qml = Q * 1e6;
+      pt.attr("cx", x(state.hmm))
+        .attr("cy", y(clamp(Number.isFinite(Qml) ? Qml : 0, QY[0], QY[1])));
+    }
+
+    function render(){
+      updateCurve();
+      updatePoint();
+      updateOutputs();
+    }
+
+    // ========= events =========
+    ["input","change"].forEach(ev => {
+      $("D1").addEventListener(ev, () => { readInputs(); render(); });
+      $("D2").addEventListener(ev, () => { readInputs(); render(); });
+      $("SG").addEventListener(ev, () => { readInputs(); render(); });
+      $("h").addEventListener(ev,  () => { readInputs(); render(); });
+    });
+
+    $("hRange").addEventListener("input", () => {
+      state.hmm = +$("hRange").value;
+      $("h").value = state.hmm;
+      render();
+    });
+
+    // ========= feedback context =========
+    (function(){
+      const FEEDBACK = { course: "ME 310", sim: "Ex. 3.9: Flow in a Variable-Area Pipe" };
+      document.addEventListener("DOMContentLoaded", () => {
+        const url = new URL("../feedback.html", location.href);
+        url.searchParams.set("course", FEEDBACK.course);
+        url.searchParams.set("sim", FEEDBACK.sim);
+        document.querySelectorAll("a.feedback-link").forEach(a => {
+          a.href = url.toString();
+          try { localStorage.setItem("fb_ctx", JSON.stringify(FEEDBACK)); } catch {}
+        });
+      });
+    })();
+
+    // ========= keep plot height matched to Inputs/Outputs card =========
+    (function(){
+      const plotCell = document.querySelector(".plot-cell");
+      if(!plotCell || !window.ResizeObserver) return;
+      const ro = new ResizeObserver(() => { render(); });
+      ro.observe(plotCell);
+    })();
+
+    // ========= init =========
+    readInputs();
+    render();
+  </script>
+</body>
+</html>
