@@ -77,11 +77,13 @@
       border:1px solid var(--line);border-radius:8px;
     }
 
-    /* Plots */
+    /* Plots wrapper */
+    .plots-wrapper{margin-top:12px}
     .plots-grid{
       display:grid;gap:14px;margin-top:10px;
       grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
     }
+    .plot-panel{display:flex;flex-direction:column}
 
     .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
     #plot-omega,#plot-radius,#plot-depth{width:100%;height:auto;display:block}
@@ -251,39 +253,44 @@
       </p>
     </section>
 
-    <!-- Intro text for plots -->
-    <p class="note" style="margin-top:12px">
-      The plots below show the free-surface profiles \( z(r) \) for three different cases:
-      varying angular velocity \( \omega \), varying cylinder radius \( R \), and varying liquid depth \( H \).
-    </p>
+    <!-- Plots inside one big card -->
+    <section class="card plots-wrapper">
+      <h2 style="margin:4px 0 8px">Free-surface profiles \( z(r) \)</h2>
+      <p class="note" style="margin-top:4px">
+        The plots below show the free-surface profiles \( z(r) \) for three different cases:
+        varying angular velocity \( \omega \), varying cylinder radius \( R \), and varying liquid depth \( H \).
+      </p>
 
-    <!-- Three plots -->
-    <section class="plots-grid">
-      <!-- Plot 1: vary omega -->
-      <div class="card">
-        <h3 style="margin:4px 0 6px">Effect of Angular Velocity \( \omega \)</h3>
-        <div class="viz">
-          <svg id="plot-omega" viewBox="0 0 360 460" aria-label="Free surfaces for different angular velocities"></svg>
+      <div class="plots-grid">
+        <!-- Plot 1: vary omega -->
+        <div class="plot-panel">
+          <h3 style="margin:4px 0 6px">Effect of Angular Velocity \( \omega \)</h3>
+          <div class="viz">
+            <svg id="plot-omega" viewBox="0 0 360 460"
+                 aria-label="Free surfaces for different angular velocities"></svg>
+          </div>
+          <div id="legend-omega" class="legend-block"></div>
         </div>
-        <div id="legend-omega" class="legend-block"></div>
-      </div>
 
-      <!-- Plot 2: vary R -->
-      <div class="card">
-        <h3 style="margin:4px 0 6px">Effect of Cylinder Radius \( R \)</h3>
-        <div class="viz">
-          <svg id="plot-radius" viewBox="0 0 360 460" aria-label="Free surfaces for different radii"></svg>
+        <!-- Plot 2: vary R -->
+        <div class="plot-panel">
+          <h3 style="margin:4px 0 6px">Effect of Cylinder Radius \( R \)</h3>
+          <div class="viz">
+            <svg id="plot-radius" viewBox="0 0 360 460"
+                 aria-label="Free surfaces for different radii"></svg>
+          </div>
+          <div id="legend-radius" class="legend-block"></div>
         </div>
-        <div id="legend-radius" class="legend-block"></div>
-      </div>
 
-      <!-- Plot 3: vary H -->
-      <div class="card">
-        <h3 style="margin:4px 0 6px">Effect of Initial Depth \( H \)</h3>
-        <div class="viz">
-          <svg id="plot-depth" viewBox="0 0 360 460" aria-label="Free surfaces for different depths"></svg>
+        <!-- Plot 3: vary H -->
+        <div class="plot-panel">
+          <h3 style="margin:4px 0 6px">Effect of Initial Depth \( H \)</h3>
+          <div class="viz">
+            <svg id="plot-depth" viewBox="0 0 360 460"
+                 aria-label="Free surfaces for different depths"></svg>
+          </div>
+          <div id="legend-depth" class="legend-block"></div>
         </div>
-        <div id="legend-depth" class="legend-block"></div>
       </div>
     </section>
   </main>
@@ -342,11 +349,11 @@
           });
         });
       }else{ // depth
-        const Hs = [H0, 1.2*H0, 1.5*H0];
+        const Hs = [H0, 0.5*H0, (1/3)*H0];
         const labels = [
           'H',
-          '1.2H',
-          '1.5H'
+          '\\tfrac{1}{2}H',
+          '\\tfrac{1}{3}H'
         ];
         Hs.forEach(function(H,i){
           surfaces.push({
@@ -418,13 +425,16 @@
       let explHTML;
       if(mode === 'omega'){
         explHTML =
-          'All curves use the same radius \\(R\\) and depth \\(H\\); only the angular velocity \\(\\omega\\) changes.';
+          'All curves use the same radius \\(R\\) and depth \\(H\\); only the angular velocity \\(\\omega\\) changes. ' +
+          'A dashed curve shows the flat free surface at \\(\\omega = 0\\).';
       }else if(mode === 'radius'){
         explHTML =
-          'All curves use the same angular velocity \\(\\omega\\) and depth \\(H\\); only the cylinder radius \\(R\\) changes.';
+          'All curves use the same angular velocity \\(\\omega\\) and depth \\(H\\); only the cylinder radius \\(R\\) changes. ' +
+          'A dashed curve shows the flat free surface at \\(\\omega = 0\\).';
       }else{
         explHTML =
-          'All curves use the same angular velocity \\(\\omega\\) and radius \\(R\\); only the initial liquid depth \\(H\\) changes.';
+          'All curves use the same angular velocity \\(\\omega\\) and radius \\(R\\); only the initial liquid depth \\(H\\) changes. ' +
+          'Solid curves show the rotating free surface; dashed curves show the corresponding flat free surfaces at \\(\\omega = 0\\).';
       }
 
       const itemsHTML = surfaces.map(function(s){
@@ -442,6 +452,34 @@
     function updatePlot(plot, omega0, R0, H0){
       const surfaces = buildSurfaces(plot.mode, omega0, R0, H0);
 
+      // Dashed reference curves for omega = 0 (flat free surface)
+      let zeroCurves = [];
+      if (plot.mode === 'depth') {
+        // one dashed line for each H value
+        zeroCurves = surfaces.map(function(s, idx){
+          const R = s.surface.R;
+          const H = s.surface.H;
+          const n = 80;
+          const pts = [];
+          for (let i=0;i<=n;i++){
+            const r = R * i/n;
+            pts.push({r, z:H});
+          }
+          return {key:'z'+idx, color:s.color, pts};
+        });
+      } else if (plot.mode === 'omega' || plot.mode === 'radius') {
+        // single dashed line at H for reference (base case)
+        const Rref = surfaces[0].surface.R;
+        const Href = surfaces[0].surface.H;
+        const n = 80;
+        const pts = [];
+        for (let i=0;i<=n;i++){
+          const r = Rref * i/n;
+          pts.push({r, z:Href});
+        }
+        zeroCurves = [{key:plot.mode+'-z0', color:'#6b7280', pts}];
+      }
+
       // x domain adapts to the largest radius in this set
       let rMax = 0;
       surfaces.forEach(function(s){
@@ -458,6 +496,7 @@
       plot.xAxisG.call(xAxis);
       plot.yAxisG.call(yAxis);
 
+      // solid curves (rotating free surfaces)
       const paths = plot.curvesG.selectAll('path.curve')
         .data(surfaces, function(d){return d.key;});
 
@@ -471,6 +510,22 @@
         .attr('d',function(d){return plot.line(d.surface.pts);});
 
       paths.exit().remove();
+
+      // dashed reference curves for omega = 0 (flat surfaces)
+      const dpaths = plot.curvesG.selectAll('path.curve-zero')
+        .data(zeroCurves, function(d){return d.key;});
+
+      dpaths.enter()
+        .append('path')
+        .attr('class','curve-zero')
+        .attr('fill','none')
+        .attr('stroke-width',1.8)
+        .attr('stroke-dasharray','6,4')
+        .merge(dpaths)
+        .attr('stroke', function(d){return d.color;})
+        .attr('d', function(d){return plot.line(d.pts);});
+
+      dpaths.exit().remove();
 
       updateLegend(plot.mode, surfaces);
     }
