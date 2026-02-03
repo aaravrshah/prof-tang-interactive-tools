@@ -32,14 +32,8 @@
     .back-home .chev{font-size:16px;line-height:1}
 
     /* Layout: derivation + schematic */
-    .top-grid{
-      display:grid;
-      gap:14px;
-      margin-top:10px;
-    }
-
+    .top-grid{display:grid;gap:14px;margin-top:10px}
     .side-col{display:flex;flex-direction:column;gap:12px}
-
     @media (min-width:900px){
       .top-grid{
         grid-template-columns:minmax(0,2.1fr) minmax(260px,0.9fr);
@@ -47,7 +41,7 @@
       }
       .side-col{
         position:sticky;
-        top:96px;          /* stay below header */
+        top:96px;
         align-self:flex-start;
       }
     }
@@ -59,6 +53,16 @@
     .schematic-card p{margin:0 0 6px;font-size:14px;color:#4b5563}
     .schematic-img-wrap{display:flex;justify-content:center;align-items:center;margin-top:6px;margin-bottom:4px}
     .schematic-img{display:block;max-width:260px;width:100%;height:auto;object-fit:contain}
+
+    /* ===== Kill scrollbars on cards (override styles.css) ===== */
+    .card{
+      max-height:none !important;
+      height:auto !important;
+      overflow:visible !important;
+    }
+    .card *{
+      overflow:visible !important;
+    }
 
     /* Inputs card (full width) */
     .inputs-card{margin-top:18px}
@@ -98,6 +102,7 @@
     svg .axis-title{font-size:16px}
   </style>
 </head>
+
 <body>
   <!-- Header -->
   <header class="site-header">
@@ -121,7 +126,6 @@
 
     <!-- Derivation + schematic -->
     <section class="top-grid">
-      <!-- Derivation / equations -->
       <div class="card">
         <h2 style="margin:4px 0 8px">Liquid in Rigid-Body Rotation</h2>
 
@@ -201,7 +205,6 @@
         </div>
       </div>
 
-      <!-- Right column: schematic -->
       <div class="side-col">
         <div class="card schematic-card">
           <h2 style="margin:4px 0 8px">Schematic</h2>
@@ -221,7 +224,7 @@
       </div>
     </section>
 
-    <!-- Inputs (full width) -->
+    <!-- Inputs -->
     <section class="card inputs-card">
       <h2>Inputs</h2>
       <div class="inputs-grid">
@@ -253,7 +256,7 @@
       </p>
     </section>
 
-    <!-- Plots inside one big card -->
+    <!-- Plots -->
     <section class="card plots-wrapper">
       <h2 style="margin:4px 0 8px">Free-surface profiles \( z(r) \)</h2>
       <p class="note" style="margin-top:4px">
@@ -262,32 +265,26 @@
       </p>
 
       <div class="plots-grid">
-        <!-- Plot 1: vary omega -->
         <div class="plot-panel">
           <h3 style="margin:4px 0 6px">Effect of Angular Velocity \( \omega \)</h3>
           <div class="viz">
-            <svg id="plot-omega" viewBox="0 0 360 460"
-                 aria-label="Free surfaces for different angular velocities"></svg>
+            <svg id="plot-omega" viewBox="0 0 360 460" aria-label="Free surfaces for different angular velocities"></svg>
           </div>
           <div id="legend-omega" class="legend-block"></div>
         </div>
 
-        <!-- Plot 2: vary R -->
         <div class="plot-panel">
           <h3 style="margin:4px 0 6px">Effect of Cylinder Radius \( R \)</h3>
           <div class="viz">
-            <svg id="plot-radius" viewBox="0 0 360 460"
-                 aria-label="Free surfaces for different radii"></svg>
+            <svg id="plot-radius" viewBox="0 0 360 460" aria-label="Free surfaces for different radii"></svg>
           </div>
           <div id="legend-radius" class="legend-block"></div>
         </div>
 
-        <!-- Plot 3: vary H -->
         <div class="plot-panel">
           <h3 style="margin:4px 0 6px">Effect of Initial Depth \( H \)</h3>
           <div class="viz">
-            <svg id="plot-depth" viewBox="0 0 360 460"
-                 aria-label="Free surfaces for different depths"></svg>
+            <svg id="plot-depth" viewBox="0 0 360 460" aria-label="Free surfaces for different depths"></svg>
           </div>
           <div id="legend-depth" class="legend-block"></div>
         </div>
@@ -297,94 +294,104 @@
 
   <script>
     const g = 9.81;
+    const colors = ['#2563eb','#f97316','#10b981'];
 
-    function clamp(val, min, max){
-      return Math.max(min, Math.min(max, val));
-    }
+    function clamp(val, min, max){ return Math.max(min, Math.min(max, val)); }
 
-    function makeSurface(omega, R, H, steps){
-      const n = steps || 80;
+    // Build points for z(r); if any portion goes below z=0, cut it off at the x-axis
+    function makeSurfaceClipped(omega, R, H, steps){
+      const n = steps || 140;
       const h0 = H - (omega*omega*R*R)/(4*g);
+
       const pts = [];
+      let prevR = null, prevZ = null;
+
       for(let i=0;i<=n;i++){
         const r = R * i/n;
         const z = (omega*omega*r*r)/(2*g) + h0;
-        pts.push({r,z});
+
+        const prevPos = (prevZ !== null) && (prevZ >= 0);
+        const currPos = (z >= 0);
+
+        // crossing z=0: add intersection then break segment with NaN (same strategy as 2.33)
+        if(prevZ !== null && prevR !== null && (prevPos !== currPos)){
+          const rCross = prevR + (0 - prevZ) * (r - prevR) / (z - prevZ);
+          pts.push({r:rCross, z:0});
+          pts.push({r:rCross, z:NaN});
+        }
+
+        if(currPos){
+          pts.push({r,z});
+        }else{
+          pts.push({r, z:NaN});
+        }
+
+        prevR = r;
+        prevZ = z;
       }
+
       return {omega,R,H,h0,pts};
     }
 
-    const colors = ['#2563eb','#f97316','#10b981'];
-
     function buildSurfaces(mode, omega0, R0, H0){
       const surfaces = [];
+
       if(mode === 'omega'){
         const omegas = [omega0, 0.5*omega0, omega0/3];
-        const labels = [
-          '\\omega',
-          '\\tfrac{1}{2}\\omega',
-          '\\tfrac{1}{3}\\omega'
-        ];
-        omegas.forEach(function(om,i){
+        const labels = ['\\omega','\\tfrac{1}{2}\\omega','\\tfrac{1}{3}\\omega'];
+        omegas.forEach((om,i)=>{
           surfaces.push({
             key:'w'+i,
             label:labels[i],
             color:colors[i],
-            surface:makeSurface(om,R0,H0)
+            surface:makeSurfaceClipped(om,R0,H0)
           });
         });
+
       }else if(mode === 'radius'){
         const Rs = [R0, 0.5*R0, R0/3];
-        const labels = [
-          'R',
-          '\\tfrac{1}{2}R',
-          '\\tfrac{1}{3}R'
-        ];
-        Rs.forEach(function(R,i){
+        const labels = ['R','\\tfrac{1}{2}R','\\tfrac{1}{3}R'];
+        Rs.forEach((R,i)=>{
           surfaces.push({
             key:'r'+i,
             label:labels[i],
             color:colors[i],
-            surface:makeSurface(omega0,R,H0)
+            surface:makeSurfaceClipped(omega0,R,H0)
           });
         });
+
       }else{ // depth
         const Hs = [H0, 0.5*H0, (1/3)*H0];
-        const labels = [
-          'H',
-          '\\tfrac{1}{2}H',
-          '\\tfrac{1}{3}H'
-        ];
-        Hs.forEach(function(H,i){
+        const labels = ['H','\\tfrac{1}{2}H','\\tfrac{1}{3}H'];
+        Hs.forEach((H,i)=>{
           surfaces.push({
             key:'h'+i,
             label:labels[i],
             color:colors[i],
-            surface:makeSurface(omega0,R0,H)
+            surface:makeSurfaceClipped(omega0,R0,H)
           });
         });
       }
+
       return surfaces;
     }
 
-    function initPlot(id, mode){
+    function initPlot(id){
       const svg = d3.select('#'+id);
       const W = 360, Hh = 460;
       const margin = {top:18,right:16,bottom:54,left:54};
       const iw = W - margin.left - margin.right;
       const ih = Hh - margin.top - margin.bottom;
 
-      svg.attr('viewBox','0 0 '+W+' '+Hh);
+      svg.attr('viewBox',`0 0 ${W} ${Hh}`);
 
-      const gMain = svg.append('g').attr('transform','translate('+margin.left+','+margin.top+')');
+      const gMain = svg.append('g').attr('transform',`translate(${margin.left},${margin.top})`);
       const axesG = gMain.append('g').attr('class','axes');
       const curvesG = gMain.append('g').attr('class','curves');
 
-      const xAxisG = axesG.append('g')
-        .attr('class','axis axis--x')
-        .attr('transform','translate(0,'+ih+')');
-      const yAxisG = axesG.append('g')
-        .attr('class','axis axis--y');
+      const xAxisG = axesG.append('g').attr('class','axis axis--x')
+        .attr('transform',`translate(0,${ih})`);
+      const yAxisG = axesG.append('g').attr('class','axis axis--y');
 
       axesG.append('text')
         .attr('class','axis-title')
@@ -395,7 +402,7 @@
 
       axesG.append('text')
         .attr('class','axis-title')
-        .attr('transform','translate(-40,'+(ih/2)+') rotate(-90)')
+        .attr('transform',`translate(-40,${ih/2}) rotate(-90)`)
         .attr('text-anchor','middle')
         .text('z (m)');
 
@@ -403,23 +410,21 @@
       const yScale = d3.scaleLinear().range([ih,0]);
 
       const line = d3.line()
-        .x(function(d){return xScale(d.r);})
-        .y(function(d){return yScale(d.z);});
+        .defined(d => Number.isFinite(d.z))
+        .x(d=>xScale(d.r))
+        .y(d=>yScale(d.z));
 
-      return {id,mode,svg,gMain,axesG,curvesG,xAxisG,yAxisG,xScale,yScale,line,iw,ih};
+      return {svg,gMain,axesG,curvesG,xAxisG,yAxisG,xScale,yScale,line,iw,ih};
     }
 
     const plots = {
-      omega:  initPlot('plot-omega','omega'),
-      radius: initPlot('plot-radius','radius'),
-      depth:  initPlot('plot-depth','depth')
+      omega:  initPlot('plot-omega'),
+      radius: initPlot('plot-radius'),
+      depth:  initPlot('plot-depth')
     };
 
     function updateLegend(mode, surfaces){
-      const lid =
-        mode==='omega'  ? 'legend-omega'  :
-        mode==='radius' ? 'legend-radius' :
-                          'legend-depth';
+      const lid = (mode==='omega') ? 'legend-omega' : (mode==='radius') ? 'legend-radius' : 'legend-depth';
       const container = document.getElementById(lid);
 
       let explHTML;
@@ -437,68 +442,61 @@
           'Solid curves show the rotating free surface; dashed curves show the corresponding flat free surfaces at \\(\\omega = 0\\).';
       }
 
-      const itemsHTML = surfaces.map(function(s){
-        return '<span class="legend-item"><span class="sw" style="background:'+s.color+'"></span><span>\\('+s.label+'\\)</span></span>';
-      }).join('');
+      const itemsHTML = surfaces.map(s =>
+        `<span class="legend-item"><span class="sw" style="background:${s.color}"></span><span>\\(${s.label}\\)</span></span>`
+      ).join('');
 
-      container.innerHTML = '<div class="legend-row">'+itemsHTML+'</div>' +
-                            '<p class="dim-note">'+explHTML+'</p>';
+      container.innerHTML = `<div class="legend-row">${itemsHTML}</div><p class="dim-note">${explHTML}</p>`;
 
       if(window.MathJax && window.MathJax.typesetPromise){
         MathJax.typesetPromise([container]);
       }
     }
 
-    function updatePlot(plot, omega0, R0, H0){
-      const surfaces = buildSurfaces(plot.mode, omega0, R0, H0);
+    function updatePlot(plotObj, mode, omega0, R0, H0){
+      const surfaces = buildSurfaces(mode, omega0, R0, H0);
 
-      // Dashed reference curves for omega = 0 (flat free surface)
+      // dashed reference curves for omega=0 (flat free surface)
       let zeroCurves = [];
-      if (plot.mode === 'depth') {
-        // one dashed line for each H value
-        zeroCurves = surfaces.map(function(s, idx){
+      if(mode === 'depth'){
+        // dashed line for each H level (clipped is unnecessary but keep consistent)
+        zeroCurves = surfaces.map((s, idx)=>{
           const R = s.surface.R;
           const H = s.surface.H;
-          const n = 80;
+          const n = 140;
           const pts = [];
-          for (let i=0;i<=n;i++){
+          for(let i=0;i<=n;i++){
             const r = R * i/n;
-            pts.push({r, z:H});
+            pts.push({r, z: H}); // always >=0 in allowed slider range
           }
           return {key:'z'+idx, color:s.color, pts};
         });
-      } else if (plot.mode === 'omega' || plot.mode === 'radius') {
-        // single dashed line at H for reference (base case)
+      }else{
         const Rref = surfaces[0].surface.R;
         const Href = surfaces[0].surface.H;
-        const n = 80;
+        const n = 140;
         const pts = [];
-        for (let i=0;i<=n;i++){
+        for(let i=0;i<=n;i++){
           const r = Rref * i/n;
-          pts.push({r, z:Href});
+          pts.push({r, z: Href});
         }
-        zeroCurves = [{key:plot.mode+'-z0', color:'#6b7280', pts}];
+        zeroCurves = [{key:mode+'-z0', color:'#6b7280', pts}];
       }
 
-      // x domain adapts to the largest radius in this set
+      // x domain to largest radius in set
       let rMax = 0;
-      surfaces.forEach(function(s){
-        if(s.surface.R > rMax) rMax = s.surface.R;
-      });
-      plot.xScale.domain([0, rMax]);
+      surfaces.forEach(s => { if(s.surface.R > rMax) rMax = s.surface.R; });
+      plotObj.xScale.domain([0, rMax]);
 
-      // fixed y-range so the curves are visually comparable
-      plot.yScale.domain([0, 2]);
+      // y domain: start at 0 (x-axis), top fixed to 2 like your original
+      plotObj.yScale.domain([0, 2]);
 
-      const xAxis = d3.axisBottom(plot.xScale).ticks(5);
-      const yAxis = d3.axisLeft(plot.yScale).ticks(5);
+      plotObj.xAxisG.call(d3.axisBottom(plotObj.xScale).ticks(5));
+      plotObj.yAxisG.call(d3.axisLeft(plotObj.yScale).ticks(5));
 
-      plot.xAxisG.call(xAxis);
-      plot.yAxisG.call(yAxis);
-
-      // solid curves (rotating free surfaces)
-      const paths = plot.curvesG.selectAll('path.curve')
-        .data(surfaces, function(d){return d.key;});
+      // solid rotating curves
+      const paths = plotObj.curvesG.selectAll('path.curve')
+        .data(surfaces, d=>d.key);
 
       paths.enter()
         .append('path')
@@ -506,14 +504,14 @@
         .attr('fill','none')
         .attr('stroke-width',2.2)
         .merge(paths)
-        .attr('stroke',function(d){return d.color;})
-        .attr('d',function(d){return plot.line(d.surface.pts);});
+        .attr('stroke',d=>d.color)
+        .attr('d',d=>plotObj.line(d.surface.pts));
 
       paths.exit().remove();
 
-      // dashed reference curves for omega = 0 (flat surfaces)
-      const dpaths = plot.curvesG.selectAll('path.curve-zero')
-        .data(zeroCurves, function(d){return d.key;});
+      // dashed flat curves
+      const dpaths = plotObj.curvesG.selectAll('path.curve-zero')
+        .data(zeroCurves, d=>d.key);
 
       dpaths.enter()
         .append('path')
@@ -522,18 +520,18 @@
         .attr('stroke-width',1.8)
         .attr('stroke-dasharray','6,4')
         .merge(dpaths)
-        .attr('stroke', function(d){return d.color;})
-        .attr('d', function(d){return plot.line(d.pts);});
+        .attr('stroke', d=>d.color)
+        .attr('d', d=>plotObj.line(d.pts));
 
       dpaths.exit().remove();
 
-      updateLegend(plot.mode, surfaces);
+      updateLegend(mode, surfaces);
     }
 
     function updateAll(){
-      const OMIN = 0,   OMAX = 10;
-      const RMIN = 0.1, RMAX = 0.5;
-      const HMIN = 0.7, HMAX = 1.3;
+      const OMIN=0, OMAX=10;
+      const RMIN=0.1, RMAX=0.5;
+      const HMIN=0.7, HMAX=1.3;
 
       let omega = parseFloat(document.getElementById('omegaInput').value);
       let R     = parseFloat(document.getElementById('RInput').value);
@@ -555,9 +553,9 @@
       document.getElementById('RSlider').value     = R;
       document.getElementById('HSlider').value     = H;
 
-      updatePlot(plots.omega,  omega, R, H);
-      updatePlot(plots.radius, omega, R, H);
-      updatePlot(plots.depth,  omega, R, H);
+      updatePlot(plots.omega,  'omega',  omega, R, H);
+      updatePlot(plots.radius, 'radius', omega, R, H);
+      updatePlot(plots.depth,  'depth',  omega, R, H);
     }
 
     function bindInputPair(numId, sliderId){
@@ -576,7 +574,7 @@
 
     window.addEventListener('DOMContentLoaded', function(){
       updateAll();
-      if(window.MathJax && MathJax.typesetPromise){
+      if(window.MathJax && window.MathJax.typesetPromise){
         MathJax.typesetPromise();
       }
     });
