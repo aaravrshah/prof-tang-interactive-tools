@@ -31,7 +31,7 @@
     .back-home:hover{background:#f0f9ff}
     .back-home .chev{font-size:16px;line-height:1}
 
-    /* Top layout: equations + schematic */
+    /* ===== Top layout: equations + schematic ===== */
     .top-grid{
       display:grid;
       gap:14px;
@@ -53,7 +53,18 @@
     }
 
     .note{font-size:14px;color:#4b5563}
-    .eq-card{max-height:none;overflow:visible}
+
+    /* ===== Kill scrollbars on calc cards (override any styles.css behavior) ===== */
+    .card.eq-card,
+    .card.schematic-card{
+      max-height:none !important;
+      height:auto !important;
+      overflow:visible !important;
+    }
+    .card.eq-card *{
+      overflow:visible !important;
+    }
+
     .eq-card h2{margin:4px 0 6px}
     .eq-subtitle{
       margin:4px 0 6px;
@@ -87,7 +98,7 @@
       border-radius:6px;
     }
 
-    /* Inputs card (full width) */
+    /* ===== Inputs card ===== */
     .inputs-card{margin-top:18px}
     .inputs-card h2{margin:4px 0 10px}
 
@@ -123,10 +134,7 @@
       align-items:center;
     }
 
-    .ctl-row input[type="range"]{
-      flex:1;
-    }
-
+    .ctl-row input[type="range"]{flex:1}
     .ctl-row input[type="number"]{
       width:90px;
       max-width:100%;
@@ -151,13 +159,10 @@
       flex-direction:column;
       gap:4px;
     }
-    .coord-ctl .sub-ctl .ctl-row input[type="range"]{
-      flex:1.2;
-    }
-
+    .coord-ctl .sub-ctl .ctl-row input[type="range"]{flex:1.2}
     .inputs-note{margin-top:10px}
 
-    /* Outputs card */
+    /* ===== Outputs card ===== */
     .outputs-card{margin-top:16px}
     .outputs-card h2{margin:4px 0 10px}
     .outputs-grid{
@@ -173,30 +178,19 @@
       border:1px solid var(--line);
       padding:10px 12px;
     }
-    .out-label{
-      font-size:13px;
-      color:#6b7280;
-      margin-bottom:4px;
-    }
-    .out-value{
-      font-size:18px;
-      font-weight:600;
-      color:#111827;
-    }
+    .out-label{font-size:13px;color:#6b7280;margin-bottom:4px}
+    .out-value{font-size:18px;font-weight:600;color:#111827}
 
-    /* Plots big card */
+    /* ===== Plots ===== */
     .plots-card{margin-top:18px}
     .plots-card h2{margin:4px 0 10px}
 
-    /* Inner grid of three plots */
     .plots-grid{
       display:grid;
       gap:14px;
       grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
     }
-    .plot-panel{
-      padding:4px 4px 0;
-    }
+    .plot-panel{padding:4px 4px 0}
 
     .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
     #plot-iso,#plot-center,#plot-bottom{width:100%;height:auto;display:block}
@@ -210,14 +204,11 @@
     svg .axis text{font-size:14px}
     svg .axis-title{font-size:16px}
 
-    .drag-point{
-      cursor:grab;
-    }
-    .drag-overlay{
-      cursor:pointer;
-    }
+    .drag-point{cursor:grab}
+    .drag-overlay{cursor:pointer}
   </style>
 </head>
+
 <body>
   <!-- Header -->
   <header class="site-header">
@@ -361,7 +352,6 @@
     <section class="card inputs-card">
       <h2>Inputs</h2>
 
-      <!-- Row 1: omega, R, H -->
       <div class="inputs-row1">
         <div class="ctl">
           <label for="omegaSlider">Angular velocity \( \omega \) (rad/s)</label>
@@ -388,7 +378,6 @@
         </div>
       </div>
 
-      <!-- Row 2: r,z -->
       <div class="inputs-row2" style="margin-top:10px">
         <div class="ctl coord-ctl">
           <label>Coordinate for \( p : (r,z) \) (m)</label>
@@ -413,8 +402,7 @@
 
       <p class="note inputs-note">
         Density is fixed at \( \rho = 998.2~\text{kg/m}^3 \) (water). The coordinate \( (r,z) \) defines one of the
-        three constant-pressure lines shown in the \( r\text{–}z \) plane. You can also click or drag the blue
-        point in the first plot to adjust \( r \) and \( z \).
+        three constant-pressure lines. You can also click or drag the blue point in the first plot to adjust \( r \) and \( z \).
       </p>
     </section>
 
@@ -423,7 +411,7 @@
       <h2>Outputs at \( (r,z) \)</h2>
       <p class="note">
         At the blue point \( (r,z) \), the gauge pressure is \( p(r,z) \) and the local liquid depth is
-        \( \Delta h = h(r) - z \). These values are reflected in all three plots.
+        \( \Delta h = h(r) - z \).
       </p>
       <div class="outputs-grid">
         <div class="out-box">
@@ -437,36 +425,30 @@
       </div>
     </section>
 
-    <!-- All three plots inside one big card -->
+    <!-- Plots -->
     <section class="card plots-card">
       <h2>Pressure visualizations</h2>
       <div class="plots-grid">
-        <!-- Plot 1 -->
         <div class="plot-panel">
-          <h3 style="margin:4px 0 6px">Constant-Pressure Lines in the \( r\text{–}z \) Plane</h3>
+          <h3 style="margin:4px 0 6px">Constant-pressure lines</h3>
           <div class="viz">
-            <svg id="plot-iso" viewBox="0 0 360 460"
-                 aria-label="Constant-pressure lines in r-z plane"></svg>
+            <svg id="plot-iso" viewBox="0 0 360 460" aria-label="Constant-pressure lines"></svg>
           </div>
           <div id="legend-iso" class="legend-block"></div>
         </div>
 
-        <!-- Plot 2 -->
         <div class="plot-panel">
-          <h3 style="margin:4px 0 6px">Pressure vs Height at fixed \( r \)</h3>
+          <h3 style="margin:4px 0 6px">\(p\) vs \(z\) at fixed \(r\)</h3>
           <div class="viz">
-            <svg id="plot-center" viewBox="0 0 360 460"
-                 aria-label="Pressure vs z at chosen r"></svg>
+            <svg id="plot-center" viewBox="0 0 360 460" aria-label="p vs z at fixed r"></svg>
           </div>
           <div id="legend-center" class="legend-block"></div>
         </div>
 
-        <!-- Plot 3 -->
         <div class="plot-panel">
-          <h3 style="margin:4px 0 6px">Pressure vs Radius at fixed \( z \)</h3>
+          <h3 style="margin:4px 0 6px">\(p\) vs \(r\) at fixed \(z\)</h3>
           <div class="viz">
-            <svg id="plot-bottom" viewBox="0 0 360 460"
-                 aria-label="Pressure vs r at chosen z"></svg>
+            <svg id="plot-bottom" viewBox="0 0 360 460" aria-label="p vs r at fixed z"></svg>
           </div>
           <div id="legend-bottom" class="legend-block"></div>
         </div>
@@ -494,9 +476,7 @@
         zSlider, zInput,
         pOut, dhOut;
 
-    function clamp(v, min, max){
-      return Math.max(min, Math.min(max, v));
-    }
+    function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
 
     function freeSurfaceH0(omega,R,H){
       return H - (omega*omega*R*R)/(4*g);
@@ -532,6 +512,7 @@
       HInput.value  = state.H.toFixed(3);
 
       rSlider.max = state.R.toFixed(3);
+
       const zMax = freeSurfaceAtR(state.omega,state.R,state.H,state.r);
       zSlider.max = Math.max(0,zMax).toFixed(3);
 
@@ -558,8 +539,7 @@
       const xAxisG = axesG.append('g')
         .attr('class','axis axis--x')
         .attr('transform',`translate(0,${ih})`);
-      const yAxisG = axesG.append('g')
-        .attr('class','axis axis--y');
+      const yAxisG = axesG.append('g').attr('class','axis axis--y');
 
       axesG.append('text')
         .attr('class','axis-title')
@@ -578,6 +558,7 @@
       const yScale = d3.scaleLinear().range([ih,0]);
 
       const line = d3.line()
+        .defined(d => Number.isFinite(d.y))
         .x(d=>xScale(d.x))
         .y(d=>yScale(d.y));
 
@@ -591,6 +572,7 @@
     let dragPoint = null;
     let dragOverlay = null;
 
+    // --- Constant-pressure lines plot: cut off ONLY the z<0 part (no water), keep the rest
     function updateIso(){
       const {omega,R,H,r: rRef,z: zRef} = state;
 
@@ -598,6 +580,7 @@
 
       let p1 = pGauge(omega,R,H,rRef,zRef);
       if(p1 < 0) p1 = 0;
+
       const p2 = 0;
       const p3 = pGauge(omega,R,H,0,0.5*h0);
 
@@ -605,31 +588,50 @@
 
       const curves = pConsts.map((pConst,idx)=>{
         const pts = [];
-        const N = 160;
+        const N = 220;
+
+        let prevR = null, prevZ = null;
+
         for(let i=0;i<=N;i++){
           const r = R * i/N;
-          let z = H + (omega*omega/(4*g))*(2*r*r - R*R) - pConst/(rho*g);
-          if(z < 0) z = 0;
-          pts.push({x:r,y:z});
+          const z = H + (omega*omega/(4*g))*(2*r*r - R*R) - pConst/(rho*g);
+
+          const prevPos = (prevZ !== null) && (prevZ >= 0);
+          const currPos = (z >= 0);
+
+          // crossing z=0: add intersection point and break
+          if(prevZ !== null && prevR !== null && (prevPos !== currPos)){
+            const rCross = prevR + (0 - prevZ) * (r - prevR) / (z - prevZ);
+            pts.push({x:rCross, y:0});
+            pts.push({x:rCross, y:NaN});
+          }
+
+          if(currPos){
+            pts.push({x:r,y:z});
+          }else{
+            pts.push({x:r,y:NaN});
+          }
+
+          prevR = r;
+          prevZ = z;
         }
+
         return {key:'c'+idx, pts};
       });
 
+      // y max ignoring NaNs
       let zMax = 0;
       curves.forEach(c=>{
         c.pts.forEach(p=>{
-          if(p.y > zMax) zMax = p.y;
+          if(Number.isFinite(p.y) && p.y > zMax) zMax = p.y;
         });
       });
 
       isoPlot.xScale.domain([0,R]);
       isoPlot.yScale.domain([0, zMax*1.02]);
 
-      const xAxis = d3.axisBottom(isoPlot.xScale).ticks(5);
-      const yAxis = d3.axisLeft(isoPlot.yScale).ticks(5);
-
-      isoPlot.xAxisG.call(xAxis);
-      isoPlot.yAxisG.call(yAxis);
+      isoPlot.xAxisG.call(d3.axisBottom(isoPlot.xScale).ticks(5));
+      isoPlot.yAxisG.call(d3.axisLeft(isoPlot.yScale).ticks(5));
 
       const paths = isoPlot.curvesG.selectAll('path.curve')
         .data(curves, d=>d.key);
@@ -652,10 +654,11 @@
       }
 
       const legend = document.getElementById('legend-iso');
+
       const labels = [
         '\\( p_1 = p(r,z) \\)',
-        '\\( p_2 = p(0,h_0) \\; \\text{(free surface)} \\)',
-        '\\( p_3 = p(0, \\tfrac{1}{2} h_0) \\)'
+        '\\( p_2 = p(0,h_0) \\;\\text{(free surface)} \\)',
+        '\\( p_3 = p(0, h_0/2) \\)'
       ];
 
       const itemsHTML = labels.map((txt,i)=>
@@ -665,10 +668,9 @@
       legend.innerHTML =
         `<div class="legend-row">${itemsHTML}</div>` +
         `<p class="dim-note">
-          Three constant-pressure lines in the \( r\\text{–}z \) plane.
-          \(p_2\) lies on the free surface where \( p(0,h_0) = 0 \).
-          \(p_1\) uses the input point \( (r,z) \), and \(p_3\) uses the midpoint
-          \( (0, \\tfrac{1}{2} h_0) \) on the axis.
+          Three constant-pressure lines. \(p_2\) lies on the free surface where \(p(0,h_0)=0\).
+          \(p_1\) uses the selected point \((r,z)\), and \(p_3\) uses the point \((0, h_0/2)\)
+          on the axis (half the free-surface height).
         </p>`;
 
       if(window.MathJax && window.MathJax.typesetPromise){
@@ -701,6 +703,7 @@
         });
 
       dragPoint.call(dragBehavior);
+
       dragOverlay
         .on('click', function(event){
           const [mx,my] = d3.pointer(event, isoPlot.gMain.node());
@@ -725,7 +728,7 @@
       const hR = freeSurfaceAtR(omega,R,H,rRef);
       const zMax = Math.max(0,hR);
 
-      const N = 160;
+      const N = 180;
       const pts = [];
       let pMax = 0;
 
@@ -746,11 +749,8 @@
       centerPlot.xScale.domain([0,zMax]);
       centerPlot.yScale.domain([0,yMax]);
 
-      const xAxis = d3.axisBottom(centerPlot.xScale).ticks(5);
-      const yAxis = d3.axisLeft(centerPlot.yScale).ticks(5);
-
-      centerPlot.xAxisG.call(xAxis);
-      centerPlot.yAxisG.call(yAxis);
+      centerPlot.xAxisG.call(d3.axisBottom(centerPlot.xScale).ticks(5));
+      centerPlot.yAxisG.call(d3.axisLeft(centerPlot.yScale).ticks(5));
 
       const path = centerPlot.curvesG.selectAll('path.curve')
         .data([pts]);
@@ -769,9 +769,8 @@
       const legend = document.getElementById('legend-center');
       legend.innerHTML =
         `<p class="dim-note">
-          Gauge pressure \(p(r,z)\) along a vertical line at the chosen radius \(r\),
-          from the bottom \(z = 0\) up to the free surface at \(z = h(r)\),
-          where \(p = 0\).
+          Gauge pressure \(p(r,z)\) along a vertical line at the chosen \(r\),
+          from \(z=0\) up to the free surface at \(z=h(r)\), where \(p=0\).
         </p>`;
 
       if(window.MathJax && window.MathJax.typesetPromise){
@@ -779,10 +778,11 @@
       }
     }
 
+    // Third plot: KEEP the p=0 flat segment where there is no water at that z (this is correct behavior)
     function updateBottom(){
       const {omega,R,H,z: zRef} = state;
 
-      const N = 160;
+      const N = 180;
       const pts = [];
       let pMax = 0;
 
@@ -793,6 +793,8 @@
         if(zRef <= hR + 1e-9){
           p = pGauge(omega,R,H,r,zRef)/1000;
           if(p < 0) p = 0;
+        }else{
+          p = 0;
         }
         pts.push({x:r,y:p});
         if(p > pMax) pMax = p;
@@ -804,11 +806,8 @@
       bottomPlot.xScale.domain([0,R]);
       bottomPlot.yScale.domain([0,yMax]);
 
-      const xAxis = d3.axisBottom(bottomPlot.xScale).ticks(5);
-      const yAxis = d3.axisLeft(bottomPlot.yScale).ticks(5);
-
-      bottomPlot.xAxisG.call(xAxis);
-      bottomPlot.yAxisG.call(yAxis);
+      bottomPlot.xAxisG.call(d3.axisBottom(bottomPlot.xScale).ticks(5));
+      bottomPlot.yAxisG.call(d3.axisLeft(bottomPlot.yScale).ticks(5));
 
       const path = bottomPlot.curvesG.selectAll('path.curve')
         .data([pts]);
@@ -827,9 +826,8 @@
       const legend = document.getElementById('legend-bottom');
       legend.innerHTML =
         `<p class="dim-note">
-          Gauge pressure \(p(r,z)\) along a horizontal line at the chosen height \(z\),
-          from the rotation axis \(r = 0\) to the wall at \(r = R\).
-          Where the line lies above the free surface, \(p = 0\).
+          Gauge pressure \(p(r,z)\) along a horizontal line at the chosen \(z\),
+          from \(r=0\) to \(r=R\). Where the line lies above the free surface, \(p=0\).
         </p>`;
 
       if(window.MathJax && window.MathJax.typesetPromise){
@@ -872,22 +870,12 @@
       let v = parseFloat(e.target.value);
       if(isNaN(v)) return;
 
-      if(id === 'omegaInput'){
-        state.omega = v;
-        omegaSlider.value = v;
-      }else if(id === 'RInput'){
-        state.R = v;
-        RSlider.value = v;
-      }else if(id === 'HInput'){
-        state.H = v;
-        HSlider.value = v;
-      }else if(id === 'rInput'){
-        state.r = v;
-        rSlider.value = v;
-      }else if(id === 'zInput'){
-        state.z = v;
-        zSlider.value = v;
-      }
+      if(id === 'omegaInput'){ state.omega = v; omegaSlider.value = v; }
+      else if(id === 'RInput'){ state.R = v; RSlider.value = v; }
+      else if(id === 'HInput'){ state.H = v; HSlider.value = v; }
+      else if(id === 'rInput'){ state.r = v; rSlider.value = v; }
+      else if(id === 'zInput'){ state.z = v; zSlider.value = v; }
+
       updateAllFromState();
     }
 
