@@ -38,17 +38,23 @@
     }
 
     .schem-box{
-      height: 520px;
-      display:grid;
-      place-items:center;
-      border:2px dashed var(--line);
+      border:1px solid var(--line);
       border-radius:12px;
-      background:#fafcff;
-      color:#64748b;
-      text-align:center;
-      padding:12px;
+      background:#fff;
+      padding:10px;
     }
-    .schem-box .t{font-weight:800;color:#334155;margin-bottom:6px}
+    .schem-img{
+      display:block;
+      width:100%;
+      height:auto;
+      border-radius:10px;
+    }
+    .schem-cap{
+      margin:8px 2px 0;
+      font-size:13px;
+      color:#64748b;
+      line-height:1.35;
+    }
 
     /* ===== BOTTOM: full width inputs + plot ===== */
     .io-grid{display:grid;gap:12px;align-items:stretch;margin-top:12px}
@@ -200,14 +206,20 @@
       </section>
     </div>
 
-    <!-- RIGHT: Sticky schematic (stops before bottom section because it's outside that section) -->
+    <!-- RIGHT: Sticky schematic -->
     <aside class="sticky-schem" aria-label="Schematic">
       <div class="card">
         <h3 style="margin:6px 0 10px">Schematic</h3>
+
         <div class="schem-box">
-          <div>
-            <div class="t">Schematic placeholder</div>
-            <div>Reducer with taps \(p_1\), \(p_2\), inverted U-tube manometer (oil, SG &lt; 1), reading \(h\).</div>
+          <img
+            src="../assets/thumbs/3.9.png"
+            alt="Schematic of a reducer with pressure taps and an inverted U-tube manometer"
+            class="schem-img"
+            loading="lazy"
+          />
+          <div class="schem-cap">
+            Reducer schematic
           </div>
         </div>
       </div>

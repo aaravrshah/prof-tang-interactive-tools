@@ -5,128 +5,108 @@
   <title>Feedback & Ideas</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
-  <!-- Supabase JS v2 -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
-    .wrap{max-width:860px;margin:0 auto}
-    .form{display:grid;gap:14px}
-    .row{display:grid;gap:12px;grid-template-columns:1fr}
-    @media(min-width:720px){ .row{grid-template-columns:1fr 1fr} }
-    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
-    .ctl label{font-size:14px;color:var(--ink)}
-    .ctl input[type="text"], .ctl input[type="email"], .ctl select, .ctl textarea{
-      width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;font:inherit
+    .wrap{max-width:1100px;margin:0 auto}
+
+    /* Make the embed feel like a page, not a tiny widget */
+    .form-card{padding:0; overflow:hidden}
+    .embed-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      background:#fff;
     }
-    .ctl textarea{min-height:140px;resize:vertical}
-    .req::after{content:" *"; color:var(--danger)}
-    .hint{font-size:12.5px;color:#6b7280;margin-top:6px}
+    .embed-header h2{margin:0;font-size:18px}
+    .embed-header p{margin:2px 0 0;color:#6b7280;font-size:13px}
+    .embed-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
-    .files{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-    .file-pill{display:flex;gap:8px;align-items:center;border:1px solid var(--line);
-      border-radius:10px;padding:6px 8px;background:#fff;font-size:12px}
-    .thumb{width:80px;height:60px;object-fit:cover;border:1px solid var(--line);border-radius:8px}
-    .remove{border:none;background:#fee2e2;color:#7f1d1d;border:1px solid #fecaca;border-radius:6px;padding:4px 6px;cursor:pointer}
-    .remove:hover{filter:brightness(0.97)}
-
-    .btnbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;
-      border:1px solid var(--line);background:#fff;text-decoration:none;color:inherit;cursor:pointer}
+    .btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:10px 14px;border-radius:10px;
+      border:1px solid var(--line);
+      background:#fff;
+      text-decoration:none;color:inherit;
+      cursor:pointer;
+      font-weight:600;
+    }
     .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
     .btn.primary:hover{filter:brightness(1.05)}
-    .btn.primary[disabled]{opacity:.65;cursor:not-allowed}
 
-    .status{margin-top:8px;min-height:22px;font-size:14px}
-    .success{color:#065f46;background:#ecfdf5;border:1px solid #d1fae5;border-radius:10px;padding:10px}
-    .error{color:#7f1d1d;background:#fef2f2;border:1px solid #fee2e2;border-radius:10px;padding:10px}
-    .pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 8px;background:#fff;font-size:12px}
+    /* Big, clean iframe */
+    .form-embed{
+      width:100%;
+      height:82vh;           /* big enough that it doesn't feel cramped */
+      min-height:720px;      /* keeps it tall on desktop */
+      border:0;
+      display:block;
+      background:#fff;
+    }
 
-    /* Honeypot (hidden from sighted users) */
-    .hp{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden}
+    /* Small helper note */
+    .helper{
+      padding:10px 16px 14px;
+      color:#6b7280;
+      font-size:13px;
+      background:#fff;
+      border-top:1px solid var(--line);
+    }
+
+    /* Your existing header/back styles (match other pages) */
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .back-row{display:flex;align-items:center;margin:12px 0 14px}
+    .back-home{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:6px 10px;border:1px solid var(--line);border-radius:999px;
+      background:#fff;color:#0ea5e9;text-decoration:none;font-size:14px;
+    }
+    .back-home:hover{background:#f0f9ff}
+    .back-home .chev{font-size:16px;line-height:1}
   </style>
 </head>
+
 <body>
   <header class="site-header">
     <div class="container wrap">
-      <h1>Feedback & Ideas</h1>
-      <p class="subtitle">Tell us what would make these tools clearer or more useful. No ratings — just your thoughts.
-        Files and screenshots are welcome.</p>
+      <h1 style="margin:0">Feedback &amp; Ideas</h1>
+      <p class="subtitle" style="margin-top:6px">
+        Help improve these tools. Course + simulation can auto-fill based on where you came from.
+      </p>
+
       <div class="back-row">
-        <a class="back-home" href="./index.html" aria-label="Back to home"><span class="chev">←</span> Home</a>
+        <a class="back-home" href="./index.html" aria-label="Back to home">
+          <span class="chev">←</span> Home
+        </a>
       </div>
     </div>
   </header>
 
   <main class="container wrap">
-    <section class="card">
-      <form id="fbForm" class="form" novalidate>
-        <!-- Context -->
-        <div class="row">
-          <div class="ctl">
-            <label for="course">Course (optional)</label>
-            <select id="course" name="course">
-              <option value="">—</option>
-              <option>ME 310</option>
-              <option>ME 320</option>
-              <option>ME 400</option>
-              <option>Other</option>
-            </select>
-            <div class="hint">If you came from a simulation, this may auto-fill via the URL.</div>
-          </div>
-          <div class="ctl">
-            <label for="sim">Simulation/page (optional)</label>
-            <input id="sim" name="sim" type="text" placeholder="e.g., Moody, Isentropic, Bernoulli">
-            <div class="hint">Auto-filled when possible. Edit if needed.</div>
-          </div>
+    <section class="card form-card">
+      <div class="embed-header">
+        <div>
+          <h2>Open the form below</h2>
+          <p id="ctxLine">Prefilling context…</p>
         </div>
-
-        <!-- Subject + Message -->
-        <div class="ctl">
-          <label for="subject" class="req">Subject</label>
-          <input id="subject" name="subject" type="text" maxlength="140" placeholder="Subject (max 140 chars)" required>
+        <div class="embed-actions">
+          <a id="openFormBtn" class="btn primary" href="#" target="_blank" rel="noopener">Open form</a>
         </div>
+      </div>
 
-        <div class="ctl">
-          <label for="message" class="req">Your message</label>
-          <textarea id="message" name="message" placeholder="How can we improve this website?" required></textarea>
-          <div class="hint">Say anything you like — no minimum length.</div>
-        </div>
+      <iframe
+        id="msFormFrame"
+        class="form-embed"
+        title="Feedback & Ideas (Microsoft Form)"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allow="fullscreen"
+      ></iframe>
 
-        <!-- Attachments -->
-        <div class="ctl">
-          <label for="files">Attachments (optional)</label>
-          <input id="files" name="files" type="file" multiple
-                 accept="image/*,.pdf,.csv,.txt,.zip,.doc,.docx,.ppt,.pptx,.xlsx,.json" />
-          <div class="hint">Up to 5 files, ≤ 15 MB each. Click “× Remove” to remove a file before submitting.</div>
-          <div id="filePreview" class="files"></div>
-        </div>
-
-        <!-- Contact (optional) -->
-        <div class="row">
-          <div class="ctl">
-            <label><input type="checkbox" id="okContact"> Okay to contact me</label>
-            <div class="hint">If checked, you can provide an email below (optional).</div>
-          </div>
-          <div class="ctl">
-            <label for="email">Email (optional)</label>
-            <input id="email" name="email" type="email" placeholder="netID@illinois.edu" disabled>
-          </div>
-        </div>
-
-        <!-- Honeypot -->
-        <div class="hp">
-          <label for="nickname">If you are a human, leave this blank</label>
-          <input id="nickname" name="nickname" type="text" autocomplete="off">
-        </div>
-
-        <!-- Buttons -->
-        <div class="btnbar">
-          <button id="submitBtn" class="btn primary" type="submit">Submit feedback</button>
-          <span id="draftBadge" class="pill" style="display:none">Draft saved</span>
-        </div>
-
-        <!-- Status -->
-        <div id="status" class="status" aria-live="polite"></div>
-      </form>
+      <div class="helper">
+        If the embedded form looks odd in your browser (ad blockers / third-party settings), click “Open form”.
+      </div>
     </section>
   </main>
 
@@ -135,228 +115,92 @@
       <p>&copy; <span id="year"></span> UIUC • Prof. Tang • Interactive Tools</p>
     </div>
   </footer>
-  <script>document.getElementById('year').textContent=new Date().getFullYear();</script>
 
   <script>
-    // ---------- Supabase setup ----------
-    const SUPABASE_URL = "https://zyjmmbhptbawauupedto.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp5am1tYmhwdGJhd2F1dXBlZHRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYyMzkwMDYsImV4cCI6MjA3MTgxNTAwNn0.y9Z1LsuGc3CIwnXI7PWybdAiKwSmINOxQ7NwdFHwsRo";
-    const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-    // ---------- Elements ----------
-    const $ = id => document.getElementById(id);
-    const form = $('fbForm'), statusEl = $('status'), draftBadge = $('draftBadge');
-    const fields = { course:$('course'), sim:$('sim'), subject:$('subject'), message:$('message'),
-                     okContact:$('okContact'), email:$('email'), files:$('files') };
+    // ====== CONFIG ======
+    // Use the "response page" link (forms.office.com is perfect).
+    const BASE_FORM_URL =
+      "https://forms.office.com/Pages/ResponsePage.aspx?id=b35GRCxGok6CP3gA3lQ04z3-gWze26lJrPNAvD0xDLlURUU5MVNHTkJWTVRSRUlMVTdRWFRIUElBSS4u";
 
-    // ---------- Draft / helpers ----------
-    const DRAFT_KEY = 'feedback_draft_v4';
-    const limit = { maxFiles:5, maxBytes:15*1024*1024 };
-    let selectedFiles = []; // authoritative list we will upload
+    // These are the per-question parameter keys Microsoft gave you in the prefilled URL.
+    // From your example:
+    const FIELD_COURSE = "rbf7c4dae51aa4203acd15fc86bf622e0";
+    const FIELD_SIM    = "re20f1bdb957a4eb4986d7efe2381522d";
+    // Feedback text field (optional to prefill; we usually leave blank)
+    const FIELD_MSG    = "ra084e24b4c2d4708a82b7856269dde83";
 
-    const fmtTime = d => d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-    function setStatus(html, cls){ statusEl.className = 'status ' + (cls||''); statusEl.innerHTML = html || ''; }
-    function showSuccess(msg){ setStatus(`<div class="success">${msg}</div>`); }
-    function showError(msg){ setStatus(`<div class="error">${msg}</div>`); }
-
-    function saveDraftBadge(){
-      draftBadge.textContent = `Draft saved ${fmtTime(new Date())}`;
-      draftBadge.style.display='inline-block';
-      clearTimeout(saveDraftBadge._t); saveDraftBadge._t=setTimeout(()=>draftBadge.style.display='none',1500);
+    // Map your site course strings -> the exact choice text in the form.
+    function mapCourseToFormChoice(courseStr){
+      const s = (courseStr || "").toLowerCase();
+      if (s.includes("310") || s.includes("fluid")) return "Fluid Mechanics";
+      if (s.includes("320") || s.includes("heat"))  return "Heat Transfer";
+      if (s.includes("200") || s.includes("thermo"))return "Thermodynamics";
+      // fallback: if already one of the options, pass through
+      if (courseStr === "Fluid Mechanics" || courseStr === "Heat Transfer" || courseStr === "Thermodynamics") {
+        return courseStr;
+      }
+      return ""; // no prefill
     }
 
-    function gatherDraft(){
-      return {
-        course: fields.course.value || '',
-        sim: fields.sim.value || '',
-        subject: fields.subject.value || '',
-        message: fields.message.value || '',
-        okContact: fields.okContact.checked,
-        email: fields.okContact.checked ? (fields.email.value || '') : '',
-        fileNames: selectedFiles.map(f=>f.name)
-      };
+    // Encode for MS Forms:
+    // - Choice values often appear quoted in their prefill links. We’ll keep that behavior.
+    function encChoice(val){
+      if(!val) return "";
+      return encodeURIComponent('"' + val + '"');
     }
-    function restoreDraft(){
-      const raw = localStorage.getItem(DRAFT_KEY);
-      if(!raw) return;
-      try{
-        const d = JSON.parse(raw);
-        fields.course.value = d.course || '';
-        fields.sim.value = d.sim || '';
-        fields.subject.value = d.subject || '';
-        fields.message.value = d.message || '';
-        fields.okContact.checked = !!d.okContact;
-        fields.email.disabled = !fields.okContact.checked;
-        fields.email.value = d.email || '';
-        // file names are just hints; users must reattach
-        if (d.fileNames?.length) {
-          setStatus(`(Reattach files: ${d.fileNames.join(', ')})`);
-        }
-      }catch{}
+    function encText(val){
+      return encodeURIComponent(val || "");
     }
-    function saveDraft(){ localStorage.setItem(DRAFT_KEY, JSON.stringify(gatherDraft())); saveDraftBadge(); }
 
-    // ---------- Query string context ----------
-    (function applyQS(){
+    // ====== Read context (URL params first, then localStorage fallback) ======
+    function readContext(){
       const qs = new URLSearchParams(location.search);
-      if(qs.has('course')) fields.course.value = qs.get('course');
-      if(qs.has('sim')) fields.sim.value = qs.get('sim');
+
+      let course = qs.get("course") || "";
+      let sim    = qs.get("sim") || "";
+
+      // fallback: your existing fb_ctx {course, sim}
+      if(!course || !sim){
+        try{
+          const ctx = JSON.parse(localStorage.getItem("fb_ctx") || "{}");
+          course = course || (ctx.course || "");
+          sim    = sim    || (ctx.sim || "");
+        }catch{}
+      }
+
+      return { course, sim };
+    }
+
+    // ====== Build final URL and set iframe + open button ======
+    (function init(){
+      const { course, sim } = readContext();
+
+      const courseChoice = mapCourseToFormChoice(course);
+      const ctxLine = document.getElementById("ctxLine");
+
+      const parts = [BASE_FORM_URL];
+
+      if(courseChoice){
+        parts.push("&" + FIELD_COURSE + "=" + encChoice(courseChoice));
+      }
+      if(sim){
+        parts.push("&" + FIELD_SIM + "=" + encText(sim));
+      }
+      // Leave feedback message empty by default:
+      // parts.push("&" + FIELD_MSG + "=" + encText(""));
+
+      const finalUrl = parts.join("");
+
+      // Update UI
+      const prettyCourse = courseChoice ? (courseChoice) : (course || "—");
+      const prettySim = sim || "—";
+      ctxLine.textContent = `Course: ${prettyCourse}   •   Simulation: ${prettySim}`;
+
+      document.getElementById("msFormFrame").src = finalUrl;
+      document.getElementById("openFormBtn").href = finalUrl;
     })();
-
-    // ---------- File selection & removal ----------
-    function refreshPreview(){
-      const box = $('filePreview'); box.innerHTML='';
-      selectedFiles.forEach((f, idx)=>{
-        const pill = document.createElement('div'); pill.className='file-pill';
-        if(f.type.startsWith('image/')){
-          const img = document.createElement('img'); img.className='thumb'; img.alt=f.name;
-          img.src = URL.createObjectURL(f); pill.appendChild(img);
-        }
-        const meta = document.createElement('div');
-        meta.textContent = `${f.name} (${(f.size/1024/1024).toFixed(2)} MB)`;
-        const rm = document.createElement('button'); rm.className='remove'; rm.type='button'; rm.textContent='× Remove';
-        rm.addEventListener('click', ()=>{ selectedFiles.splice(idx,1); refreshPreview(); saveDraft(); });
-        pill.appendChild(meta); pill.appendChild(rm); box.appendChild(pill);
-      });
-    }
-
-    fields.files.addEventListener('change', ()=>{
-      const incoming = Array.from(fields.files.files);
-      for(const f of incoming){
-        if(selectedFiles.length >= limit.maxFiles) { showError(`Max ${limit.maxFiles} files.`); break; }
-        if(f.size > limit.maxBytes) { showError(`"${f.name}" exceeds 15 MB.`); continue; }
-        // avoid duplicate by name+size
-        if(!selectedFiles.some(x => x.name===f.name && x.size===f.size)) selectedFiles.push(f);
-      }
-      fields.files.value = ''; // allow re-adding same name later
-      refreshPreview(); saveDraft();
-    });
-
-    // ---------- Enable/disable email ----------
-    fields.okContact.addEventListener('change', ()=>{
-      fields.email.disabled = !fields.okContact.checked;
-      if(!fields.okContact.checked) fields.email.value='';
-      saveDraft();
-    });
-
-    // ---------- Autosave wiring ----------
-    ['input','change','keyup'].forEach(evt=>{
-      form.addEventListener(evt, e=>{
-        if(e.target && e.target.id==='nickname') return; // ignore honeypot
-        saveDraft();
-      });
-    });
-
-    // Restore any saved draft
-    restoreDraft();
-
-    // ---------- Submit ----------
-    form.addEventListener('submit', async (e)=>{
-      e.preventDefault();
-      setStatus('');
-      const submitBtn = $('submitBtn');
-      submitBtn.disabled = true; submitBtn.textContent = 'Submitting…';
-
-      // honeypot
-      if(($('nickname').value||'').trim() !== ''){
-        showSuccess('Thanks!'); submitBtn.disabled=false; submitBtn.textContent='Submit feedback'; return;
-      }
-
-      const subject = fields.subject.value.trim();
-      const message = fields.message.value.trim();
-      if(!subject || !message){
-        showError('Please provide a subject and a message.');
-        submitBtn.disabled=false; submitBtn.textContent='Submit feedback';
-        return;
-      }
-
-      // payload (we’ll add file info after uploads)
-      const payload = {
-        course: fields.course.value || null,
-        simulation: fields.sim.value || null,
-        subject, message,
-        ok_to_contact: fields.okContact.checked,
-        email: fields.okContact.checked && fields.email.value ? fields.email.value.trim() : null,
-        context: {
-          page_url: location.href,
-          user_agent: navigator.userAgent,
-          viewport: { w: window.innerWidth, h: window.innerHeight }
-        },
-        files: []
-      };
-
-      // uploads (if any)
-      try{
-        for(const f of selectedFiles){
-          const folder = new Date().toISOString().slice(0,10);
-          const key = `${folder}/${crypto.randomUUID()}_${f.name.replace(/[^\w.\-]+/g,'_').slice(-80)}`;
-          const { error } = await supa.storage.from('feedback_uploads').upload(key, f, {
-            cacheControl: '3600', upsert: false, contentType: f.type || undefined
-          });
-          if(error) throw error;
-          const { data: pub } = supa.storage.from('feedback_uploads').getPublicUrl(key);
-          payload.files.push({ path:key, name:f.name, type:f.type||null, size:f.size, public_url: pub?.publicUrl || null });
-        }
-      }catch(err){
-        showError('Upload failed. Try smaller files or submit without attachments.');
-        submitBtn.disabled=false; submitBtn.textContent='Submit feedback';
-        return;
-      }
-
-      // insert feedback
-      try{
-        const { error } = await supa.from('feedback').insert(payload);
-        if(error) throw error;
-
-        // success: reset everything
-        form.reset(); fields.email.disabled = true;
-        selectedFiles = []; refreshPreview();
-        localStorage.removeItem(DRAFT_KEY);
-        showSuccess('Thank you! Your feedback was submitted successfully.');
-      }catch(err){
-        // show full message so you can diagnose quickly
-        showError(`Could not save your feedback. (${err.message || err})`);
-      }finally{
-        submitBtn.disabled=false; submitBtn.textContent='Submit feedback';
-      }
-    });
-
-    // Keyboard shortcut: Cmd/Ctrl+Enter to submit
-    document.addEventListener('keydown', (e)=>{
-      if((e.metaKey || e.ctrlKey) && e.key === 'Enter'){ $('submitBtn').click(); }
-    });
   </script>
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const qs = new URLSearchParams(location.search);
-    let ctx = {};
-    try { ctx = JSON.parse(localStorage.getItem('fb_ctx')) || {}; } catch {}
-
-    const course = qs.get('course') ?? ctx.course ?? '';
-    const sim    = qs.get('sim')    ?? ctx.sim    ?? '';
-
-    // Helper that works for input or select; tries by id first, then by name.
-    function setVal(selector, value) {
-      if (!value) return;
-      const el = document.querySelector(selector);
-      if (!el) return;
-      if (el.tagName === 'SELECT') {
-        const match = [...el.options].find(o => o.value === value || o.text === value);
-        el.value = match ? match.value : value;
-      } else {
-        el.value = value;
-      }
-    }
-
-    setVal('#course', course);
-    setVal('input[name="course"]', course);
-    setVal('select[name="course"]', course);
-
-    setVal('#sim', sim);
-    setVal('input[name="sim"]', sim);
-    setVal('select[name="sim"]', sim);
-  });
-</script>
-
 </body>
 </html>
