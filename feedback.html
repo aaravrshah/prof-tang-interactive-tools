@@ -8,55 +8,18 @@
   <style>
     .wrap{max-width:1100px;margin:0 auto}
 
-    /* Make the embed feel like a page, not a tiny widget */
-    .form-card{padding:0; overflow:hidden}
-    .embed-header{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:14px 16px;
-      border-bottom:1px solid var(--line);
-      background:#fff;
+    /* ===== Make header/banner compact on this page only ===== */
+    .site-header{min-height:auto !important}
+    .site-header .container{
+      padding-top:16px !important;
+      padding-bottom:14px !important;
     }
-    .embed-header h2{margin:0;font-size:18px}
-    .embed-header p{margin:2px 0 0;color:#6b7280;font-size:13px}
-    .embed-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .site-header h1{font-size:28px !important; line-height:1.15}
+    .site-header .subtitle{margin-top:6px !important; margin-bottom:0 !important; max-width:75ch}
+    /* Reduce extra spacing that some pages get from global header-row styles */
+    .header-row{padding:0 !important; margin:0 !important}
 
-    .btn{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:10px 14px;border-radius:10px;
-      border:1px solid var(--line);
-      background:#fff;
-      text-decoration:none;color:inherit;
-      cursor:pointer;
-      font-weight:600;
-    }
-    .btn.primary{background:var(--accent);color:#fff;border-color:transparent}
-    .btn.primary:hover{filter:brightness(1.05)}
-
-    /* Big, clean iframe */
-    .form-embed{
-      width:100%;
-      height:82vh;           /* big enough that it doesn't feel cramped */
-      min-height:720px;      /* keeps it tall on desktop */
-      border:0;
-      display:block;
-      background:#fff;
-    }
-
-    /* Small helper note */
-    .helper{
-      padding:10px 16px 14px;
-      color:#6b7280;
-      font-size:13px;
-      background:#fff;
-      border-top:1px solid var(--line);
-    }
-
-    /* Your existing header/back styles (match other pages) */
-    .site-header .container{padding-top:20px;padding-bottom:20px}
-    .back-row{display:flex;align-items:center;margin:12px 0 14px}
+    .back-row{display:flex;align-items:center;margin:10px 0 0}
     .back-home{
       display:inline-flex;align-items:center;gap:6px;
       padding:6px 10px;border:1px solid var(--line);border-radius:999px;
@@ -64,16 +27,36 @@
     }
     .back-home:hover{background:#f0f9ff}
     .back-home .chev{font-size:16px;line-height:1}
+
+    /* ===== Embed card: minimal chrome ===== */
+    .form-card{padding:0; overflow:hidden}
+    .form-embed{
+      width:100%;
+      height:86vh;
+      min-height:820px;
+      border:0;
+      display:block;
+      background:#fff;
+    }
+    .helper{
+      padding:10px 14px 12px;
+      border-top:1px solid var(--line);
+      background:#fff;
+      color:#6b7280;
+      font-size:13px;
+    }
   </style>
 </head>
 
 <body>
   <header class="site-header">
     <div class="container wrap">
-      <h1 style="margin:0">Feedback &amp; Ideas</h1>
-      <p class="subtitle" style="margin-top:6px">
-        Help improve these tools. Course + simulation can auto-fill based on where you came from.
-      </p>
+      <div class="header-row">
+        <div>
+          <h1 style="margin:0">Feedback &amp; Ideas</h1>
+          <p class="subtitle">Tell us how we can improve these tools.</p>
+        </div>
+      </div>
 
       <div class="back-row">
         <a class="back-home" href="./index.html" aria-label="Back to home">
@@ -85,16 +68,6 @@
 
   <main class="container wrap">
     <section class="card form-card">
-      <div class="embed-header">
-        <div>
-          <h2>Open the form below</h2>
-          <p id="ctxLine">Prefilling context…</p>
-        </div>
-        <div class="embed-actions">
-          <a id="openFormBtn" class="btn primary" href="#" target="_blank" rel="noopener">Open form</a>
-        </div>
-      </div>
-
       <iframe
         id="msFormFrame"
         class="form-embed"
@@ -102,10 +75,12 @@
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
         allow="fullscreen"
+        src=""
       ></iframe>
 
       <div class="helper">
-        If the embedded form looks odd in your browser (ad blockers / third-party settings), click “Open form”.
+        If the embedded form doesn’t load properly in your browser, open it directly:
+        <a id="directLink" href="#" target="_blank" rel="noopener">Microsoft Form link</a>.
       </div>
     </section>
   </main>
@@ -119,49 +94,30 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // ====== CONFIG ======
-    // Use the "response page" link (forms.office.com is perfect).
+    // ====== Microsoft Forms base URL ======
     const BASE_FORM_URL =
       "https://forms.office.com/Pages/ResponsePage.aspx?id=b35GRCxGok6CP3gA3lQ04z3-gWze26lJrPNAvD0xDLlURUU5MVNHTkJWTVRSRUlMVTdRWFRIUElBSS4u";
 
-    // These are the per-question parameter keys Microsoft gave you in the prefilled URL.
-    // From your example:
+    // Prefill field keys (from your prefilled link)
     const FIELD_COURSE = "rbf7c4dae51aa4203acd15fc86bf622e0";
     const FIELD_SIM    = "re20f1bdb957a4eb4986d7efe2381522d";
-    // Feedback text field (optional to prefill; we usually leave blank)
-    const FIELD_MSG    = "ra084e24b4c2d4708a82b7856269dde83";
 
-    // Map your site course strings -> the exact choice text in the form.
     function mapCourseToFormChoice(courseStr){
       const s = (courseStr || "").toLowerCase();
       if (s.includes("310") || s.includes("fluid")) return "Fluid Mechanics";
       if (s.includes("320") || s.includes("heat"))  return "Heat Transfer";
       if (s.includes("200") || s.includes("thermo"))return "Thermodynamics";
-      // fallback: if already one of the options, pass through
       if (courseStr === "Fluid Mechanics" || courseStr === "Heat Transfer" || courseStr === "Thermodynamics") {
         return courseStr;
       }
-      return ""; // no prefill
+      return "";
     }
 
-    // Encode for MS Forms:
-    // - Choice values often appear quoted in their prefill links. We’ll keep that behavior.
-    function encChoice(val){
-      if(!val) return "";
-      return encodeURIComponent('"' + val + '"');
-    }
-    function encText(val){
-      return encodeURIComponent(val || "");
-    }
-
-    // ====== Read context (URL params first, then localStorage fallback) ======
     function readContext(){
       const qs = new URLSearchParams(location.search);
-
       let course = qs.get("course") || "";
       let sim    = qs.get("sim") || "";
 
-      // fallback: your existing fb_ctx {course, sim}
       if(!course || !sim){
         try{
           const ctx = JSON.parse(localStorage.getItem("fb_ctx") || "{}");
@@ -169,37 +125,27 @@
           sim    = sim    || (ctx.sim || "");
         }catch{}
       }
-
-      return { course, sim };
+      return { course: (course||"").trim(), sim: (sim||"").trim() };
     }
 
-    // ====== Build final URL and set iframe + open button ======
-    (function init(){
-      const { course, sim } = readContext();
-
+    function buildUrl({course, sim}){
+      const u = new URL(BASE_FORM_URL);
       const courseChoice = mapCourseToFormChoice(course);
-      const ctxLine = document.getElementById("ctxLine");
-
-      const parts = [BASE_FORM_URL];
 
       if(courseChoice){
-        parts.push("&" + FIELD_COURSE + "=" + encChoice(courseChoice));
+        u.searchParams.set(FIELD_COURSE, `"${courseChoice}"`);
       }
       if(sim){
-        parts.push("&" + FIELD_SIM + "=" + encText(sim));
+        u.searchParams.set(FIELD_SIM, sim);
       }
-      // Leave feedback message empty by default:
-      // parts.push("&" + FIELD_MSG + "=" + encText(""));
+      return u.toString();
+    }
 
-      const finalUrl = parts.join("");
-
-      // Update UI
-      const prettyCourse = courseChoice ? (courseChoice) : (course || "—");
-      const prettySim = sim || "—";
-      ctxLine.textContent = `Course: ${prettyCourse}   •   Simulation: ${prettySim}`;
-
+    (function init(){
+      const { course, sim } = readContext();
+      const finalUrl = buildUrl({course, sim});
       document.getElementById("msFormFrame").src = finalUrl;
-      document.getElementById("openFormBtn").href = finalUrl;
+      document.getElementById("directLink").href = finalUrl;
     })();
   </script>
 </body>
