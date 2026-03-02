@@ -1,0 +1,486 @@
+<!-- /me310/1.6.21.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Laminar Flow of Two Fluids Through Three Plates</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <!-- MathJax -->
+  <script>
+    window.MathJax = { chtml:{scale:0.92}, options:{renderActions:{addMenu:[]}} };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <style>
+    :root{ --plot-min-h: 420px; --Y_TITLE_PAD: 15px; }
+
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+
+    /* ===== TOP: left content + right sticky schematic ===== */
+    .top-grid{display:grid;gap:12px;align-items:start}
+    @media(min-width:980px){
+      /* make schematic column wider for this problem */
+      .top-grid{grid-template-columns:1.05fr 0.95fr}
+    }
+    .stack{display:grid;gap:12px}
+    .sticky-schem{position:sticky;top:12px;align-self:start}
+
+    .schem-box{
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:#fff;
+      padding:10px;
+    }
+    .schem-ph{
+      /* wider than tall */
+      height:360px;
+      border:2px dashed var(--line);
+      border-radius:12px;
+      background:#fafcff;
+      display:grid;
+      place-items:center;
+      text-align:center;
+      color:#64748b;
+      padding:14px;
+    }
+    .schem-ph .t{font-weight:800;color:#334155;margin-bottom:8px}
+    .schem-cap{margin:8px 2px 0;font-size:13px;color:#64748b;line-height:1.35}
+
+    /* ===== BOTTOM: inputs + plot ===== */
+    .io-grid{display:grid;gap:12px;align-items:stretch;margin-top:12px}
+    @media(min-width:1024px){ .io-grid{grid-template-columns:0.90fr 1.60fr} }
+
+    .inputs-grid{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    }
+    .ctl>label{display:block;font-size:13px;color:#4b5563;margin-bottom:6px}
+    .pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .pair input[type="number"]{
+      width:100%;
+      padding:6px 8px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:#fff;
+    }
+    .pair input[type="range"]{width:100%}
+
+    .kpis{
+      display:grid;
+      gap:10px;
+      margin-top:10px;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    }
+    .kpi{
+      background:#fcfcff;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    .kpi .lab{font-size:12px;color:#6b7280}
+    .kpi .val{font-size:16px;font-weight:700;color:#111;margin-top:2px}
+
+    .plot-wrap{display:flex;flex-direction:column;height:100%}
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .plot-wrap .viz{
+      flex:1 1 auto;
+      display:flex;
+      padding:14px;
+      border-radius:14px;
+    }
+    .plot-wrap .viz svg{
+      width:100%;
+      display:block;
+      min-height:var(--plot-min-h);
+    }
+
+    .axis text{font-size:14px;fill:#111}
+    .axis-title{font-size:16px;fill:#111}
+    svg text{paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+    .curve{stroke:#111;fill:none;stroke-width:2}
+    .curve2{stroke:#111;fill:none;stroke-width:2;stroke-dasharray:8 6}
+    .dragpt{fill:var(--danger);stroke:#111;stroke-width:1.2}
+    .hit{fill:transparent;cursor:ew-resize}
+    .zeroline{stroke:#000;stroke-opacity:.18;stroke-dasharray:6 6}
+
+    .note-tight{font-size:13px;color:#64748b;margin-top:8px;line-height:1.35}
+    .mini{font-size:13px;color:#6b7280;margin:8px 0 0}
+    .given{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 10px;font-size:13px;color:#334155}
+  </style>
+</head>
+
+<body>
+<header class="site-header">
+  <div class="container">
+    <div class="header-row">
+      <h1 style="margin:0">Laminar Flow of Two Fluids Through Three Plates</h1>
+      <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <nav class="back-row">
+    <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
+  </nav>
+
+  <!-- ===== TOP SECTION ===== -->
+  <section class="top-grid">
+
+    <!-- LEFT: Problem + Solution -->
+    <div class="stack">
+      <section class="card ps">
+        <h3 style="margin:6px 0 10px">Problem Statement</h3>
+        <div class="eqwrap">
+          <h4 style="margin:0 0 6px">Known</h4>
+          <p style="margin:0 0 10px">
+            Three large plates are separated by thin layers of two Newtonian fluids, as shown in the figure.
+            The thicknesses of the two fluid layers are \(a\) and \(b\), respectively.
+          </p>
+          <p style="margin:0 0 10px">
+            The top plate is moving to the right at a constant velocity
+            <span class="given">\(V_t = 0.5~\mathrm{m/s}\)</span>.
+          </p>
+
+          <h4 style="margin:0 0 6px">Find</h4>
+          <p style="margin:0">
+            Determine the velocity of the bottom plate moving to the left, \(V_b\), to keep the middle plate at rest.
+          </p>
+        </div>
+      </section>
+
+      <section class="card analysis-card">
+        <h3 style="margin:6px 0 8px">Solution</h3>
+
+        <div class="eqwrap" style="margin-top:8px">
+          <p style="margin:0 0 6px"><b>FBD for the middle plate for the \(x\) direction:</b></p>
+          <p style="margin:0 0 10px">
+            To keep the middle plate at rest, we must have the force balance in the \(x\) direction:
+          </p>
+          \[
+            F_{\text{shear},1} = F_{\text{shear},2}
+          \]
+        </div>
+
+        <div class="eqwrap" style="margin-top:10px">
+          \[
+            F_{\text{shear},1} = \tau_1 A = \left(\mu_1 \frac{du_1}{dy}\right)A
+            = \mu_1\left(\frac{V_t-0}{a}\right)A = \mu_1\frac{V_t}{a}A
+          \]
+          \[
+            F_{\text{shear},2} = \tau_2 A = \left(\mu_2 \frac{du_2}{dy}\right)A
+            = \mu_2\left(\frac{V_b-0}{b}\right)A = \mu_2\frac{V_b}{b}A
+          \]
+        </div>
+
+        <div class="eqwrap" style="margin-top:10px">
+          <p style="margin:0 0 6px"><b>Thus,</b></p>
+          \[
+            \mu_1\frac{V_t}{a}A = \mu_2\frac{V_b}{b}A
+          \]
+          \[
+            V_b = \frac{\mu_1}{\mu_2}\frac{b}{a}\,V_t
+          \]
+        </div>
+
+        <p class="mini">
+          Fluid 1 is water: \( \mu_1 = 1.00\times 10^{-3}~\mathrm{Pa\cdot s} \).
+        </p>
+      </section>
+    </div>
+
+    <!-- RIGHT: Sticky schematic placeholder -->
+    <aside class="sticky-schem" aria-label="Schematic">
+      <div class="card">
+        <h3 style="margin:6px 0 10px">Schematic</h3>
+
+        <div class="schem-box">
+          <div class="schem-ph">
+            <div>
+              <div class="t">Schematic placeholder</div>
+              <div>
+                Three parallel plates with two fluid layers:<br/>
+                Fluid 1 thickness \(a\) (top–middle), Fluid 2 thickness \(b\) (middle–bottom).<br/>
+                Top plate \(V_t\) to the right, bottom plate \(V_b\) to the left, middle plate at rest.
+              </div>
+            </div>
+          </div>
+          <div class="schem-cap">Replace with your diagram image later.</div>
+        </div>
+      </div>
+    </aside>
+
+  </section>
+
+  <!-- ===== BOTTOM SECTION ===== -->
+  <section class="io-grid" id="io">
+
+    <section class="card">
+      <h3 style="margin:6px 0 10px">Inputs &amp; Outputs</h3>
+
+      <div class="inputs-grid">
+        <div class="ctl">
+          <label>Thickness ratio, \(b/a\)</label>
+          <div class="pair">
+            <input id="ba" type="number" step="0.01" value="1.00">
+            <input id="ba_s" type="range" step="0.01">
+          </div>
+        </div>
+
+        <div class="ctl">
+          <label>Fluid 2</label>
+          <div class="pair">
+            <select id="fluid2" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#fff">
+              <option value="octane" selected>Octane</option>
+              <option value="mercury">Mercury</option>
+              <option value="water">Water</option>
+              <option value="custom">Custom…</option>
+            </select>
+            <input id="mu2" type="number" step="0.0001" value="0.0005">
+          </div>
+          <div class="note-tight">\( \mu_2 \) in \( \mathrm{Pa\cdot s} \)</div>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="lab">Bottom plate speed, \(V_b\) (m/s)</div>
+          <div class="val" id="Vb_out">—</div>
+        </div>
+        <div class="kpi">
+          <div class="lab">Using</div>
+          <div class="val" id="params">—</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card plot-wrap" id="plot-card">
+      <h3 style="margin:6px 0 10px">Plot</h3>
+      <div class="viz">
+        <svg id="plot" viewBox="0 0 720 420" aria-label="V vs b/a"></svg>
+      </div>
+      <div class="note-tight">
+        Solid line: \(V_b(b/a)\). Dashed line: \(V_t = 0.5~\mathrm{m/s}\). Drag the red point left/right to change \(b/a\).
+      </div>
+    </section>
+
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <a href="../index.html" class="back-home"><span class="chev">←</span> Home</a>
+  </div>
+</footer>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const fmt = (x, d=3) => (Number.isFinite(x) ? x.toFixed(d) : "—");
+
+  // Fixed values from the prompt
+  const mu1 = 1.00e-3;     // Pa·s (water)
+  const Vt_fixed = 0.5;    // m/s
+
+  // Ranges (not shown to user)
+  const R = {
+    ba: {min:0.5, max:1.5, step:0.01},
+    mu2: {min:0.0001, max:0.01, step:0.0001}
+  };
+
+  // Presets (as written on the sheet)
+  const MU2_PRESET = {
+    octane: 0.51e-3,
+    mercury: 1.55e-3,
+    water: 1.00e-3
+  };
+
+  const state = { ba: 1.00, mu2: MU2_PRESET.octane, fluid2: "octane" };
+
+  function Vb_mps({ba, mu2}){
+    if(!(ba > 0 && mu2 > 0)) return NaN;
+    return (mu1/mu2) * ba * Vt_fixed;
+  }
+
+  function setRanges(){
+    $("ba").min = R.ba.min; $("ba").max = R.ba.max; $("ba").step = R.ba.step;
+    $("ba_s").min = R.ba.min; $("ba_s").max = R.ba.max; $("ba_s").step = R.ba.step;
+
+    $("mu2").min = R.mu2.min; $("mu2").max = R.mu2.max; $("mu2").step = R.mu2.step;
+  }
+
+  function syncUIFromState(){
+    $("ba").value = state.ba.toFixed(2);
+    $("ba_s").value = state.ba.toFixed(2);
+
+    $("fluid2").value = state.fluid2;
+    $("mu2").value = state.mu2.toFixed(4);
+  }
+
+  function updateOutputs(){
+    const vb = Vb_mps(state);
+    $("Vb_out").textContent = Number.isFinite(vb) ? `${fmt(vb,4)} m/s` : "—";
+    $("params").textContent =
+      `μ₁=${(mu1*1e3).toFixed(2)}×10⁻³, μ₂=${(state.mu2*1e3).toFixed(2)}×10⁻³, b/a=${state.ba.toFixed(2)}`;
+  }
+
+  // ===== plot =====
+  const svg = d3.select("#plot");
+  const W = 720, H = 420;
+  const M = {l: 78, r: 18, t: 18, b: 66};
+  const PW = W - M.l - M.r;
+  const PH = H - M.t - M.b;
+
+  const X = [0.5, 1.5];
+  const Y = [0, 1.5];
+
+  const x = d3.scaleLinear().domain(X).range([0, PW]);
+  const y = d3.scaleLinear().domain(Y).range([PH, 0]);
+
+  const gPlot = svg.append("g").attr("transform", `translate(${M.l},${M.t})`);
+  gPlot.append("rect").attr("x",0).attr("y",0).attr("width",PW).attr("height",PH).attr("fill","#fff");
+
+  gPlot.append("g").attr("class","axis").attr("transform",`translate(0,${PH})`).call(d3.axisBottom(x).ticks(6));
+  gPlot.append("g").attr("class","axis").call(d3.axisLeft(y).ticks(6));
+
+  gPlot.append("text")
+    .attr("class","axis-title")
+    .attr("x", PW/2).attr("y", PH + 50)
+    .attr("text-anchor","middle")
+    .text("Thickness ratio, b/a");
+
+  const Y_TITLE_PAD = 15;
+  gPlot.append("text")
+    .attr("class","axis-title")
+    .attr("transform","rotate(-90)")
+    .attr("x", -PH/2)
+    .attr("y", -(Y_TITLE_PAD + 48))
+    .attr("text-anchor","middle")
+    .text("Speed, V (m/s)");
+
+  gPlot.append("line")
+    .attr("class","zeroline")
+    .attr("x1",0).attr("x2",PW)
+    .attr("y1",y(0)).attr("y2",y(0));
+
+  const vbPath = gPlot.append("path").attr("class","curve");
+  const vtPath = gPlot.append("path").attr("class","curve2");
+  const pt = gPlot.append("circle").attr("class","dragpt").attr("r",6);
+
+  // label text on the plot
+  const vbLabel = gPlot.append("text").attr("font-size",14).attr("fill","#111").attr("font-weight",700);
+  const vtLabel = gPlot.append("text").attr("font-size",14).attr("fill","#111").attr("font-weight",700);
+
+  const line = d3.line()
+    .defined(d => Number.isFinite(d.V))
+    .x(d => x(d.ba))
+    .y(d => y(clamp(d.V, Y[0], Y[1])));
+
+  const hit = gPlot.append("rect")
+    .attr("class","hit")
+    .attr("x",0).attr("y",0).attr("width",PW).attr("height",PH);
+
+  hit.call(
+    d3.drag().on("drag", (event) => {
+      const ba = clamp(x.invert(event.x), X[0], X[1]);
+      state.ba = Math.round(ba / R.ba.step) * R.ba.step;
+      syncUIFromState();
+      render();
+    })
+  );
+
+  function updateCurve(){
+    const pts = [];
+    for(let ba = X[0]; ba <= X[1] + 1e-9; ba += 0.01){
+      const V = Vb_mps({ba, mu2: state.mu2});
+      pts.push({ba, V});
+    }
+    vbPath.attr("d", line(pts));
+
+    const vtPts = [{ba:X[0], V:Vt_fixed}, {ba:X[1], V:Vt_fixed}];
+    vtPath.attr("d", line(vtPts));
+
+    // place labels near the right side
+    const vbRight = Vb_mps({ba:X[1], mu2: state.mu2});
+    vbLabel
+      .attr("x", x(X[1]) - 28)
+      .attr("y", y(clamp(vbRight, Y[0], Y[1])) - 8)
+      .attr("text-anchor","end")
+      .text("Vb");
+
+    vtLabel
+      .attr("x", x(X[1]) - 28)
+      .attr("y", y(Vt_fixed) - 8)
+      .attr("text-anchor","end")
+      .text("Vt");
+  }
+
+  function updatePoint(){
+    const vb = Vb_mps(state);
+    pt.attr("cx", x(state.ba))
+      .attr("cy", y(clamp(Number.isFinite(vb) ? vb : 0, Y[0], Y[1])));
+  }
+
+  function render(){
+    updateCurve();
+    updatePoint();
+    updateOutputs();
+  }
+
+  function readStateFromUI(){
+    state.ba = clamp(+($("ba").value || 1), R.ba.min, R.ba.max);
+
+    const f2 = $("fluid2").value;
+    state.fluid2 = f2;
+
+    if(f2 !== "custom"){
+      state.mu2 = MU2_PRESET[f2];
+      $("mu2").value = state.mu2.toFixed(4);
+      $("mu2").disabled = true;
+    }else{
+      $("mu2").disabled = false;
+      state.mu2 = clamp(+($("mu2").value || MU2_PRESET.octane), R.mu2.min, R.mu2.max);
+    }
+
+    syncUIFromState();
+  }
+
+  function bind(){
+    $("ba").addEventListener("input", ()=>{ readStateFromUI(); render(); });
+    $("ba_s").addEventListener("input", ()=>{ state.ba = +$("ba_s").value; syncUIFromState(); render(); });
+
+    $("fluid2").addEventListener("change", ()=>{ readStateFromUI(); render(); });
+    $("mu2").addEventListener("input", ()=>{ readStateFromUI(); render(); });
+  }
+
+  // feedback context
+  (function(){
+    const FEEDBACK = { course: "ME 310", sim: "Laminar Flow of Two Fluids Through Three Plates" };
+    document.addEventListener("DOMContentLoaded", () => {
+      const url = new URL("../feedback.html", location.href);
+      url.searchParams.set("course", FEEDBACK.course);
+      url.searchParams.set("sim", FEEDBACK.sim);
+      document.querySelectorAll("a.feedback-link").forEach(a => {
+        a.href = url.toString();
+        try { localStorage.setItem("fb_ctx", JSON.stringify(FEEDBACK)); } catch {}
+      });
+    });
+  })();
+
+  // init
+  setRanges();
+  // set initial preset behavior
+  $("mu2").disabled = true;
+  syncUIFromState();
+  bind();
+  render();
+</script>
+
+</body>
+</html>
