@@ -2,24 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Feedback & Ideas</title>
+  <title>Feedback</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="styles.css" />
   <style>
     .wrap{max-width:1100px;margin:0 auto}
 
-    /* ===== Make header/banner compact on this page only ===== */
+    /* ===== Banner: make it tiny (only the back button) ===== */
     .site-header{min-height:auto !important}
     .site-header .container{
-      padding-top:16px !important;
-      padding-bottom:14px !important;
+      padding-top:10px !important;
+      padding-bottom:10px !important;
     }
-    .site-header h1{font-size:28px !important; line-height:1.15}
-    .site-header .subtitle{margin-top:6px !important; margin-bottom:0 !important; max-width:75ch}
-    /* Reduce extra spacing that some pages get from global header-row styles */
+    /* remove any extra spacing from global header styles */
     .header-row{padding:0 !important; margin:0 !important}
 
-    .back-row{display:flex;align-items:center;margin:10px 0 0}
+    .back-row{display:flex;align-items:center;margin:0}
     .back-home{
       display:inline-flex;align-items:center;gap:6px;
       padding:6px 10px;border:1px solid var(--line);border-radius:999px;
@@ -28,12 +26,12 @@
     .back-home:hover{background:#f0f9ff}
     .back-home .chev{font-size:16px;line-height:1}
 
-    /* ===== Embed card: minimal chrome ===== */
+    /* ===== Embed card ===== */
     .form-card{padding:0; overflow:hidden}
     .form-embed{
       width:100%;
-      height:86vh;
-      min-height:820px;
+      height:90vh;
+      min-height:860px;
       border:0;
       display:block;
       background:#fff;
@@ -49,15 +47,9 @@
 </head>
 
 <body>
+  <!-- Banner only shows back button -->
   <header class="site-header">
     <div class="container wrap">
-      <div class="header-row">
-        <div>
-          <h1 style="margin:0">Feedback &amp; Ideas</h1>
-          <p class="subtitle">Tell us how we can improve these tools.</p>
-        </div>
-      </div>
-
       <div class="back-row">
         <a class="back-home" href="./index.html" aria-label="Back to home">
           <span class="chev">←</span> Home
@@ -71,7 +63,7 @@
       <iframe
         id="msFormFrame"
         class="form-embed"
-        title="Feedback & Ideas (Microsoft Form)"
+        title="Feedback (Microsoft Form)"
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
         allow="fullscreen"
@@ -98,52 +90,55 @@
     const BASE_FORM_URL =
       "https://forms.office.com/Pages/ResponsePage.aspx?id=b35GRCxGok6CP3gA3lQ04z3-gWze26lJrPNAvD0xDLlURUU5MVNHTkJWTVRSRUlMVTdRWFRIUElBSS4u";
 
-    // Prefill field keys (from your prefilled link)
-    const FIELD_COURSE = "rbf7c4dae51aa4203acd15fc86bf622e0";
-    const FIELD_SIM    = "re20f1bdb957a4eb4986d7efe2381522d";
-
-    function mapCourseToFormChoice(courseStr){
-      const s = (courseStr || "").toLowerCase();
-      if (s.includes("310") || s.includes("fluid")) return "Fluid Mechanics";
-      if (s.includes("320") || s.includes("heat"))  return "Heat Transfer";
-      if (s.includes("200") || s.includes("thermo"))return "Thermodynamics";
-      if (courseStr === "Fluid Mechanics" || courseStr === "Heat Transfer" || courseStr === "Thermodynamics") {
-        return courseStr;
-      }
-      return "";
-    }
+    // Prefill field keys (from your NEW prefilled link)
+    const FIELD_SIM   = "re20f1bdb957a4eb4986d7efe2381522d"; // Simulation/page
+    const FIELD_MSG   = "ra084e24b4c2d4708a82b7856269dde83"; // feedback input (leave blank)
+    const FIELD_NAME  = "r1fb27696bf4a4904938055d6cb47073f"; // name/contact (leave blank)
 
     function readContext(){
       const qs = new URLSearchParams(location.search);
-      let course = qs.get("course") || "";
-      let sim    = qs.get("sim") || "";
+      let sim = (qs.get("sim") || "").trim();
 
-      if(!course || !sim){
+      if(!sim){
         try{
           const ctx = JSON.parse(localStorage.getItem("fb_ctx") || "{}");
-          course = course || (ctx.course || "");
-          sim    = sim    || (ctx.sim || "");
+          sim = (ctx.sim || "").trim();
         }catch{}
       }
-      return { course: (course||"").trim(), sim: (sim||"").trim() };
+
+      // If opened from index/home context, do NOT prefill "Home"
+      if(sim.toLowerCase() === "home") sim = "";
+
+      return { sim };
     }
 
-    function buildUrl({course, sim}){
-      const u = new URL(BASE_FORM_URL);
-      const courseChoice = mapCourseToFormChoice(course);
+    // Force percent-encoding so spaces become %20 (not "+")
+    function encodeStrict(s){
+      return encodeURIComponent(s).replace(/%20/g, '%20');
+    }
 
-      if(courseChoice){
-        u.searchParams.set(FIELD_COURSE, `"${courseChoice}"`);
-      }
+    function buildUrl({ sim }){
+      const u = new URL(BASE_FORM_URL);
+
+      // Only prefill simulation/page if we actually have one
       if(sim){
-        u.searchParams.set(FIELD_SIM, sim);
+        // URLSearchParams will often render spaces as '+'. We override by setting manually.
+        // Build a clean query string using encodeURIComponent (spaces -> %20).
+        // We'll do it by constructing the final string ourselves.
+        const base = u.toString();
+        const q = `${FIELD_SIM}=${encodeURIComponent(sim)}`;
+        return `${base}&${q}`;
       }
+
       return u.toString();
     }
 
     (function init(){
-      const { course, sim } = readContext();
-      const finalUrl = buildUrl({course, sim});
+      const { sim } = readContext();
+
+      // Build URL (only includes sim when present)
+      const finalUrl = buildUrl({ sim });
+
       document.getElementById("msFormFrame").src = finalUrl;
       document.getElementById("directLink").href = finalUrl;
     })();
