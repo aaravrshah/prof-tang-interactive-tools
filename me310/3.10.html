@@ -1,14 +1,12 @@
-<!-- /me310/3.10.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Siphon and Cavitation (EGL / HGL)</title>
+  <title>Siphon and Cavitation (Energy Grade Line / Hydraulic Grade Line)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="../styles.css" />
   <script src="https://d3js.org/d3.v7.min.js"></script>
 
-  <!-- MathJax -->
   <script>
     window.MathJax = { chtml:{scale:0.92}, options:{renderActions:{addMenu:[]}} };
   </script>
@@ -20,7 +18,6 @@
     .ctl{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
     .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
 
-    /* ===== TOP: left content + right sticky schematic ===== */
     .top-grid{display:grid;gap:12px;align-items:start}
     @media(min-width:980px){ .top-grid{ grid-template-columns: 1.25fr 0.75fr; } }
     .stack{display:grid;gap:12px}
@@ -46,7 +43,6 @@
     .schem-ph .t{font-weight:800;color:#334155;margin-bottom:6px}
     .schem-cap{margin:8px 2px 0;font-size:13px;color:#64748b;line-height:1.35}
 
-    /* ===== BOTTOM: inputs + plots ===== */
     .io-grid{display:grid;gap:12px;align-items:stretch;margin-top:12px}
     @media(min-width:1024px){ .io-grid{ grid-template-columns: 0.95fr 1.55fr; } }
 
@@ -61,6 +57,13 @@
       background:#fff;
     }
     .pair input[type="range"]{width:100%}
+
+    input:disabled{
+      background:#f3f4f6 !important;
+      color:#6b7280 !important;
+      cursor:not-allowed;
+      opacity:1;
+    }
 
     .kpis{
       display:grid;
@@ -85,7 +88,11 @@
       padding:14px;
       border-radius:14px;
     }
-    .plot-wrap .viz svg{width:100%;display:block}
+    .plot-wrap .viz svg{
+      width:100%;
+      display:block;
+      min-height:var(--plot-min-h);
+    }
 
     .plot-stack{display:grid;gap:14px}
     .plot-card-title{margin:6px 0 10px}
@@ -109,7 +116,7 @@
 <header class="site-header">
   <div class="container">
     <div class="header-row">
-      <h1 style="margin:0">Siphon and Cavitation (EGL / HGL)</h1>
+      <h1 style="margin:0">Siphon and Cavitation (Energy Grade Line / Hydraulic Grade Line)</h1>
       <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
     </div>
   </div>
@@ -120,24 +127,29 @@
     <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
   </nav>
 
-  <!-- ===== TOP SECTION ===== -->
   <section class="top-grid">
-    <!-- LEFT: Problem + Notes-style approach 2 (2 → 3) -->
     <div class="stack">
       <section class="card ps">
         <h3 style="margin:6px 0 10px">Problem Statement</h3>
         <div class="eqwrap">
-          <h4 style="margin:0 0 6px">Given</h4>
+          <h4 style="margin:0 0 6px">Known</h4>
           <p style="margin:0 0 10px">
-            Water is siphoned from a large tank through a constant-diameter hose.
-            The outlet (point 3) is below the tank bottom, and the hose rises over a hill crest (point 2) at elevation \(H\).
+            Water at \(60^\circ\mathrm{F}\) is siphoned from a large tank through a constant-diameter hose. The outlet (point 3) is below the tank bottom, and the hose rises over a hill crest (point 2) at elevation \(H\).
+          </p>
+          <p style="margin:0 0 10px">
+            At incipient cavitation, the crest absolute pressure is
+            \[
+              p_{2,\mathrm{abs}} = 0.256~\mathrm{psia}.
+            \]
+          </p>
+          <p style="margin:0 0 10px">
+            Using atmospheric pressure,
+            \[
+              p_2 = p_{2,\mathrm{abs}} - p_{\mathrm{atm}} = 0.256 - 14.7 = -14.44~\mathrm{psig}.
+            \]
           </p>
 
-          <p style="margin:0 0 10px">
-            <b>Aside (cavitation):</b> When the pressure of a liquid drops below its saturation (vapor) pressure,
-            a phase change from liquid to vapor can generate vapor bubbles.
-          </p>
-
+          <h4 style="margin:0 0 6px">Find</h4>
           <p style="margin:0">
             Determine the maximum hill elevation \(H\) such that cavitation does not occur at the crest.
           </p>
@@ -145,7 +157,7 @@
       </section>
 
       <section class="card analysis-card">
-        <h3 style="margin:6px 0 8px">Solution</h3>
+        <h3 style="margin:6px 0 8px">Analysis</h3>
 
         <div class="eqwrap" style="margin-top:8px">
           <p style="margin:0 0 8px"><b>Apply Bernoulli between point (2) and point (3):</b></p>
@@ -155,25 +167,34 @@
             p_3 + \rho g z_3 + \frac{1}{2}\rho V_3^2
           \]
           <p style="margin:10px 0 0">
-            Because the hose diameter is constant, \(V_2=V_3\). Also, the outlet is a free jet so \(p_3=0\) (gage).
-            Therefore,
+            Because the hose diameter is constant, \(V_2 = V_3\). Also, the outlet is a free jet so \(p_3 = 0\) (gage). Therefore,
           </p>
           \[
             z_2 = z_3 - \frac{p_2}{\rho g}
           \]
           <p style="margin:10px 0 0">
-            With the tank bottom as the datum, \(z_2=H\) and \(z_3=-h_2\) where \(h_2\) is the outlet drop below the tank bottom.
-            Thus,
+            With the tank bottom as the datum, \(z_2 = H\) and \(z_3 = -h_2\). Thus,
           </p>
           \[
-            H = -h_2 - \frac{p_2}{\rho g} = -h_2 - \frac{p_2}{\gamma}
+            H = -h_2 - \frac{p_2}{\rho g}
+          \]
+          <p style="margin:10px 0 0">
+            For water at \(60^\circ\mathrm{F}\), the pressure corresponding to cavitation is the saturation pressure,
+            \(p_{2,\mathrm{abs}} = p_{\mathrm{sat}} = 0.256~\mathrm{psia}\). Converting to gage pressure gives
+          </p>
+          \[
+            p_2 = p_{2,\mathrm{abs}} - p_{\mathrm{atm}} = 0.256 - 14.7 = -14.44~\mathrm{psig}
+          \]
+          <p style="margin:10px 0 0">
+            so the maximum allowable crest height becomes
+          </p>
+          \[
+            H = -h_2 - \frac{p_2}{\rho g}.
           \]
         </div>
-
       </section>
     </div>
 
-    <!-- RIGHT: Sticky schematic placeholder -->
     <aside class="sticky-schem" aria-label="Schematic">
       <div class="card">
         <h3 style="margin:6px 0 10px">Schematic</h3>
@@ -184,7 +205,7 @@
               <div>
                 Tank bottom datum.<br/>
                 Crest (2) at \(H\). Outlet (3) at \(z_3=-h_2\).<br/>
-                Constant-diameter hose so \(V_2=V_3\). Free jet at (3) so \(p_3=0\) (gage).
+                Constant-diameter hose so \(V_2=V_3\). At cavitation, \(p_{2,\mathrm{abs}}=0.256~\mathrm{psia}\).
               </div>
             </div>
           </div>
@@ -194,9 +215,7 @@
     </aside>
   </section>
 
-  <!-- ===== BOTTOM SECTION ===== -->
   <section class="io-grid" id="io">
-    <!-- Inputs & Outputs -->
     <section class="card">
       <h3 style="margin:6px 0 10px">Inputs &amp; Outputs</h3>
 
@@ -210,52 +229,26 @@
         </div>
 
         <div class="ctl">
-          <label>Minimum allowable crest pressure, \(p_2\) (psig)</label>
+          <label>Given cavitation pressure, \(p_{2,\mathrm{abs}}\) (psia)</label>
           <div class="pair">
-            <input id="p2min" type="number" step="0.1" value="-14.4">
-            <input id="p2min_s" type="range" step="0.1">
-          </div>
-        </div>
-
-        <div class="ctl">
-          <label>Fluid specific weight, \(\gamma\) (lbf/ft\(^3\))</label>
-          <div class="pair">
-            <input id="gamma" type="number" step="0.1" value="62.4" disabled>
-            <input id="gamma_s" type="range" step="0.1" value="62.4" disabled>
-          </div>
-          <div class="mini-note">Fixed for water.</div>
-        </div>
-
-        <div class="ctl">
-          <label>Hill elevation, \(H\) (ft)</label>
-          <div class="pair">
-            <input id="H" type="number" step="0.1" value="28.2">
-            <input id="H_s" type="range" step="0.1">
+            <input id="p2abs_given" type="number" step="0.001" value="0.256" disabled>
+            <input type="range" value="0.256" disabled>
           </div>
         </div>
       </div>
 
       <div class="kpis">
         <div class="kpi">
-          <div class="lab">Maximum hill elevation, \(H_{\max}\) (ft)</div>
+          <div class="lab">Maximum hill elevation, \(H\) (ft)</div>
           <div class="val" id="Hmax">—</div>
         </div>
         <div class="kpi">
-          <div class="lab">Crest pressure at chosen \(H\), \(p_2(H)\) (psig)</div>
-          <div class="val" id="p2_at_H">—</div>
-        </div>
-        <div class="kpi">
-          <div class="lab">Cavitation check</div>
-          <div class="val" id="check">—</div>
+          <div class="lab">Converted gage pressure, \(p_2\) (psig)</div>
+          <div class="val" id="p2_out">—</div>
         </div>
       </div>
-
-      <p class="mini-note">
-        This page uses the notes-style approach: Bernoulli from (2) to (3) with \(V_2=V_3\) and \(p_3=0\) (gage).
-      </p>
     </section>
 
-    <!-- Plots -->
     <section class="card plot-wrap" id="plot-card">
       <h3 class="plot-card-title">Plots</h3>
 
@@ -264,14 +257,14 @@
           <svg id="plotELHGL" viewBox="0 0 760 360" aria-label="Energy line and hydraulic grade line"></svg>
         </div>
         <div class="mini-note">
-          Fixed y-axis range: \(-30\) to \(30\) ft. EGL: \(z+\dfrac{p}{\gamma}+\dfrac{V^2}{2g}\), HGL: \(z+\dfrac{p}{\gamma}\).
+          Energy Grade Line (EGL) and Hydraulic Grade Line (HGL) for the siphon at the maximum allowable crest height.
         </div>
 
         <div class="viz">
-          <svg id="plotHvsH2" viewBox="0 0 760 300" aria-label="Hmax vs h2"></svg>
+          <svg id="plotHvsH2" viewBox="0 0 760 360" aria-label="Maximum hill elevation versus outlet drop"></svg>
         </div>
         <div class="mini-note">
-          \(H_{\max} = -h_2 - \dfrac{p_2}{\gamma}\). Drag the red point left/right to change \(h_2\).
+          Maximum hill elevation \(H\) versus outlet drop \(h_2\) for water at \(60^\circ\mathrm{F}\). Drag the red point left/right to change \(h_2\).
         </div>
       </div>
     </section>
@@ -289,76 +282,53 @@
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const fmt = (x, d=2) => (Number.isFinite(x) ? (+x).toFixed(d) : "—");
 
-  // constants (US customary)
-  const g = 32.2;               // ft/s^2
-  const gamma = 62.4;           // lbf/ft^3 (water, fixed)
-  const FT2_PER_PSI = 144;      // (lbf/ft^2) per psi
-  const PSI_PER_FT2 = 1/144;
+  const FT_HEAD_PER_PSI_WATER = 144 / 62.37; // ft of water head per psi
 
-  // internal ranges
+  const P2_ABS_PSIA = 0.256;
+  const PATM_PSIA = 14.7;
+  const P2_GAGE_PSIG = P2_ABS_PSIA - PATM_PSIA;
+
   const R = {
-    h2:    {min: 0,   max: 25,  step:0.1},
-    p2min: {min:-15,  max:  0,  step:0.1},
-    H:     {min: 0,   max: 45,  step:0.1}
+    h2: {min: 0, max: 25, step: 0.1}
   };
 
-  const state = { h2: 5.0, p2min: -14.4, H: 28.2 };
+  const state = { h2: 5.0 };
 
   function setRanges(){
-    for(const k of ["h2","p2min","H"]){
-      const n = $(k), s = $(k+"_s");
-      n.min = R[k].min; n.max = R[k].max; n.step = R[k].step;
-      s.min = R[k].min; s.max = R[k].max; s.step = R[k].step;
-    }
+    const n = $("h2"), s = $("h2_s");
+    n.min = R.h2.min; n.max = R.h2.max; n.step = R.h2.step;
+    s.min = R.h2.min; s.max = R.h2.max; s.step = R.h2.step;
   }
 
   function syncUIFromState(){
-    $("h2").value = state.h2; $("h2_s").value = state.h2;
-    $("p2min").value = state.p2min; $("p2min_s").value = state.p2min;
-    $("H").value = state.H; $("H_s").value = state.H;
+    $("h2").value = state.h2.toFixed(1);
+    $("h2_s").value = state.h2.toFixed(1);
   }
 
   function readStateFromUI(){
-    state.h2    = clamp(+($("h2").value||0), R.h2.min, R.h2.max);
-    state.p2min = clamp(+($("p2min").value||-14.4), R.p2min.min, R.p2min.max);
-    state.H     = clamp(+($("H").value||0), R.H.min, R.H.max);
+    state.h2 = clamp(+($("h2").value || 0), R.h2.min, R.h2.max);
     syncUIFromState();
   }
 
-  // Hmax = -h2 - p2/gamma  (p2 in lbf/ft^2)
   function H_max(){
-    const p2_ft2 = state.p2min * FT2_PER_PSI; // lbf/ft^2
-    return -state.h2 - (p2_ft2/gamma);
-  }
-
-  // implied crest pressure at chosen H:  H = -h2 - p2/gamma  => p2 = -gamma(H + h2)
-  function p2_from_H_psig(H){
-    const p2_ft2 = -gamma * (H + state.h2);
-    return p2_ft2 * PSI_PER_FT2;
+    return -state.h2 - P2_GAGE_PSIG * FT_HEAD_PER_PSI_WATER;
   }
 
   function updateOutputs(){
-    const Hm = H_max();
-    const p2H = p2_from_H_psig(state.H);
-
-    $("Hmax").textContent = `${fmt(Hm,2)} ft`;
-    $("p2_at_H").textContent = `${fmt(p2H,2)} psig`;
-
-    const ok = (p2H >= state.p2min - 1e-9);
-    $("check").textContent = ok ? "No cavitation (p₂ ≥ p₂,min)" : "Cavitation likely (p₂ < p₂,min)";
+    $("Hmax").textContent = `${fmt(H_max(), 2)} ft`;
+    $("p2_out").textContent = `${fmt(P2_GAGE_PSIG, 2)} psig`;
   }
 
-  // ===== Plot 1: EGL & HGL (fixed y range -30..30) =====
   const svg1 = d3.select("#plotELHGL");
   const W1 = 760, H1 = 360;
-  const M1 = {l: 76, r: 22, t: 18, b: 58};
+  const M1 = {l: 108, r: 22, t: 18, b: 58};
   const PW1 = W1 - M1.l - M1.r;
   const PH1 = H1 - M1.t - M1.b;
   const gPlot1 = svg1.append("g").attr("transform", `translate(${M1.l},${M1.t})`);
   gPlot1.append("rect").attr("x",0).attr("y",0).attr("width",PW1).attr("height",PH1).attr("fill","#fff");
 
-  const x1 = d3.scaleLinear().domain([0,2]).range([0,PW1]); // 0:(1), 1:(2), 2:(3)
-  const y1 = d3.scaleLinear().domain([-30, 30]).range([PH1,0]); // fixed
+  const x1 = d3.scaleLinear().domain([0,2]).range([0,PW1]);
+  const y1 = d3.scaleLinear().domain([-30, 30]).range([PH1,0]);
 
   const ax1 = gPlot1.append("g").attr("class","axis").attr("transform",`translate(0,${PH1})`);
   const ay1 = gPlot1.append("g").attr("class","axis");
@@ -376,11 +346,11 @@
     .attr("class","axis-title")
     .attr("transform","rotate(-90)")
     .attr("x", -PH1/2)
-    .attr("y", -(15 + 48))
+    .attr("y", -(15 + 56))
     .attr("text-anchor","middle")
     .text("Head (ft)");
 
-  y1.ticks(10).forEach(t=>{
+  y1.ticks(10).forEach(t => {
     gPlot1.append("line")
       .attr("class","gridline")
       .attr("x1",0).attr("x2",PW1)
@@ -392,62 +362,52 @@
   const lblG = gPlot1.append("g");
 
   function renderELHGL(){
-    // illustrative free surface reference to keep the picture stable
     const z1ref = 15.0;
-
-    const z2v = state.H;
+    const z2v = H_max();
     const z3v = -state.h2;
 
-    const p1g = 0;
-    const p3g = 0;
-    const p2g = p2_from_H_psig(state.H);
-
-    const pHead1 = (p1g*FT2_PER_PSI)/gamma;
-    const pHead2 = (p2g*FT2_PER_PSI)/gamma;
-    const pHead3 = (p3g*FT2_PER_PSI)/gamma;
-
-    const vHead = (z1ref - z3v); // inviscid siphon to free jet
+    const pHead2 = P2_GAGE_PSIG * FT_HEAD_PER_PSI_WATER;
+    const vHead = z1ref - z3v;
 
     const HGL = [
-      {s:0, h: z1ref + pHead1},
-      {s:1, h: z2v  + pHead2},
-      {s:2, h: z3v  + pHead3}
+      {s:0, h: z1ref},
+      {s:1, h: z2v + pHead2},
+      {s:2, h: z3v}
     ];
     const EGL = [
-      {s:0, h: z1ref + pHead1 + 0},
-      {s:1, h: z2v  + pHead2 + vHead},
-      {s:2, h: z3v  + pHead3 + vHead}
+      {s:0, h: z1ref},
+      {s:1, h: z2v + pHead2 + vHead},
+      {s:2, h: z3v + vHead}
     ];
 
-    const L = d3.line().x(d=>x1(d.s)).y(d=>y1(d.h));
+    const L = d3.line().x(d => x1(d.s)).y(d => y1(d.h));
     pathEGL.attr("d", L(EGL));
     pathHGL.attr("d", L(HGL));
 
     lblG.selectAll("*").remove();
     lblG.append("text")
-      .attr("x", x1(1.55))
+      .attr("x", x1(1.52))
       .attr("y", y1(EGL[2].h) - 10)
       .attr("class","lbl")
       .text("EGL");
 
     lblG.append("text")
-      .attr("x", x1(1.55))
+      .attr("x", x1(1.52))
       .attr("y", y1(HGL[2].h) + 18)
       .attr("class","lbl")
       .text("HGL");
   }
 
-  // ===== Plot 2: Hmax vs h2 with draggable dot =====
   const svg2 = d3.select("#plotHvsH2");
-  const W2 = 760, H2 = 300;
-  const M2 = {l: 76, r: 22, t: 18, b: 58};
+  const W2 = 760, H2 = 360;
+  const M2 = {l: 108, r: 22, t: 18, b: 58};
   const PW2 = W2 - M2.l - M2.r;
   const PH2 = H2 - M2.t - M2.b;
   const gPlot2 = svg2.append("g").attr("transform", `translate(${M2.l},${M2.t})`);
   gPlot2.append("rect").attr("x",0).attr("y",0).attr("width",PW2).attr("height",PH2).attr("fill","#fff");
 
-  const x2 = d3.scaleLinear().domain([0, 25]).range([0,PW2]);     // h2
-  const y2 = d3.scaleLinear().domain([-30, 40]).range([PH2,0]);   // FIXED to capture full range
+  const x2 = d3.scaleLinear().domain([0, 25]).range([0,PW2]);
+  const y2 = d3.scaleLinear().domain([-10, 40]).range([PH2,0]);
 
   const ax2 = gPlot2.append("g").attr("class","axis").attr("transform",`translate(0,${PH2})`);
   const ay2 = gPlot2.append("g").attr("class","axis");
@@ -458,17 +418,17 @@
     .attr("class","axis-title")
     .attr("x", PW2/2).attr("y", PH2 + 46)
     .attr("text-anchor","middle")
-    .text("Outlet drop, h₂ (ft)");
+    .text("Outlet drop below tank bottom, h₂ (ft)");
 
   gPlot2.append("text")
     .attr("class","axis-title")
     .attr("transform","rotate(-90)")
     .attr("x", -PH2/2)
-    .attr("y", -(15 + 48))
+    .attr("y", -(15 + 56))
     .attr("text-anchor","middle")
-    .text("Maximum hill elevation, Hmax (ft)");
+    .text("Maximum hill elevation, H (ft)");
 
-  y2.ticks(10).forEach(t=>{
+  y2.ticks(10).forEach(t => {
     gPlot2.append("line")
       .attr("class","gridline")
       .attr("x1",0).attr("x2",PW2)
@@ -483,7 +443,6 @@
   const Hline = gPlot2.append("path").attr("class","curve");
   const dot = gPlot2.append("circle").attr("class","pt").attr("r",6);
 
-  // drag overlay
   const hit = gPlot2.append("rect")
     .attr("class","hit")
     .attr("x",0).attr("y",0).attr("width",PW2).attr("height",PH2);
@@ -499,18 +458,15 @@
 
   function renderHvsH2(){
     const pts = [];
-    const p2_ft2 = state.p2min * FT2_PER_PSI;
-    for(let hh=0; hh<=25+1e-9; hh+=0.2){
-      const Hm = -hh - (p2_ft2/gamma);
-      pts.push({hh, Hm});
+    for(let hh = 0; hh <= 25 + 1e-9; hh += 0.2){
+      pts.push({hh, Hm: -hh - P2_GAGE_PSIG * FT_HEAD_PER_PSI_WATER});
     }
-    const L = d3.line().x(d=>x2(d.hh)).y(d=>y2(d.Hm));
+    const L = d3.line().x(d => x2(d.hh)).y(d => y2(d.Hm));
     Hline.attr("d", L(pts));
 
-    const Hmcur = H_max();
     dot
       .attr("cx", x2(clamp(state.h2, 0, 25)))
-      .attr("cy", y2(clamp(Hmcur, -30, 40)));
+      .attr("cy", y2(clamp(H_max(), -10, 40)));
   }
 
   function renderAll(){
@@ -521,11 +477,14 @@
 
   function bindPair(numId, rangeId, key){
     const n = $(numId), s = $(rangeId);
-    n.addEventListener("input", ()=>{ readStateFromUI(); renderAll(); });
-    s.addEventListener("input", ()=>{ state[key] = +s.value; syncUIFromState(); renderAll(); });
+    n.addEventListener("input", () => { readStateFromUI(); renderAll(); });
+    s.addEventListener("input", () => {
+      state[key] = +s.value;
+      syncUIFromState();
+      renderAll();
+    });
   }
 
-  // feedback context
   (function(){
     const FEEDBACK = { course: "ME 310", sim: "Siphon and Cavitation" };
     document.addEventListener("DOMContentLoaded", () => {
@@ -539,12 +498,9 @@
     });
   })();
 
-  // init
   setRanges();
   syncUIFromState();
   bindPair("h2","h2_s","h2");
-  bindPair("p2min","p2min_s","p2min");
-  bindPair("H","H_s","H");
   renderAll();
 </script>
 </body>
