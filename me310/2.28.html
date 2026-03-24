@@ -40,6 +40,23 @@
 
     /* schematic axis label size */
     .schem-axis-label{font-size:18px;font-weight:600;fill:#111}
+  
+    /* consistency polish */
+    .header-row h1{font-size:clamp(1.75rem,2.1vw,2.2rem);line-height:1.12}
+    .note.title-xl,.title-xl{font-size:18px;line-height:1.22;color:#111}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
+    .controls{gap:12px}
+    .controls label,.ctl>label,.inputs-grid label,.inputs-row1 label,.inputs-row2 label{font-size:13px;color:#4b5563}
+    .hint,.dim-note,.mini-note,.mini{font-size:13px;color:#64748b;line-height:1.35}
+    .symgrid{display:grid;gap:0 18px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .kpi .lab,.out-label{font-size:12px;color:#6b7280}
+    .kpi .val,.out-value{font-size:16px;font-weight:700;color:#111}
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .axis text,svg .axis text{font-size:14px;fill:#111}
+    .axis-title,svg .axis-title{font-size:16px;fill:#111}
+    input[type="number"],select{font:inherit}
+
   </style>
 </head>
 <body>

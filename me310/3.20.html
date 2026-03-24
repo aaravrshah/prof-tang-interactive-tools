@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Velocity Measurement by the Venturi Meter</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="../styles.css" />
+
+  <script>window.MathJax={chtml:{scale:0.9},options:{renderActions:{addMenu:[]}}}</script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <style>
+    .site-header .container{padding-top:20px;padding-bottom:20px}
+    .header-row{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px solid #ffffff55;background:rgba(255,255,255,.12);color:#fff;text-decoration:none}
+    .btn.primary{background:var(--accent);border-color:transparent}
+
+    .top-grid{display:grid;gap:12px}
+    @media (min-width:1024px){ .top-grid{grid-template-columns:1.5fr .9fr} }
+
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;overflow-x:hidden}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff;overflow-x:hidden}
+    .eqbig{font-size:1.02em;margin-top:2px}
+    .eq-lines{display:grid;row-gap:6px}
+    .eq-lines .mjx-container{display:block}
+    .note.title-xl{font-size:16px;line-height:1.15}
+
+    .eq-schem{display:grid;gap:12px}
+    @media (min-width:840px){ .eq-schem{grid-template-columns:1.1fr .9fr} }
+
+    .schem{
+      min-height:220px;
+      border:2px dashed var(--line);
+      border-radius:12px;
+      background:#fafcff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      color:#64748b;
+      padding:16px;
+    }
+    .schem .ph-title{font-weight:800;color:#334155;margin-bottom:8px}
+
+    .controls{display:grid;gap:14px}
+    .rowflex{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .num-sm{width:170px}
+    .controls input.num-sm[type="number"]{width:170px !important}
+    .hint{font-size:12px;color:#6b7280;margin-top:4px}
+    .badge-lite{display:inline-block;padding:2px 8px;border:1px solid var(--line);border-radius:999px;font-size:12px;background:#fff}
+
+    .kpi{display:grid;gap:10px;margin-top:4px;grid-template-columns:repeat(2,minmax(120px,1fr))}
+    .kpi .lab{font-size:12px;color:#555}
+    .kpi .val{font-size:16px;font-weight:600}
+
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .axis text{font-size:14px;fill:#111}
+    .axis-title{font-size:15px;fill:#111}
+    svg text{paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+    .curve{stroke:#111;fill:none;stroke-width:2}
+    .dragpt{fill:#ef4444;stroke:#111;stroke-width:1.2}
+    .hit{fill:transparent;cursor:ew-resize}
+    .zeroline{stroke:#000;stroke-opacity:.18;stroke-dasharray:6 6}
+
+    .prop-card{padding:10px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .prop-stack{display:grid;row-gap:6px;justify-items:start}
+    .prop-stack .mjx-container{display:block}
+  
+    /* consistency polish */
+    .header-row h1{font-size:clamp(1.75rem,2.1vw,2.2rem);line-height:1.12}
+    .note.title-xl,.title-xl{font-size:18px;line-height:1.22;color:#111}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
+    .controls{gap:12px}
+    .controls label,.ctl>label,.inputs-grid label,.inputs-row1 label,.inputs-row2 label{font-size:13px;color:#4b5563}
+    .hint,.dim-note,.mini-note,.mini{font-size:13px;color:#64748b;line-height:1.35}
+    .symgrid{display:grid;gap:0 18px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .kpi .lab,.out-label{font-size:12px;color:#6b7280}
+    .kpi .val,.out-value{font-size:16px;font-weight:700;color:#111}
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .axis text,svg .axis text{font-size:14px;fill:#111}
+    .axis-title,svg .axis-title{font-size:16px;fill:#111}
+    input[type="number"],select{font:inherit}
+
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-row">
+        <h1 style="margin:0">Velocity Measurement by the Venturi Meter</h1>
+        <a class="btn primary feedback-link" href="../feedback.html" target="_blank" rel="noopener">Send feedback</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <nav class="back-row">
+      <a href="../index.html" class="back-home" aria-label="Back to home"><span class="chev">←</span> Home</a>
+    </nav>
+
+    <section class="top-grid">
+      <div class="ctl">
+        <div class="eq-schem">
+          <div class="eqwrap">
+            <div class="note title-xl" style="margin-bottom:10px"><b>Ideal Venturi-meter relation</b></div>
+            <div class="eqbig eq-lines">
+              \( p_1 + \tfrac{1}{2}\rho V_1^2 = p_2 + \tfrac{1}{2}\rho V_2^2 \)
+              \( Q = A_1V_1 = A_2V_2 \)
+              \( \displaystyle Q = A_2\sqrt{\frac{2(p_1-p_2)}{\rho\left[1-(A_2/A_1)^2\right]}} \)
+              \( \displaystyle V_1 = \frac{Q}{A_1},\qquad V_2 = \frac{Q}{A_2} \)
+            </div>
+
+            <div class="note" style="margin-top:10px">
+              <b>Symbols</b>
+              <div class="symgrid">
+                <ul>
+                  <li><b>Q</b> — theoretical volume flow rate (m<sup>3</sup>/s)</li>
+                  <li><b>V<sub>1</sub>, V<sub>2</sub></b> — average velocities at sections (1) and (2) (m/s)</li>
+                  <li><b>p<sub>1</sub> − p<sub>2</sub></b> — pressure difference across the meter (Pa)</li>
+                </ul>
+                <ul>
+                  <li><b>A<sub>1</sub>, A<sub>2</sub></b> — upstream and throat cross-sectional areas (m<sup>2</sup>)</li>
+                  <li><b>ρ</b> — fluid density (kg/m<sup>3</sup>)</li>
+                  <li><b>Assumptions</b> — horizontal, steady, inviscid, incompressible flow</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="schem" aria-label="Venturi meter schematic placeholder">
+            <div>
+              <div class="ph-title">Schematic placeholder</div>
+              <div>
+                Venturi meter with section (1) upstream and section (2) at the throat.<br/>
+                Add the actual sketch here later.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="viz" style="margin-top:12px">
+          <svg id="plot" viewBox="0 0 700 320" aria-label="Q versus pressure difference"></svg>
+        </div>
+      </div>
+
+      <div class="ctl">
+        <div class="controls">
+          <div>
+            <label>Fluid density, ρ (kg/m³)</label>
+            <input id="rho" class="num-sm" type="number" min="1" max="2000" step="1" value="1000" />
+            <div class="hint">Default shown for water. Change it to explore other incompressible fluids.</div>
+          </div>
+
+          <div>
+            <label>Upstream area, A<sub>1</sub> (m²)</label>
+            <input id="A1" class="num-sm" type="number" min="0.001" max="0.050" step="0.001" value="0.010" />
+          </div>
+
+          <div>
+            <label>Area ratio, A<sub>2</sub>/A<sub>1</sub></label>
+            <span id="ratioBadge" class="badge-lite">A₂ = —</span>
+            <input id="ratio" class="num-sm" type="number" min="0.20" max="0.90" step="0.01" value="0.50" />
+            <input id="ratioRange" type="range" min="0.20" max="0.90" step="0.01" value="0.50" />
+          </div>
+
+          <div>
+            <label>Pressure difference, Δp = p<sub>1</sub> − p<sub>2</sub> (Pa)</label>
+            <input id="dp" class="num-sm" type="number" min="0" max="10000" step="10" value="1000" />
+            <input id="dpRange" type="range" min="0" max="10000" step="10" value="1000" />
+          </div>
+
+          <div class="kpi">
+            <div><div class="lab">A₂ (m²)</div><div id="kpi_A2" class="val">—</div></div>
+            <div><div class="lab">Q (m³/s)</div><div id="kpi_Q" class="val">—</div></div>
+            <div><div class="lab">V₁ (m/s)</div><div id="kpi_V1" class="val">—</div></div>
+            <div><div class="lab">V₂ (m/s)</div><div id="kpi_V2" class="val">—</div></div>
+          </div>
+
+          <div class="prop-card">
+            <div class="prop-stack">
+              \[ Q \propto \sqrt{\Delta p} \]
+              \[ \Delta p = p_1 - p_2 \]
+              \[ z_1 = z_2 \quad \text{for horizontal flow} \]
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:12px">
+      <div class="note">
+        This page uses the <b>ideal</b> Venturi-meter equation for steady, inviscid, incompressible, horizontal flow between sections (1) and (2). The flowrate varies with the square root of the pressure difference across the meter. In practice, the actual measured flowrate is often slightly smaller than the theoretical value, so a discharge coefficient may be used.
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <a href="../index.html" class="back-home"><span class="chev">←</span> Home</a>
+    </div>
+  </footer>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+    const R = {
+      rho: {min:1, max:2000},
+      A1: {min:0.001, max:0.050},
+      ratio: {min:0.20, max:0.90},
+      dp: {min:0, max:10000}
+    };
+
+    const state = {
+      rho: 1000,
+      A1: 0.010,
+      ratio: 0.50,
+      dp: 1000
+    };
+
+    function calc(){
+      const rho = state.rho;
+      const A1 = state.A1;
+      const ratio = state.ratio;
+      const dp = state.dp;
+      const A2 = A1 * ratio;
+      const denom = rho * (1 - ratio*ratio);
+      const Q = (dp <= 0 || denom <= 0) ? 0 : A2 * Math.sqrt((2*dp)/denom);
+      const V1 = A1 > 0 ? Q / A1 : NaN;
+      const V2 = A2 > 0 ? Q / A2 : NaN;
+      return {A2, Q, V1, V2};
+    }
+
+    function syncUI(){
+      $('rho').value = state.rho;
+      $('A1').value = state.A1.toFixed(3);
+      $('ratio').value = state.ratio.toFixed(2);
+      $('ratioRange').value = state.ratio.toFixed(2);
+      $('dp').value = state.dp.toFixed(0);
+      $('dpRange').value = state.dp.toFixed(0);
+    }
+
+    function updateKPIs(){
+      const {A2,Q,V1,V2} = calc();
+      $('ratioBadge').textContent = `A₂ = ${A2.toFixed(4)} m²`;
+      $('kpi_A2').textContent = A2.toFixed(4);
+      $('kpi_Q').textContent = Q.toFixed(4);
+      $('kpi_V1').textContent = V1.toFixed(3);
+      $('kpi_V2').textContent = V2.toFixed(3);
+    }
+
+    const svg = d3.select('#plot');
+    const W = 700, H = 320;
+    const m = {l:72,r:20,t:18,b:56};
+    const iw = W - m.l - m.r;
+    const ih = H - m.t - m.b;
+
+    const x = d3.scaleLinear().domain([0, R.dp.max]).range([0, iw]);
+    const y = d3.scaleLinear().domain([0, 0.12]).range([ih, 0]);
+
+    const g = svg.append('g').attr('transform', `translate(${m.l},${m.t})`);
+    g.append('rect').attr('x',0).attr('y',0).attr('width',iw).attr('height',ih).attr('fill','#fff');
+
+    g.append('g')
+      .attr('class','axis')
+      .attr('transform', `translate(0,${ih})`)
+      .call(d3.axisBottom(x).ticks(6));
+
+    const yAxis = g.append('g').attr('class','axis');
+
+    g.append('text')
+      .attr('class','axis-title')
+      .attr('x', iw/2).attr('y', ih + 44)
+      .attr('text-anchor','middle')
+      .text('Pressure difference, Δp = p₁ − p₂ (Pa)');
+
+    g.append('text')
+      .attr('class','axis-title')
+      .attr('transform','rotate(-90)')
+      .attr('x', -ih/2)
+      .attr('y', -50)
+      .attr('text-anchor','middle')
+      .text('Theoretical flow rate, Q (m³/s)');
+
+    g.append('line')
+      .attr('class','zeroline')
+      .attr('x1',0).attr('x2',iw)
+      .attr('y1',y(0)).attr('y2',y(0));
+
+    const path = g.append('path').attr('class','curve');
+    const point = g.append('circle').attr('class','dragpt').attr('r',6);
+    const label = g.append('text').attr('font-size',14).attr('fill','#111').attr('font-weight',700);
+
+    const hit = g.append('rect')
+      .attr('class','hit')
+      .attr('x',0).attr('y',0).attr('width',iw).attr('height',ih);
+
+    hit.call(
+      d3.drag().on('drag', (event) => {
+        const dp = clamp(x.invert(event.x), R.dp.min, R.dp.max);
+        state.dp = Math.round(dp / 10) * 10;
+        syncUI();
+        render();
+      })
+    );
+
+    function updatePlot(){
+      const {rho, A1, ratio} = state;
+      const A2 = A1 * ratio;
+      const denom = rho * (1 - ratio*ratio);
+      const pts = [];
+      for(let dp = 0; dp <= R.dp.max + 1e-9; dp += 50){
+        const Q = (dp <= 0 || denom <= 0) ? 0 : A2 * Math.sqrt((2*dp)/denom);
+        pts.push({dp, Q});
+      }
+
+      const yMax = Math.max(0.02, d3.max(pts, d => d.Q) * 1.08);
+      y.domain([0, yMax]);
+      yAxis.call(d3.axisLeft(y).ticks(6));
+
+      const line = d3.line().x(d => x(d.dp)).y(d => y(d.Q));
+      path.attr('d', line(pts));
+
+      const {Q} = calc();
+      point.attr('cx', x(state.dp)).attr('cy', y(Q));
+
+      const lx = Math.min(iw - 10, x(state.dp) + 12);
+      const ly = Math.max(16, y(Q) - 10);
+      label.attr('x', lx).attr('y', ly).text('current');
+    }
+
+    function readState(){
+      state.rho = clamp(+($('rho').value || 1000), R.rho.min, R.rho.max);
+      state.A1 = clamp(+($('A1').value || 0.010), R.A1.min, R.A1.max);
+      state.ratio = clamp(+($('ratio').value || 0.50), R.ratio.min, R.ratio.max);
+      state.dp = clamp(+($('dp').value || 0), R.dp.min, R.dp.max);
+      syncUI();
+    }
+
+    function bind(){
+      $('rho').addEventListener('input', ()=>{ readState(); render(); });
+      $('A1').addEventListener('input', ()=>{ readState(); render(); });
+      $('ratio').addEventListener('input', ()=>{ readState(); render(); });
+      $('ratioRange').addEventListener('input', ()=>{
+        state.ratio = clamp(+$('ratioRange').value, R.ratio.min, R.ratio.max);
+        syncUI();
+        render();
+      });
+      $('dp').addEventListener('input', ()=>{ readState(); render(); });
+      $('dpRange').addEventListener('input', ()=>{
+        state.dp = clamp(+$('dpRange').value, R.dp.min, R.dp.max);
+        syncUI();
+        render();
+      });
+    }
+
+    function render(){
+      updateKPIs();
+      updatePlot();
+    }
+
+    (function(){
+      const FEEDBACK = { course: 'ME 310', sim: 'Velocity Measurement by the Venturi Meter' };
+      document.addEventListener('DOMContentLoaded', () => {
+        const url = new URL('../feedback.html', location.href);
+        url.searchParams.set('course', FEEDBACK.course);
+        url.searchParams.set('sim', FEEDBACK.sim);
+        document.querySelectorAll('a.feedback-link').forEach(a => {
+          a.href = url.toString();
+          try { localStorage.setItem('fb_ctx', JSON.stringify(FEEDBACK)); } catch {}
+        });
+      });
+    })();
+
+    syncUI();
+    bind();
+    render();
+  </script>
+</body>
+</html>

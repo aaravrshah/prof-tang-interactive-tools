@@ -13,7 +13,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
   <style>
-    :root{ --Y_TITLE_PAD: 15px; --plot-min-h: 360px; }
+    :root{ --Y_TITLE_PAD: 15px; --plot-min-h: 270px; }
 
     .ctl{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
     .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
@@ -81,12 +81,12 @@
     .kpi .val{font-size:16px;font-weight:700;color:#111;margin-top:2px}
 
     .plot-wrap{display:flex;flex-direction:column;height:100%}
-    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px}
     .plot-wrap .viz{
       flex:1 1 auto;
       display:flex;
-      padding:14px;
-      border-radius:14px;
+      padding:8px;
+      border-radius:12px;
     }
     .plot-wrap .viz svg{
       width:100%;
@@ -94,7 +94,7 @@
       min-height:var(--plot-min-h);
     }
 
-    .plot-stack{display:grid;gap:14px}
+    .plot-stack{display:grid;gap:10px}
     .plot-card-title{margin:6px 0 10px}
 
     .axis text{font-size:14px;fill:#111}
@@ -106,9 +106,23 @@
     .gridline{stroke:#0001}
     .zeroline{stroke:#000;stroke-opacity:.18;stroke-dasharray:6 6}
     .lbl{font-size:14px;fill:#111;stroke:none}
-    .mini-note{font-size:13px;color:#64748b;line-height:1.35;margin:8px 2px 0}
+    .mini-note{font-size:13px;color:#64748b;line-height:1.3;margin:4px 2px 0}
 
     .hit{fill:transparent;cursor:ew-resize}
+  
+    /* consistency polish */
+    .header-row h1{font-size:clamp(1.75rem,2.1vw,2.2rem);line-height:1.12}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
+    .ctl>label,.inputs-grid label{font-size:13px;color:#4b5563}
+    .kpi .lab{font-size:12px;color:#6b7280}
+    .kpi .val{font-size:16px;font-weight:700;color:#111}
+    .schem-cap,.note-tight,.mini-note,.mini{font-size:13px;color:#64748b;line-height:1.35}
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .axis text,svg .axis text{font-size:14px;fill:#111}
+    .axis-title,svg .axis-title{font-size:16px;fill:#111}
+    input[type="number"],select{font:inherit}
+
   </style>
 </head>
 
@@ -254,14 +268,14 @@
 
       <div class="plot-stack">
         <div class="viz">
-          <svg id="plotELHGL" viewBox="0 0 760 360" aria-label="Energy line and hydraulic grade line"></svg>
+          <svg id="plotELHGL" viewBox="0 0 760 290" aria-label="Energy line and hydraulic grade line"></svg>
         </div>
         <div class="mini-note">
           Energy Grade Line (EGL) and Hydraulic Grade Line (HGL) for the siphon at the maximum allowable crest height.
         </div>
 
         <div class="viz">
-          <svg id="plotHvsH2" viewBox="0 0 760 360" aria-label="Maximum hill elevation versus outlet drop"></svg>
+          <svg id="plotHvsH2" viewBox="0 0 760 290" aria-label="Maximum hill elevation versus outlet drop"></svg>
         </div>
         <div class="mini-note">
           Maximum hill elevation \(H\) versus outlet drop \(h_2\) for water at \(60^\circ\mathrm{F}\). Drag the red point left/right to change \(h_2\).
@@ -320,8 +334,8 @@
   }
 
   const svg1 = d3.select("#plotELHGL");
-  const W1 = 760, H1 = 360;
-  const M1 = {l: 108, r: 22, t: 18, b: 58};
+  const W1 = 760, H1 = 290;
+  const M1 = {l: 108, r: 20, t: 14, b: 50};
   const PW1 = W1 - M1.l - M1.r;
   const PH1 = H1 - M1.t - M1.b;
   const gPlot1 = svg1.append("g").attr("transform", `translate(${M1.l},${M1.t})`);
@@ -338,7 +352,7 @@
 
   gPlot1.append("text")
     .attr("class","axis-title")
-    .attr("x", PW1/2).attr("y", PH1 + 46)
+    .attr("x", PW1/2).attr("y", PH1 + 40)
     .attr("text-anchor","middle")
     .text("Point along siphon");
 
@@ -399,8 +413,8 @@
   }
 
   const svg2 = d3.select("#plotHvsH2");
-  const W2 = 760, H2 = 360;
-  const M2 = {l: 108, r: 22, t: 18, b: 58};
+  const W2 = 760, H2 = 290;
+  const M2 = {l: 108, r: 20, t: 14, b: 50};
   const PW2 = W2 - M2.l - M2.r;
   const PH2 = H2 - M2.t - M2.b;
   const gPlot2 = svg2.append("g").attr("transform", `translate(${M2.l},${M2.t})`);
@@ -416,7 +430,7 @@
 
   gPlot2.append("text")
     .attr("class","axis-title")
-    .attr("x", PW2/2).attr("y", PH2 + 46)
+    .attr("x", PW2/2).attr("y", PH2 + 40)
     .attr("text-anchor","middle")
     .text("Outlet drop below tank bottom, h₂ (ft)");
 

@@ -39,7 +39,18 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-
 .note{font-size:13.5px;color:var(--muted)}
 svg{width:100%;display:block}
 #bars{min-height:260px}
-</style>
+
+    /* consistency polish */
+    .site-header h1{font-size:clamp(1.75rem,2.1vw,2.2rem);line-height:1.12}
+    .card,.box{border-radius:14px}
+    .ctl{border-radius:var(--r-sm);padding:10px 12px}
+    .controls{gap:12px}
+    .ctl>label{font-size:13px;color:#4b5563}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .note{font-size:13px;color:#64748b;line-height:1.35}
+    input[type="number"],select{font:inherit}
+
+  </style>
 </head>
 <body>
 <header class="site-header">

@@ -55,6 +55,23 @@
     .prop-card{padding:10px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
     .prop-stack{display:grid;row-gap:6px;justify-items:start}
     .prop-stack .mjx-container{display:block}   /* each line is a block */
+  
+    /* consistency polish */
+    .header-row h1{font-size:clamp(1.75rem,2.1vw,2.2rem);line-height:1.12}
+    .note.title-xl,.title-xl{font-size:18px;line-height:1.22;color:#111}
+    .eqwrap{padding:12px;border:1px dashed var(--line);border-radius:12px;background:#fcfcff}
+    .ctl{background:#fff;border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px}
+    .controls{gap:12px}
+    .controls label,.ctl>label,.inputs-grid label,.inputs-row1 label,.inputs-row2 label{font-size:13px;color:#4b5563}
+    .hint,.dim-note,.mini-note,.mini{font-size:13px;color:#64748b;line-height:1.35}
+    .symgrid{display:grid;gap:0 18px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .kpi .lab,.out-label{font-size:12px;color:#6b7280}
+    .kpi .val,.out-value{font-size:16px;font-weight:700;color:#111}
+    .viz{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+    .axis text,svg .axis text{font-size:14px;fill:#111}
+    .axis-title,svg .axis-title{font-size:16px;fill:#111}
+    input[type="number"],select{font:inherit}
+
   </style>
 </head>
 <body>
@@ -76,7 +93,7 @@
       <div class="ctl">
         <div class="eq-schem">
           <div class="eqwrap">
-            <div class="note title-xl" style="margin-bottom:10px"><b>Velocity from Pitot–static pressure difference (incompressible)</b></div>
+            <div class="note title-xl" style="margin-bottom:10px"><b>Velocity from the Pitot–Static Pressure Difference</b></div>
             <div class="eqbig eq-lines">
               \( V \;=\; \sqrt{\frac{2\,\Delta p}{\rho}} \)
               \( \Delta p \,=\, p_{2}-p_{3} \)
@@ -302,7 +319,7 @@
     window.addEventListener('DOMContentLoaded', ()=>{ wire(); drawPlot(); });
     window.addEventListener('resize', drawPlot);
 
-    const FEEDBACK = { course: 'ME 310', sim: 'Velocity Measurement by the Pitot–Static Tube' };
+    const FEEDBACK = { course: 'ME 310', sim: 'Eq. 3.16: Pitot-static (incompressible)' };
     document.addEventListener('DOMContentLoaded', () => {
       const url = new URL('../feedback.html', location.href);
       url.searchParams.set('course', FEEDBACK.course);
